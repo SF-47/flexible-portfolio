@@ -1,3 +1,4 @@
+import { siteConfig } from "@/data/siteConfig";
 
 export default function Hero() {
   return (
@@ -7,23 +8,22 @@ export default function Hero() {
     >
       <div className="max-w-3xl">
         <p className="mb-6 text-sm font-semibold tracking-[0.3em] text-amber-400">
-          CONSTRUCTION & ENGINEERING
+          {siteConfig.company.tagline}
         </p>
 
         <h2 className="text-5xl font-bold leading-tight md:text-7xl">
-          Building the Future, Together.
+          {siteConfig.hero.title}
         </h2>
 
         <p className="mt-8 max-w-xl text-lg leading-relaxed text-slate-300">
-          We deliver modern construction solutions with quality,
-          precision, and trust.
+          {siteConfig.company.description}
         </p>
 
         <a
-          href="#projects"
+          href={siteConfig.hero.buttonLink}
           className="mt-10 inline-block bg-amber-400 px-8 py-4 font-semibold text-slate-950 transition hover:bg-amber-300"
         >
-          Explore Our Projects →
+          {siteConfig.hero.buttonText} →
         </a>
       </div>
     </section>

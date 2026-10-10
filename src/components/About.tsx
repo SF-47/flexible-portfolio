@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { siteConfig } from "@/data/siteConfig";
 
 export default function About() {
   return (
@@ -6,23 +7,19 @@ export default function About() {
       <div className="mx-auto grid max-w-7xl items-center gap-16 lg:grid-cols-2">
         <div>
           <p className="mb-4 text-sm font-semibold uppercase tracking-widest text-amber-600">
-            About Us
+            {siteConfig.about.label}
           </p>
 
           <h2 className="mb-6 text-4xl font-bold leading-tight md:text-5xl">
-            Building Excellence for Over 20 Years
+            {siteConfig.about.title}
           </h2>
 
           <p className="mb-5 leading-8 text-slate-600">
-            ATLAS Construction is a leading construction and engineering company
-            committed to delivering high-quality projects that stand the test of
-            time.
+            {siteConfig.about.description}
           </p>
 
           <p className="mb-8 leading-8 text-slate-600">
-            From residential buildings to large-scale commercial developments,
-            we combine innovation, expertise, and craftsmanship to bring every
-            vision to life.
+            {siteConfig.about.secondDescription}
           </p>
 
           <a
@@ -35,7 +32,7 @@ export default function About() {
 
         <div className="relative h-87.5 overflow-hidden rounded-lg md:h-125">
           <Image
-            src="/images/about.jpg"
+            src={siteConfig.about.image}
             alt="Construction project"
             fill
             sizes="(max-width: 1024px) 100vw, 50vw"
