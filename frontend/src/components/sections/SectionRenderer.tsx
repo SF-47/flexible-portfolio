@@ -1,11 +1,11 @@
+"use client";
+
 import { sectionRegistry } from "./sectionRegistry";
-import type { SectionConfig } from "@/types/section";
+import { useSections } from "@/hooks/useSections";
 
-interface SectionRendererProps {
-  sections: SectionConfig[];
-}
+export default function SectionRenderer() {
+  const { sections } = useSections();
 
-export default function SectionRenderer({ sections }: SectionRendererProps) {
   return (
     <>
       {[...sections]
@@ -13,6 +13,8 @@ export default function SectionRenderer({ sections }: SectionRendererProps) {
         .sort((a, b) => a.order - b.order)
         .map((section) => {
           const Component = sectionRegistry[section.type];
+
+          if (!Component) return null;
 
           return <Component key={section.id} />;
         })}
