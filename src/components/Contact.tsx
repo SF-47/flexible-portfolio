@@ -30,7 +30,7 @@ export default function Contact() {
     >
       <div className="mx-auto max-w-7xl">
         <div className="mb-14 max-w-2xl">
-          <p className="mb-4 text-sm font-semibold uppercase tracking-widest text-brand-accent">
+          <p className="mb-4 text-sm font-semibold uppercase tracking-widest text-brand-accent-text">
             Get In Touch
           </p>
 
@@ -47,7 +47,7 @@ export default function Contact() {
         <div className="grid gap-12 lg:grid-cols-2">
           <div className="space-y-8">
             <div className="flex items-start gap-5">
-              <MapPin className="mt-1 text-brand-accent" size={26} />
+              <MapPin className="mt-1 text-brand-accent-text" size={26} />
               <div>
                 <h3 className="mb-2 text-xl font-bold">Our Office</h3>
                 <p className="text-slate-600">Beirut, Lebanon</p>
@@ -55,12 +55,12 @@ export default function Contact() {
             </div>
 
             <div className="flex items-start gap-5">
-              <Phone className="mt-1 text-brand-accent" size={26} />
+              <Phone className="mt-1 text-brand-accent-text" size={26} />
               <div>
                 <h3 className="mb-2 text-xl font-bold">Call Us</h3>
                 <a
                   href="tel:+96170123456"
-                  className="text-slate-600 hover:text-brand-accent"
+                  className="text-slate-600 hover:text-brand-accent-text"
                 >
                   +961 70 123 456
                 </a>
@@ -68,12 +68,12 @@ export default function Contact() {
             </div>
 
             <div className="flex items-start gap-5">
-              <Mail className="mt-1 text-brand-accent" size={26} />
+              <Mail className="mt-1 text-brand-accent-text" size={26} />
               <div>
                 <h3 className="mb-2 text-xl font-bold">Email Us</h3>
                 <a
                   href="mailto:info@atlasconstruction.example"
-                  className="text-slate-600 hover:text-brand-accent"
+                  className="text-slate-600 hover:text-brand-accent-text"
                 >
                   info@atlasconstruction.example
                 </a>
@@ -153,14 +153,14 @@ export default function Contact() {
 
             <button
               type="submit"
-              className="flex items-center gap-3 rounded-lg bg-brand-accent px-8 py-4 font-semibold text-slate-950 transition hover:opacity-85"
+              className="flex items-center gap-3 rounded-lg bg-brand-accent px-8 py-4 font-semibold text-brand-on-accent transition hover:opacity-85"
             >
               Send Message
               <Send size={18} />
             </button>
 
             {submitted && (
-              <p role="status" className="text-sm text-amber-700">
+              <p role="status" className="text-sm text-brand-accent-text">
                 Demo only: your message was not sent or saved.
               </p>
             )}

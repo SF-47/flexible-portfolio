@@ -7,6 +7,9 @@ html {
 @theme inline {
   --color-brand-primary: var(--color-primary);
   --color-brand-accent: var(--color-accent);
+  --color-brand-accent-text: var(--color-accent-text);
   --color-brand-background: var(--color-background);
   --color-brand-text: var(--color-text);
+  --color-brand-on-primary: var(--color-on-primary);
+  --color-brand-on-accent: var(--color-on-accent);
 }

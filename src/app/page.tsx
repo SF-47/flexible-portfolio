@@ -1,24 +1,15 @@
 import Navbar from "@/components/Navbar";
-import Hero from "@/components/Hero";
-import About from "@/components/About";
-import Stats from "@/components/Stats";
-import Services from "@/components/Services";
-import Projects from "@/components/Projects";
-import Contact from "@/components/Contact";
 import Footer from "@/components/Footer";
 import SiteTheme from "@/components/SiteTheme";
+import SectionRenderer from "@/components/sections/SectionRenderer";
+import { sections } from "@/data/sections";
 
 export default function Home() {
   return (
     <SiteTheme>
-      <main className="min-h-screen bg-brand-primary text-white">
+      <main className="min-h-screen bg-brand-primary text-brand-on-primary">
         <Navbar />
-        <Hero />
-        <About />
-        <Stats />
-        <Services />
-        <Projects />
-        <Contact />
+        <SectionRenderer sections={sections} />
         <Footer />
       </main>
     </SiteTheme>

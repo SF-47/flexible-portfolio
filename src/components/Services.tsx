@@ -26,7 +26,7 @@ export default function Services() {
     >
       <div className="mx-auto max-w-7xl">
         <div className="mb-14 max-w-2xl">
-          <p className="mb-4 text-sm font-semibold uppercase tracking-widest text-brand-accent">
+          <p className="mb-4 text-sm font-semibold uppercase tracking-widest text-brand-accent-text">
             What We Do
           </p>
 
@@ -48,7 +48,7 @@ export default function Services() {
                 key={service.id}
                 className="group rounded-lg border border-slate-200 bg-brand-background p-8 transition duration-300 hover:-translate-y-2 hover:shadow-xl"
               >
-                <div className="mb-7 flex h-14 w-14 items-center justify-center rounded-lg bg-brand-accent/15 text-brand-accent">
+                <div className="mb-7 flex h-14 w-14 items-center justify-center rounded-lg bg-brand-accent/15 text-brand-accent-text">
                   <Icon size={28} />
                 </div>
 

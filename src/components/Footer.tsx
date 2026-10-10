@@ -3,7 +3,7 @@ import { FaFacebook, FaInstagram, FaLinkedin } from "react-icons/fa";
 
 export default function Footer() {
   return (
-    <footer className="bg-brand-primary px-8 pt-20 text-white md:px-20">
+    <footer className="bg-brand-primary px-8 pt-20 text-brand-on-primary md:px-20">
       <div className="mx-auto grid max-w-7xl gap-12 pb-16 md:grid-cols-2 lg:grid-cols-4">
         <div className="lg:col-span-2">
           <h2 className="mb-6 text-3xl font-bold tracking-widest">ATLAS.</h2>
@@ -77,7 +77,7 @@ export default function Footer() {
         </div>
       </div>
 
-      <div className="mx-auto flex max-w-7xl flex-col justify-between gap-4 border-t border-slate-800 py-7 text-sm text-slate-500 md:flex-row">
+      <div className="mx-auto flex max-w-7xl flex-col justify-between gap-4 border-t border-slate-800 py-7 text-sm text-slate-400 md:flex-row">
         <p>
           © {new Date().getFullYear()} ATLAS Construction. All rights reserved.
         </p>

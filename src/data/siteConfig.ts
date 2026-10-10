@@ -12,8 +12,11 @@ export const siteConfig = {
   theme: {
     primary: "#020617",
     accent: "#fbbf24",
+    accentText: "#b45309",
     background: "#ffffff",
     text: "#0f172a",
+    onPrimary: "#ffffff",
+    onAccent: "#020617",
   },
 
   hero: {

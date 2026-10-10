@@ -11,7 +11,7 @@ export default function Projects() {
     >
       <div className="mx-auto max-w-7xl">
         <div className="mb-14">
-          <p className="mb-4 text-sm font-semibold uppercase tracking-widest text-brand-accent">
+          <p className="mb-4 text-sm font-semibold uppercase tracking-widest text-brand-accent-text">
             Our Portfolio
           </p>
 
@@ -32,13 +32,13 @@ export default function Projects() {
                   className="object-cover transition duration-500 group-hover:scale-110"
                 />
 
-                <div className="absolute right-4 bottom-4 flex h-11 w-11 items-center justify-center rounded-full bg-brand-accent text-slate-950">
+                <div className="absolute right-4 bottom-4 flex h-11 w-11 items-center justify-center rounded-full bg-brand-accent text-brand-on-accent">
                   <ArrowUpRight size={22} />
                 </div>
               </div>
 
               <div className="mt-5">
-                <p className="mb-2 text-sm font-semibold text-brand-accent">
+                <p className="mb-2 text-sm font-semibold text-brand-accent-text">
                   {project.category}
                 </p>
 

@@ -21,7 +21,7 @@ export default function Hero() {
 
         <a
           href={siteConfig.hero.buttonLink}
-          className="mt-10 inline-block bg-brand-accent px-8 py-4 font-semibold text-slate-950 transition hover:opacity-85"
+          className="mt-10 inline-block bg-brand-accent px-8 py-4 font-semibold text-brand-on-accent transition hover:opacity-85"
         >
           {siteConfig.hero.buttonText} →
         </a>

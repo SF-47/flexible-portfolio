@@ -6,7 +6,7 @@ export default function About() {
     <section id="about" className="bg-brand-background px-8 py-24 text-brand-text md:px-20">
       <div className="mx-auto grid max-w-7xl items-center gap-16 lg:grid-cols-2">
         <div>
-          <p className="mb-4 text-sm font-semibold uppercase tracking-widest text-brand-accent">
+          <p className="mb-4 text-sm font-semibold uppercase tracking-widest text-brand-accent-text">
             {siteConfig.about.label}
           </p>
 
@@ -24,13 +24,13 @@ export default function About() {
 
           <a
             href="#services"
-            className="inline-block border-b-2 border-brand-accent pb-2 font-semibold transition hover:text-brand-accent"
+            className="inline-block border-b-2 border-brand-accent pb-2 font-semibold transition hover:text-brand-accent-text"
           >
             Discover Our Services →
           </a>
         </div>
 
-        <div className="relative h-87.5 overflow-hidden rounded-lg md:h-[500px]">
+        <div className="relative h-87.5 overflow-hidden rounded-lg md:h-125">
           <Image
             src={siteConfig.about.image}
             alt="Construction project"
