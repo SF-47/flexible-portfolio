@@ -3,10 +3,10 @@ import { siteConfig } from "@/data/siteConfig";
 
 export default function About() {
   return (
-    <section id="about" className="bg-white px-8 py-24 text-slate-900 md:px-20">
+    <section id="about" className="bg-brand-background px-8 py-24 text-brand-text md:px-20">
       <div className="mx-auto grid max-w-7xl items-center gap-16 lg:grid-cols-2">
         <div>
-          <p className="mb-4 text-sm font-semibold uppercase tracking-widest text-amber-600">
+          <p className="mb-4 text-sm font-semibold uppercase tracking-widest text-brand-accent">
             {siteConfig.about.label}
           </p>
 
@@ -24,13 +24,13 @@ export default function About() {
 
           <a
             href="#services"
-            className="inline-block border-b-2 border-amber-500 pb-2 font-semibold transition hover:text-amber-600"
+            className="inline-block border-b-2 border-brand-accent pb-2 font-semibold transition hover:text-brand-accent"
           >
             Discover Our Services →
           </a>
         </div>
 
-        <div className="relative h-87.5 overflow-hidden rounded-lg md:h-125">
+        <div className="relative h-87.5 overflow-hidden rounded-lg md:h-[500px]">
           <Image
             src={siteConfig.about.image}
             alt="Construction project"

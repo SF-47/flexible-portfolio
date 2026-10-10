@@ -26,11 +26,11 @@ export default function Contact() {
   return (
     <section
       id="contact"
-      className="bg-slate-100 px-8 py-24 text-slate-900 md:px-20"
+      className="bg-slate-100 px-8 py-24 text-brand-text md:px-20"
     >
       <div className="mx-auto max-w-7xl">
         <div className="mb-14 max-w-2xl">
-          <p className="mb-4 text-sm font-semibold uppercase tracking-widest text-amber-600">
+          <p className="mb-4 text-sm font-semibold uppercase tracking-widest text-brand-accent">
             Get In Touch
           </p>
 
@@ -47,7 +47,7 @@ export default function Contact() {
         <div className="grid gap-12 lg:grid-cols-2">
           <div className="space-y-8">
             <div className="flex items-start gap-5">
-              <MapPin className="mt-1 text-amber-600" size={26} />
+              <MapPin className="mt-1 text-brand-accent" size={26} />
               <div>
                 <h3 className="mb-2 text-xl font-bold">Our Office</h3>
                 <p className="text-slate-600">Beirut, Lebanon</p>
@@ -55,12 +55,12 @@ export default function Contact() {
             </div>
 
             <div className="flex items-start gap-5">
-              <Phone className="mt-1 text-amber-600" size={26} />
+              <Phone className="mt-1 text-brand-accent" size={26} />
               <div>
                 <h3 className="mb-2 text-xl font-bold">Call Us</h3>
                 <a
                   href="tel:+96170123456"
-                  className="text-slate-600 hover:text-amber-600"
+                  className="text-slate-600 hover:text-brand-accent"
                 >
                   +961 70 123 456
                 </a>
@@ -68,12 +68,12 @@ export default function Contact() {
             </div>
 
             <div className="flex items-start gap-5">
-              <Mail className="mt-1 text-amber-600" size={26} />
+              <Mail className="mt-1 text-brand-accent" size={26} />
               <div>
                 <h3 className="mb-2 text-xl font-bold">Email Us</h3>
                 <a
                   href="mailto:info@atlasconstruction.example"
-                  className="text-slate-600 hover:text-amber-600"
+                  className="text-slate-600 hover:text-brand-accent"
                 >
                   info@atlasconstruction.example
                 </a>
@@ -83,7 +83,7 @@ export default function Contact() {
 
           <form
             onSubmit={handleSubmit}
-            className="space-y-6 rounded-xl bg-white p-8 shadow-sm"
+            className="space-y-6 rounded-xl bg-brand-background p-8 shadow-sm"
           >
             <div>
               <label
@@ -103,7 +103,7 @@ export default function Contact() {
                   setSubmitted(false);
                 }}
                 placeholder="Your name"
-                className="w-full rounded-lg border border-slate-200 px-4 py-3 outline-none focus:border-amber-500"
+                className="w-full rounded-lg border border-slate-200 px-4 py-3 outline-none focus:border-brand-accent"
               />
             </div>
 
@@ -125,7 +125,7 @@ export default function Contact() {
                   setSubmitted(false);
                 }}
                 placeholder="you@example.com"
-                className="w-full rounded-lg border border-slate-200 px-4 py-3 outline-none focus:border-amber-500"
+                className="w-full rounded-lg border border-slate-200 px-4 py-3 outline-none focus:border-brand-accent"
               />
             </div>
 
@@ -147,13 +147,13 @@ export default function Contact() {
                   setSubmitted(false);
                 }}
                 placeholder="Tell us about your project..."
-                className="w-full resize-none rounded-lg border border-slate-200 px-4 py-3 outline-none focus:border-amber-500"
+                className="w-full resize-none rounded-lg border border-slate-200 px-4 py-3 outline-none focus:border-brand-accent"
               />
             </div>
 
             <button
               type="submit"
-              className="flex items-center gap-3 rounded-lg bg-amber-400 px-8 py-4 font-semibold text-slate-950 transition hover:bg-amber-300"
+              className="flex items-center gap-3 rounded-lg bg-brand-accent px-8 py-4 font-semibold text-slate-950 transition hover:opacity-85"
             >
               Send Message
               <Send size={18} />

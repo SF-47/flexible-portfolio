@@ -3,7 +3,7 @@ import { FaFacebook, FaInstagram, FaLinkedin } from "react-icons/fa";
 
 export default function Footer() {
   return (
-    <footer className="bg-slate-950 px-8 pt-20 text-white md:px-20">
+    <footer className="bg-brand-primary px-8 pt-20 text-white md:px-20">
       <div className="mx-auto grid max-w-7xl gap-12 pb-16 md:grid-cols-2 lg:grid-cols-4">
         <div className="lg:col-span-2">
           <h2 className="mb-6 text-3xl font-bold tracking-widest">ATLAS.</h2>
@@ -31,27 +31,27 @@ export default function Footer() {
 
           <ul className="space-y-4 text-slate-400">
             <li>
-              <a href="#home" className="hover:text-amber-400">
+              <a href="#home" className="hover:text-brand-accent">
                 Home
               </a>
             </li>
             <li>
-              <a href="#about" className="hover:text-amber-400">
+              <a href="#about" className="hover:text-brand-accent">
                 About
               </a>
             </li>
             <li>
-              <a href="#services" className="hover:text-amber-400">
+              <a href="#services" className="hover:text-brand-accent">
                 Services
               </a>
             </li>
             <li>
-              <a href="#projects" className="hover:text-amber-400">
+              <a href="#projects" className="hover:text-brand-accent">
                 Projects
               </a>
             </li>
             <li>
-              <a href="#contact" className="hover:text-amber-400">
+              <a href="#contact" className="hover:text-brand-accent">
                 Contact
               </a>
             </li>
@@ -69,7 +69,7 @@ export default function Footer() {
 
           <a
             href="#contact"
-            className="mt-8 inline-flex items-center gap-2 font-semibold text-amber-400"
+            className="mt-8 inline-flex items-center gap-2 font-semibold text-brand-accent"
           >
             Start a Project
             <ArrowUpRight size={18} />

@@ -3,3 +3,10 @@
 html {
   scroll-behavior: smooth;
 }
+
+@theme inline {
+  --color-brand-primary: var(--color-primary);
+  --color-brand-accent: var(--color-accent);
+  --color-brand-background: var(--color-background);
+  --color-brand-text: var(--color-text);
+}

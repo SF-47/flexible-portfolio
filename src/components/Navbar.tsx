@@ -8,13 +8,13 @@ export default function Navbar() {
       </h1>
 
       <div className="hidden items-center gap-8 md:flex">
-        <a href="#about" className="hover:text-amber-400">
+        <a href="#about" className="hover:text-brand-accent">
           About
         </a>
-        <a href="#services" className="hover:text-amber-400">
+        <a href="#services" className="hover:text-brand-accent">
           Services
         </a>
-        <a href="#projects" className="hover:text-amber-400">
+        <a href="#projects" className="hover:text-brand-accent">
           Projects
         </a>
       </div>

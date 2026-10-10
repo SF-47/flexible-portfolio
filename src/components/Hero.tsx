@@ -7,7 +7,7 @@ export default function Hero() {
       className="flex min-h-[calc(100vh-88px)] items-center px-8 py-20 md:px-20"
     >
       <div className="max-w-3xl">
-        <p className="mb-6 text-sm font-semibold tracking-[0.3em] text-amber-400">
+        <p className="mb-6 text-sm font-semibold tracking-[0.3em] text-brand-accent">
           {siteConfig.company.tagline}
         </p>
 
@@ -21,7 +21,7 @@ export default function Hero() {
 
         <a
           href={siteConfig.hero.buttonLink}
-          className="mt-10 inline-block bg-amber-400 px-8 py-4 font-semibold text-slate-950 transition hover:bg-amber-300"
+          className="mt-10 inline-block bg-brand-accent px-8 py-4 font-semibold text-slate-950 transition hover:opacity-85"
         >
           {siteConfig.hero.buttonText} →
         </a>
