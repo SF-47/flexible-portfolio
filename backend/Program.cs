@@ -1,12 +1,20 @@
+
+using backend.Data;
+using Microsoft.EntityFrameworkCore;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-
 builder.Services.AddControllers();
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 
-// Allow the Next.js frontend to call this API from the browser.
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
+    ?? throw new InvalidOperationException("Database connection string is missing.");
+
+builder.Services.AddDbContext<AppDbContext>(options =>
+{
+    options.UseMySQL(connectionString);
+});
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
@@ -19,19 +27,26 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
 }
 
 app.UseHttpsRedirection();
-
-// CORS must run after routing/redirection and before authorization.
 app.UseCors("AllowFrontend");
-
 app.UseAuthorization();
-
 app.MapControllers();
+
+if (app.Environment.IsDevelopment())
+{
+    app.MapGet("/dev/db-check", async (AppDbContext db) =>
+    {
+        var connected = await db.Database.CanConnectAsync();
+
+        return connected
+            ? Results.Ok(new { message = "MySQL connection successful" })
+            : Results.Problem("Unable to connect to MySQL.");
+    });
+}
 
 app.Run();
