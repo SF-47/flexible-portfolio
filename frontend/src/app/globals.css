@@ -1,10 +1,60 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 html {
   scroll-behavior: smooth;
 }
 
+/* Admin panel tokens; the public site keeps using the dynamic site theme. */
+:root {
+  --admin-bg: #f1f5f9;
+  --admin-surface: #ffffff;
+  --admin-subtle: #f8fafc;
+  --admin-border: #e2e8f0;
+  --admin-text: #0f172a;
+  --admin-muted: #64748b;
+  --admin-faint: #94a3b8;
+  --admin-accent: #b45309;
+}
+
+html.dark {
+  --admin-bg: #0b0f14;
+  --admin-surface: #151a21;
+  --admin-subtle: #1b212a;
+  --admin-border: #2a323c;
+  --admin-text: #f1f5f9;
+  --admin-muted: #94a3b8;
+  --admin-faint: #64748b;
+  --admin-accent: #fbbf24;
+}
+
+.admin-shell {
+  color-scheme: light;
+}
+
+html.dark .admin-shell {
+  color-scheme: dark;
+}
+
+@layer base {
+  .admin-shell input,
+  .admin-shell textarea,
+  .admin-shell select {
+    background-color: var(--admin-surface);
+    color: var(--admin-text);
+  }
+}
+
 @theme inline {
+  --color-admin-bg: var(--admin-bg);
+  --color-admin-surface: var(--admin-surface);
+  --color-admin-subtle: var(--admin-subtle);
+  --color-admin-border: var(--admin-border);
+  --color-admin-text: var(--admin-text);
+  --color-admin-muted: var(--admin-muted);
+  --color-admin-faint: var(--admin-faint);
+  --color-admin-accent: var(--admin-accent);
   --color-brand-primary: var(--color-primary);
   --color-brand-accent: var(--color-accent);
   --color-brand-accent-text: var(--color-accent-text);

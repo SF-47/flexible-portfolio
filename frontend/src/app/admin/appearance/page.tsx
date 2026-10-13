@@ -37,14 +37,14 @@ export default function AppearancePage() {
     <div className="mx-auto max-w-7xl space-y-8">
       <div>
         <h1 className="text-3xl font-bold">Appearance</h1>
-        <p className="mt-2 text-slate-500">
+        <p className="mt-2 text-admin-muted">
           Customize your website branding and visual style.
         </p>
       </div>
 
-      <section className="rounded-xl border border-slate-200 bg-white p-6">
+      <section className="rounded-xl border border-admin-border bg-admin-surface p-6">
         <div className="mb-6 flex items-center gap-3">
-          <Palette className="text-amber-600" />
+          <Palette className="text-admin-accent" />
           <h2 className="text-xl font-bold">Theme Presets</h2>
         </div>
 
@@ -53,7 +53,7 @@ export default function AppearancePage() {
             <div
               key={theme.name}
               className={`overflow-hidden rounded-xl border-2 ${
-                theme.selected ? "border-amber-400" : "border-slate-200"
+                theme.selected ? "border-amber-400" : "border-admin-border"
               }`}
             >
               <div
@@ -84,7 +84,7 @@ export default function AppearancePage() {
               <div className="flex items-center justify-between p-4">
                 <span className="font-semibold">{theme.name}</span>
                 {theme.selected && (
-                  <Check size={18} className="text-amber-600" />
+                  <Check size={18} className="text-admin-accent" />
                 )}
               </div>
             </div>
@@ -92,7 +92,7 @@ export default function AppearancePage() {
         </div>
       </section>
 
-      <section className="rounded-xl border border-slate-200 bg-white p-6">
+      <section className="rounded-xl border border-admin-border bg-admin-surface p-6">
         <h2 className="mb-6 text-xl font-bold">Custom Colors</h2>
 
         <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
@@ -102,9 +102,9 @@ export default function AppearancePage() {
                 {color.label}
               </label>
 
-              <div className="flex items-center gap-3 rounded-lg border border-slate-200 p-3">
+              <div className="flex items-center gap-3 rounded-lg border border-admin-border p-3">
                 <div
-                  className="h-9 w-9 rounded-md border border-slate-200"
+                  className="h-9 w-9 rounded-md border border-admin-border"
                   style={{ backgroundColor: color.value }}
                 />
 
@@ -115,9 +115,9 @@ export default function AppearancePage() {
         </div>
       </section>
 
-      <section className="rounded-xl border border-slate-200 bg-white p-6">
+      <section className="rounded-xl border border-admin-border bg-admin-surface p-6">
         <div className="mb-6 flex items-center gap-3">
-          <Type className="text-amber-600" />
+          <Type className="text-admin-accent" />
           <h2 className="text-xl font-bold">Typography</h2>
         </div>
 
@@ -126,23 +126,23 @@ export default function AppearancePage() {
             <label className="mb-2 block text-sm font-medium">
               Heading Font
             </label>
-            <div className="rounded-lg border border-slate-200 bg-slate-50 p-4">
+            <div className="rounded-lg border border-admin-border bg-admin-subtle p-4">
               Inter
             </div>
           </div>
 
           <div>
             <label className="mb-2 block text-sm font-medium">Body Font</label>
-            <div className="rounded-lg border border-slate-200 bg-slate-50 p-4">
+            <div className="rounded-lg border border-admin-border bg-admin-subtle p-4">
               Inter
             </div>
           </div>
         </div>
       </section>
 
-      <section className="rounded-xl border border-slate-200 bg-white p-6">
+      <section className="rounded-xl border border-admin-border bg-admin-surface p-6">
         <div className="mb-6 flex items-center gap-3">
-          <PanelTop className="text-amber-600" />
+          <PanelTop className="text-admin-accent" />
           <h2 className="text-xl font-bold">Navbar Layout</h2>
         </div>
 
@@ -151,7 +151,7 @@ export default function AppearancePage() {
             <div
               key={layout}
               className={`rounded-xl border-2 p-5 ${
-                index === 0 ? "border-amber-400" : "border-slate-200"
+                index === 0 ? "border-amber-400" : "border-admin-border"
               }`}
             >
               <div className="mb-5 flex items-center justify-between rounded bg-slate-900 p-3 text-white">

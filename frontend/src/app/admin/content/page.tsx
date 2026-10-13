@@ -61,7 +61,7 @@ export default function ContentPage() {
     <div className="mx-auto max-w-7xl">
       <div className="mb-10">
         <h1 className="text-3xl font-bold">Content Management</h1>
-        <p className="mt-2 text-slate-500">
+        <p className="mt-2 text-admin-muted">
           Manage your website content and company information.
         </p>
       </div>
@@ -73,31 +73,31 @@ export default function ContentPage() {
           return (
             <div
               key={section.name}
-              className="group rounded-xl border border-slate-200 bg-white p-6 transition hover:border-amber-300 hover:shadow-md"
+              className="group rounded-xl border border-admin-border bg-admin-surface p-6 transition hover:border-amber-300 hover:shadow-md"
             >
               <div className="mb-6 flex items-center justify-between">
-                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-amber-50 text-amber-700">
+                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-amber-50 text-amber-700 dark:bg-amber-400/15 dark:text-amber-300">
                   <Icon size={24} />
                 </div>
 
                 <ArrowUpRight
                   size={20}
-                  className="text-slate-400 transition group-hover:text-amber-600"
+                  className="text-admin-faint transition group-hover:text-admin-accent"
                 />
               </div>
 
               <h2 className="mb-2 text-lg font-bold">{section.name}</h2>
 
-              <p className="mb-5 min-h-12 text-sm leading-6 text-slate-500">
+              <p className="mb-5 min-h-12 text-sm leading-6 text-admin-muted">
                 {section.description}
               </p>
 
-              <div className="flex items-center justify-between border-t border-slate-100 pt-5">
-                <span className="text-xs font-medium text-slate-400">
+              <div className="flex items-center justify-between border-t border-admin-border pt-5">
+                <span className="text-xs font-medium text-admin-faint">
                   {section.count}
                 </span>
 
-                <span className="flex items-center gap-2 text-sm font-semibold text-amber-700">
+                <span className="flex items-center gap-2 text-sm font-semibold text-admin-accent">
                   <Pencil size={15} />
                   Edit Content
                 </span>
@@ -107,18 +107,18 @@ export default function ContentPage() {
         })}
       </div>
 
-      <div className="mt-8 rounded-xl border border-slate-200 bg-white p-6">
+      <div className="mt-8 rounded-xl border border-admin-border bg-admin-surface p-6">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div>
             <h2 className="text-lg font-bold">Website Structure</h2>
-            <p className="mt-1 text-sm text-slate-500">
+            <p className="mt-1 text-sm text-admin-muted">
               Add, remove, or rearrange the sections on your website.
             </p>
           </div>
 
           <Link
             href="/admin/sections"
-            className="inline-flex items-center gap-2 rounded-lg bg-slate-950 px-5 py-3 text-sm font-semibold text-white hover:bg-slate-800"
+            className="inline-flex items-center gap-2 rounded-lg bg-slate-950 px-5 py-3 text-sm font-semibold text-white hover:bg-slate-800 dark:bg-amber-400 dark:text-slate-950 dark:hover:bg-amber-300"
           >
             Manage Sections
             <ArrowUpRight size={17} />

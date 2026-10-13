@@ -27,15 +27,15 @@ export default function NavigationPage() {
     <div className="mx-auto max-w-7xl space-y-8">
       <div>
         <h1 className="text-3xl font-bold">Navigation & Footer</h1>
-        <p className="mt-2 text-slate-500">
+        <p className="mt-2 text-admin-muted">
           Organize website links and manage branding.
         </p>
       </div>
 
-      <section className="rounded-xl border border-slate-200 bg-white">
-        <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-200 p-6">
+      <section className="rounded-xl border border-admin-border bg-admin-surface">
+        <div className="flex flex-wrap items-center justify-between gap-4 border-b border-admin-border p-6">
           <div className="flex items-center gap-3">
-            <Menu className="text-amber-600" />
+            <Menu className="text-admin-accent" />
             <h2 className="text-xl font-bold">Navigation Links</h2>
           </div>
 
@@ -45,21 +45,21 @@ export default function NavigationPage() {
           </div>
         </div>
 
-        <div className="divide-y divide-slate-100">
+        <div className="divide-y divide-admin-border">
           {links.map((link, index) => (
             <div
               key={link.id}
               className="flex flex-wrap items-center justify-between gap-4 px-6 py-5"
             >
               <div className="flex items-center gap-4">
-                <GripVertical className="text-slate-400" size={20} />
-                <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-slate-100 text-sm font-semibold">
+                <GripVertical className="text-admin-faint" size={20} />
+                <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-admin-bg text-sm font-semibold">
                   {index + 1}
                 </span>
 
                 <div>
                   <p className="font-semibold">{link.label}</p>
-                  <p className="text-sm text-slate-500">{link.destination}</p>
+                  <p className="text-sm text-admin-muted">{link.destination}</p>
                 </div>
               </div>
 
@@ -67,7 +67,7 @@ export default function NavigationPage() {
                 <span className="rounded-full bg-green-100 px-3 py-1 text-xs font-medium text-green-700">
                   {link.visible ? "Visible" : "Hidden"}
                 </span>
-                <Pencil size={18} className="text-slate-500" />
+                <Pencil size={18} className="text-admin-muted" />
                 <Trash2 size={18} className="text-red-500" />
               </div>
             </div>
@@ -76,7 +76,7 @@ export default function NavigationPage() {
       </section>
 
       <div className="grid gap-6 lg:grid-cols-2">
-        <section className="rounded-xl border border-slate-200 bg-white p-6">
+        <section className="rounded-xl border border-admin-border bg-admin-surface p-6">
           <h2 className="mb-6 text-xl font-bold">Brand Identity</h2>
 
           <div className="space-y-5">
@@ -88,7 +88,7 @@ export default function NavigationPage() {
                 type="text"
                 defaultValue="ATLAS Construction"
                 readOnly
-                className="w-full rounded-lg border border-slate-200 bg-slate-50 px-4 py-3"
+                className="w-full rounded-lg border border-admin-border bg-admin-subtle px-4 py-3"
               />
             </div>
 
@@ -103,7 +103,7 @@ export default function NavigationPage() {
           </div>
         </section>
 
-        <section className="rounded-xl border border-slate-200 bg-white p-6">
+        <section className="rounded-xl border border-admin-border bg-admin-surface p-6">
           <h2 className="mb-6 text-xl font-bold">Footer Settings</h2>
 
           <div className="space-y-5">
@@ -115,7 +115,7 @@ export default function NavigationPage() {
                 rows={4}
                 readOnly
                 defaultValue="Building the future through innovation, craftsmanship, and excellence."
-                className="w-full resize-none rounded-lg border border-slate-200 bg-slate-50 px-4 py-3"
+                className="w-full resize-none rounded-lg border border-admin-border bg-admin-subtle px-4 py-3"
               />
             </div>
 
@@ -124,15 +124,15 @@ export default function NavigationPage() {
             {socialLinks.map((social) => (
               <div
                 key={social.platform}
-                className="flex items-center justify-between gap-3 rounded-lg border border-slate-200 p-3"
+                className="flex items-center justify-between gap-3 rounded-lg border border-admin-border p-3"
               >
                 <div className="min-w-0">
                   <p className="text-sm font-semibold">{social.platform}</p>
-                  <p className="truncate text-xs text-slate-500">
+                  <p className="truncate text-xs text-admin-muted">
                     {social.url}
                   </p>
                 </div>
-                <ExternalLink size={17} className="shrink-0 text-slate-400" />
+                <ExternalLink size={17} className="shrink-0 text-admin-faint" />
               </div>
             ))}
           </div>
