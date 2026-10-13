@@ -8,12 +8,12 @@ export default function Footer() {
         <div className="lg:col-span-2">
           <h2 className="mb-6 text-3xl font-bold tracking-widest">ATLAS.</h2>
 
-          <p className="max-w-md leading-8 text-slate-400">
+          <p className="max-w-md leading-8 text-brand-on-primary/70">
             Building the future through innovation, craftsmanship, and
             excellence in construction and engineering.
           </p>
 
-          <div className="mt-8 flex gap-5 text-slate-300">
+          <div className="mt-8 flex gap-5 text-brand-on-primary/80">
             <a href="https://facebook.com" aria-label="Facebook">
               <FaFacebook size={22} />
             </a>
@@ -29,7 +29,7 @@ export default function Footer() {
         <div>
           <h3 className="mb-6 text-lg font-semibold">Quick Links</h3>
 
-          <ul className="space-y-4 text-slate-400">
+          <ul className="space-y-4 text-brand-on-primary/70">
             <li>
               <a href="#home" className="hover:text-brand-accent">
                 Home
@@ -61,7 +61,7 @@ export default function Footer() {
         <div>
           <h3 className="mb-6 text-lg font-semibold">Contact</h3>
 
-          <div className="space-y-4 text-slate-400">
+          <div className="space-y-4 text-brand-on-primary/70">
             <p>Beirut, Lebanon</p>
             <p>+961 70 123 456</p>
             <p>info@atlasconstruction.example</p>
@@ -77,7 +77,7 @@ export default function Footer() {
         </div>
       </div>
 
-      <div className="mx-auto flex max-w-7xl flex-col justify-between gap-4 border-t border-slate-800 py-7 text-sm text-slate-400 md:flex-row">
+      <div className="mx-auto flex max-w-7xl flex-col justify-between gap-4 border-t border-brand-on-primary/15 py-7 text-sm text-brand-on-primary/70 md:flex-row">
         <p>
           © {new Date().getFullYear()} ATLAS Construction. All rights reserved.
         </p>

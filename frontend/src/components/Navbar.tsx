@@ -8,6 +8,9 @@ export default function Navbar() {
       </h1>
 
       <div className="hidden items-center gap-8 md:flex">
+        <a href="#home" className="hover:text-brand-accent">
+          Home
+        </a>
         <a href="#about" className="hover:text-brand-accent">
           About
         </a>
@@ -16,6 +19,9 @@ export default function Navbar() {
         </a>
         <a href="#projects" className="hover:text-brand-accent">
           Projects
+        </a>
+        <a href="#contact" className="hover:text-brand-accent">
+          Contact
         </a>
       </div>
     </nav>
