@@ -55,6 +55,10 @@ html.dark .admin-shell {
   --color-admin-muted: var(--admin-muted);
   --color-admin-faint: var(--admin-faint);
   --color-admin-accent: var(--admin-accent);
+  --color-brand-muted: color-mix(in srgb, var(--color-text) 70%, var(--color-background));
+  --color-brand-surface: color-mix(in srgb, var(--color-text) 5%, var(--color-background));
+  --color-brand-surface-strong: color-mix(in srgb, var(--color-text) 12%, var(--color-background));
+  --color-brand-border: color-mix(in srgb, var(--color-text) 15%, var(--color-background));
   --color-brand-primary: var(--color-primary);
   --color-brand-accent: var(--color-accent);
   --color-brand-accent-text: var(--color-accent-text);
