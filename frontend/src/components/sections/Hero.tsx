@@ -15,7 +15,7 @@ export default function Hero() {
           {siteConfig.hero.title}
         </h2>
 
-        <p className="mt-8 max-w-xl text-lg leading-relaxed text-slate-300">
+        <p className="mt-8 max-w-xl text-lg leading-relaxed text-brand-on-primary/80">
           {siteConfig.company.description}
         </p>
 

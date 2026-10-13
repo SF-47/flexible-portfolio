@@ -23,7 +23,7 @@ export default function Projects() {
         <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
           {projects.map((project) => (
             <article key={project.id} className="group">
-              <div className="relative h-80 overflow-hidden rounded-lg bg-slate-200">
+              <div className="relative h-80 overflow-hidden rounded-lg bg-brand-surface-strong">
                 <Image
                   src={project.image}
                   alt={project.title}
@@ -46,7 +46,7 @@ export default function Projects() {
                   {project.title}
                 </h3>
 
-                <p className="mt-2 text-slate-500">
+                <p className="mt-2 text-brand-muted">
                   {project.location}
                 </p>
               </div>

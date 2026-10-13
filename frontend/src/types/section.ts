@@ -1,10 +1,20 @@
+
 export type SectionType =
   | "hero"
   | "about"
   | "stats"
   | "services"
   | "projects"
-  | "contact";
+  | "contact"
+  | "whyChooseUs"
+  | "testimonials"
+  | "clients"
+  | "team"
+  | "faq"
+  | "process"
+  | "gallery"
+  | "cta"
+  | "certifications";
 
 export interface SectionConfig {
   id: string;

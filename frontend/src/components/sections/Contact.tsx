@@ -26,7 +26,7 @@ export default function Contact() {
   return (
     <section
       id="contact"
-      className="bg-slate-100 px-8 py-24 text-brand-text md:px-20"
+      className="bg-brand-surface px-8 py-24 text-brand-text md:px-20"
     >
       <div className="mx-auto max-w-7xl">
         <div className="mb-14 max-w-2xl">
@@ -38,7 +38,7 @@ export default function Contact() {
             Let&apos;s Build Something Great
           </h2>
 
-          <p className="leading-8 text-slate-600">
+          <p className="leading-8 text-brand-muted">
             Have a project in mind? Contact our team and let&apos;s discuss how
             we can bring your vision to life.
           </p>
@@ -50,7 +50,7 @@ export default function Contact() {
               <MapPin className="mt-1 text-brand-accent-text" size={26} />
               <div>
                 <h3 className="mb-2 text-xl font-bold">Our Office</h3>
-                <p className="text-slate-600">Beirut, Lebanon</p>
+                <p className="text-brand-muted">Beirut, Lebanon</p>
               </div>
             </div>
 
@@ -60,7 +60,7 @@ export default function Contact() {
                 <h3 className="mb-2 text-xl font-bold">Call Us</h3>
                 <a
                   href="tel:+96170123456"
-                  className="text-slate-600 hover:text-brand-accent-text"
+                  className="text-brand-muted hover:text-brand-accent-text"
                 >
                   +961 70 123 456
                 </a>
@@ -73,7 +73,7 @@ export default function Contact() {
                 <h3 className="mb-2 text-xl font-bold">Email Us</h3>
                 <a
                   href="mailto:info@atlasconstruction.example"
-                  className="text-slate-600 hover:text-brand-accent-text"
+                  className="text-brand-muted hover:text-brand-accent-text"
                 >
                   info@atlasconstruction.example
                 </a>
@@ -103,7 +103,7 @@ export default function Contact() {
                   setSubmitted(false);
                 }}
                 placeholder="Your name"
-                className="w-full rounded-lg border border-slate-200 px-4 py-3 outline-none focus:border-brand-accent"
+                className="w-full rounded-lg border border-brand-border px-4 py-3 outline-none focus:border-brand-accent"
               />
             </div>
 
@@ -125,7 +125,7 @@ export default function Contact() {
                   setSubmitted(false);
                 }}
                 placeholder="you@example.com"
-                className="w-full rounded-lg border border-slate-200 px-4 py-3 outline-none focus:border-brand-accent"
+                className="w-full rounded-lg border border-brand-border px-4 py-3 outline-none focus:border-brand-accent"
               />
             </div>
 
@@ -147,7 +147,7 @@ export default function Contact() {
                   setSubmitted(false);
                 }}
                 placeholder="Tell us about your project..."
-                className="w-full resize-none rounded-lg border border-slate-200 px-4 py-3 outline-none focus:border-brand-accent"
+                className="w-full resize-none rounded-lg border border-brand-border px-4 py-3 outline-none focus:border-brand-accent"
               />
             </div>
 

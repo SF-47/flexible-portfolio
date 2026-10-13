@@ -1,4 +1,4 @@
-import { sections as defaultSections } from "@/data/sections";
+import {defaultSections } from "@/data/sections";
 import type { SectionConfig } from "@/types/section";
 
 const STORAGE_KEY = "portfolio-sections";

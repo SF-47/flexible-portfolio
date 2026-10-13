@@ -14,11 +14,11 @@ export default function About() {
             {siteConfig.about.title}
           </h2>
 
-          <p className="mb-5 leading-8 text-slate-600">
+          <p className="mb-5 leading-8 text-brand-muted">
             {siteConfig.about.description}
           </p>
 
-          <p className="mb-8 leading-8 text-slate-600">
+          <p className="mb-8 leading-8 text-brand-muted">
             {siteConfig.about.secondDescription}
           </p>
 

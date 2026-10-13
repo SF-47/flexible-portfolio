@@ -2,7 +2,7 @@
 
 import { useSyncExternalStore } from "react";
 import { getSections, saveSections } from "@/lib/sectionStore";
-import { sections as defaultSections } from "@/data/sections";
+import { defaultSections } from "@/data/sections";
 import type { SectionConfig } from "@/types/section";
 
 const STORAGE_KEY = "portfolio-sections";
