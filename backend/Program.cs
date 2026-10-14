@@ -46,6 +46,18 @@ if (args.Contains("--seed-sections"))
     return;
 }
 
+if (args.Contains("--seed-site-settings"))
+{
+    using var scope = app.Services.CreateScope();
+
+    var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+
+    await SiteSettingsSeeder.SeedAsync(context);
+
+    Console.WriteLine("Site settings seeding completed.");
+    return;
+}
+
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
