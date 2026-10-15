@@ -2,6 +2,7 @@ using backend.Data;
 using backend.Data.Seeders;
 using backend.Services.CompanyServices;
 using backend.Services.Media;
+using backend.Services.Navigation;
 using backend.Services.Projects;
 using backend.Services.Sections;
 using backend.Services.SiteSettings;
@@ -28,6 +29,7 @@ builder.Services.AddScoped<IThemeService, ThemeService>();
 builder.Services.AddScoped<ICompanyServiceManager, CompanyServiceManager>();
 builder.Services.AddScoped<IProjectService, ProjectService>();
 builder.Services.AddScoped<IMediaService, MediaService>();
+builder.Services.AddScoped<INavigationService, NavigationService>();
 
 builder.Services.AddCors(options =>
 {
@@ -99,6 +101,18 @@ if (args.Contains("--seed-projects"))
     await ProjectSeeder.SeedAsync(context);
 
     Console.WriteLine("Project seeding completed.");
+    return;
+}
+
+if (args.Contains("--seed-navigation"))
+{
+    using var scope = app.Services.CreateScope();
+
+    var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+
+    await NavigationSeeder.SeedAsync(context);
+
+    Console.WriteLine("Navigation seeding completed.");
     return;
 }
 
