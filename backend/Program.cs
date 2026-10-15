@@ -6,6 +6,7 @@ using backend.Services.Navigation;
 using backend.Services.Projects;
 using backend.Services.Sections;
 using backend.Services.SiteSettings;
+using backend.Services.SocialLinks;
 using backend.Services.Themes;
 using Microsoft.EntityFrameworkCore;
 
@@ -30,6 +31,7 @@ builder.Services.AddScoped<ICompanyServiceManager, CompanyServiceManager>();
 builder.Services.AddScoped<IProjectService, ProjectService>();
 builder.Services.AddScoped<IMediaService, MediaService>();
 builder.Services.AddScoped<INavigationService, NavigationService>();
+builder.Services.AddScoped<ISocialLinkService, SocialLinkService>();
 
 builder.Services.AddCors(options =>
 {
@@ -113,6 +115,18 @@ if (args.Contains("--seed-navigation"))
     await NavigationSeeder.SeedAsync(context);
 
     Console.WriteLine("Navigation seeding completed.");
+    return;
+}
+
+if (args.Contains("--seed-social-links"))
+{
+    using var scope = app.Services.CreateScope();
+
+    var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+
+    await SocialLinkSeeder.SeedAsync(context);
+
+    Console.WriteLine("Social links seeding completed.");
     return;
 }
 
