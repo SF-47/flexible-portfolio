@@ -1,11 +1,13 @@
 "use client";
 
 import { sectionRegistry } from "./sectionRegistry";
-import { useSections } from "@/hooks/useSections";
+import type { ApiSection } from "@/types/apiSections";
 
-export default function SectionRenderer() {
-  const { sections } = useSections();
+type SectionRendererProps = {
+  sections: ApiSection[];
+};
 
+export default function SectionRenderer({ sections }: SectionRendererProps) {
   return (
     <>
       {[...sections]
