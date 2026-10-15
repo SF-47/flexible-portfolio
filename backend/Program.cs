@@ -130,6 +130,18 @@ if (args.Contains("--seed-social-links"))
     return;
 }
 
+if (args.Contains("--seed-section-content"))
+{
+    using var scope = app.Services.CreateScope();
+
+    var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+
+    await SectionContentSeeder.SeedAsync(context);
+
+    Console.WriteLine("Section content seeding completed.");
+    return;
+}
+
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
