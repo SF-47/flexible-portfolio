@@ -1,6 +1,8 @@
+using System.Threading.RateLimiting;
 using backend.Data;
 using backend.Data.Seeders;
 using backend.Services.CompanyServices;
+using backend.Services.ContactMessages;
 using backend.Services.Media;
 using backend.Services.Navigation;
 using backend.Services.Projects;
@@ -32,6 +34,26 @@ builder.Services.AddScoped<IProjectService, ProjectService>();
 builder.Services.AddScoped<IMediaService, MediaService>();
 builder.Services.AddScoped<INavigationService, NavigationService>();
 builder.Services.AddScoped<ISocialLinkService, SocialLinkService>();
+builder.Services.AddScoped<IContactMessageService, ContactMessageService>();
+
+builder.Services.AddRateLimiter(options =>
+{
+    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+
+    options.AddPolicy(
+        "ContactSubmission",
+        httpContext =>
+            RateLimitPartition.GetFixedWindowLimiter(
+                httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+                _ => new FixedWindowRateLimiterOptions
+                {
+                    PermitLimit = 5,
+                    Window = TimeSpan.FromMinutes(15),
+                    QueueLimit = 0,
+                }
+            )
+    );
+});
 
 builder.Services.AddCors(options =>
 {
@@ -149,6 +171,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseCors("AllowFrontend");
+app.UseRateLimiter();
 app.UseAuthorization();
 app.UseStaticFiles();
 app.MapControllers();
