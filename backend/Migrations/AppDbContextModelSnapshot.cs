@@ -238,35 +238,6 @@ namespace Portfolio.Api.Migrations
                     b.ToTable("Projects");
                 });
 
-            modelBuilder.Entity("backend.Models.ProjectImage", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    b.Property<string>("Caption")
-                        .HasMaxLength(255)
-                        .HasColumnType("varchar(255)");
-
-                    b.Property<int>("MediaAssetId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("ProjectId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("SortOrder")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("MediaAssetId");
-
-                    b.HasIndex("ProjectId", "MediaAssetId")
-                        .IsUnique();
-
-                    b.ToTable("ProjectImages");
-                });
-
             modelBuilder.Entity("backend.Models.Section", b =>
                 {
                     b.Property<Guid>("Id")
@@ -318,6 +289,8 @@ namespace Portfolio.Api.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("SortOrder");
+
+                    b.HasIndex("Type");
 
                     b.ToTable("Sections");
                 });
@@ -511,6 +484,8 @@ namespace Portfolio.Api.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("IsActive");
+
                     b.ToTable("Themes");
                 });
 
@@ -532,25 +507,6 @@ namespace Portfolio.Api.Migrations
                         .OnDelete(DeleteBehavior.Restrict);
 
                     b.Navigation("FeaturedImage");
-                });
-
-            modelBuilder.Entity("backend.Models.ProjectImage", b =>
-                {
-                    b.HasOne("backend.Models.MediaAsset", "MediaAsset")
-                        .WithMany("ProjectImages")
-                        .HasForeignKey("MediaAssetId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("backend.Models.Project", "Project")
-                        .WithMany("Images")
-                        .HasForeignKey("ProjectId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("MediaAsset");
-
-                    b.Navigation("Project");
                 });
 
             modelBuilder.Entity("backend.Models.Service", b =>
@@ -578,16 +534,6 @@ namespace Portfolio.Api.Migrations
                     b.Navigation("FaviconMedia");
 
                     b.Navigation("LogoMedia");
-                });
-
-            modelBuilder.Entity("backend.Models.MediaAsset", b =>
-                {
-                    b.Navigation("ProjectImages");
-                });
-
-            modelBuilder.Entity("backend.Models.Project", b =>
-                {
-                    b.Navigation("Images");
                 });
 
             modelBuilder.Entity("backend.Models.Section", b =>

@@ -15,6 +15,4 @@ public class MediaAsset
 
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
-    public ICollection<ProjectImage> ProjectImages { get; set; }
-        = new List<ProjectImage>();
 }
