@@ -2,6 +2,7 @@ using backend.Data;
 using backend.Data.Seeders;
 using backend.Services.Sections;
 using backend.Services.SiteSettings;
+using backend.Services.Themes;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -20,6 +21,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 
 builder.Services.AddScoped<ISectionService, SectionService>();
 builder.Services.AddScoped<ISiteSettingsService, SiteSettingsService>();
+builder.Services.AddScoped<IThemeService, ThemeService>();
 
 builder.Services.AddCors(options =>
 {
@@ -55,6 +57,18 @@ if (args.Contains("--seed-site-settings"))
     await SiteSettingsSeeder.SeedAsync(context);
 
     Console.WriteLine("Site settings seeding completed.");
+    return;
+}
+
+if (args.Contains("--seed-themes"))
+{
+    using var scope = app.Services.CreateScope();
+
+    var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+
+    await ThemeSeeder.SeedAsync(context);
+
+    Console.WriteLine("Theme seeding completed.");
     return;
 }
 
