@@ -1,6 +1,7 @@
 using backend.Data;
 using backend.Data.Seeders;
 using backend.Services.CompanyServices;
+using backend.Services.Media;
 using backend.Services.Projects;
 using backend.Services.Sections;
 using backend.Services.SiteSettings;
@@ -26,6 +27,7 @@ builder.Services.AddScoped<ISiteSettingsService, SiteSettingsService>();
 builder.Services.AddScoped<IThemeService, ThemeService>();
 builder.Services.AddScoped<ICompanyServiceManager, CompanyServiceManager>();
 builder.Services.AddScoped<IProjectService, ProjectService>();
+builder.Services.AddScoped<IMediaService, MediaService>();
 
 builder.Services.AddCors(options =>
 {
@@ -108,6 +110,7 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseCors("AllowFrontend");
 app.UseAuthorization();
+app.UseStaticFiles();
 app.MapControllers();
 
 if (app.Environment.IsDevelopment())
