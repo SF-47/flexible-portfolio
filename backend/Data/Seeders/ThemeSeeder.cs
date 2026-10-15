@@ -7,12 +7,7 @@ public static class ThemeSeeder
 {
     public static async Task SeedAsync(AppDbContext context)
     {
-        var themesExist = await context.Themes.AnyAsync();
-
-        if (themesExist)
-            return;
-
-        var themes = new List<Theme>
+        var presets = new List<Theme>
         {
             new Theme
             {
@@ -27,7 +22,6 @@ public static class ThemeSeeder
                 BodyFont = "Inter",
                 NavbarVariant = "default",
                 IsActive = true,
-                CreatedAt = DateTime.UtcNow,
             },
             new Theme
             {
@@ -42,7 +36,6 @@ public static class ThemeSeeder
                 BodyFont = "Inter",
                 NavbarVariant = "default",
                 IsActive = false,
-                CreatedAt = DateTime.UtcNow,
             },
             new Theme
             {
@@ -57,11 +50,47 @@ public static class ThemeSeeder
                 BodyFont = "Inter",
                 NavbarVariant = "default",
                 IsActive = false,
-                CreatedAt = DateTime.UtcNow,
+            },
+            new Theme
+            {
+                Name = "Charcoal",
+                PrimaryColor = "#1D252D",
+                AccentColor = "#8CC8E8",
+                BackgroundColor = "#F5F8FA",
+                TextColor = "#24313B",
+                OnPrimaryColor = "#FFFFFF",
+                OnAccentColor = "#1D252D",
+                HeadingFont = "Inter",
+                BodyFont = "Inter",
+                NavbarVariant = "default",
+                IsActive = false,
             },
         };
 
-        await context.Themes.AddRangeAsync(themes);
+        var existingNames = await context
+            .Themes.AsNoTracking()
+            .Select(theme => theme.Name)
+            .ToListAsync();
+
+        var existingNameSet = existingNames.ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+        var missingPresets = presets.Where(theme => !existingNameSet.Contains(theme.Name)).ToList();
+
+        if (missingPresets.Count == 0)
+            return;
+
+        // Do not activate a new preset if an active theme already exists.
+        var hasActiveTheme = await context.Themes.AnyAsync(theme => theme.IsActive);
+
+        if (hasActiveTheme)
+        {
+            foreach (var theme in missingPresets)
+            {
+                theme.IsActive = false;
+            }
+        }
+
+        await context.Themes.AddRangeAsync(missingPresets);
         await context.SaveChangesAsync();
     }
 }
