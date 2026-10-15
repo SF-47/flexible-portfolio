@@ -1,5 +1,6 @@
 using backend.Data;
 using backend.Data.Seeders;
+using backend.Services.CompanyServices;
 using backend.Services.Sections;
 using backend.Services.SiteSettings;
 using backend.Services.Themes;
@@ -22,6 +23,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 builder.Services.AddScoped<ISectionService, SectionService>();
 builder.Services.AddScoped<ISiteSettingsService, SiteSettingsService>();
 builder.Services.AddScoped<IThemeService, ThemeService>();
+builder.Services.AddScoped<ICompanyServiceManager, CompanyServiceManager>();
 
 builder.Services.AddCors(options =>
 {
@@ -69,6 +71,18 @@ if (args.Contains("--seed-themes"))
     await ThemeSeeder.SeedAsync(context);
 
     Console.WriteLine("Theme seeding completed.");
+    return;
+}
+
+if (args.Contains("--seed-company-services"))
+{
+    using var scope = app.Services.CreateScope();
+
+    var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+
+    await CompanyServiceSeeder.SeedAsync(context);
+
+    Console.WriteLine("Company services seeding completed.");
     return;
 }
 
