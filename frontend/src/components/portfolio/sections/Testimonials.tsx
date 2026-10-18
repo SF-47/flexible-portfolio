@@ -1,37 +1,11 @@
-
 import { Quote, Star } from "lucide-react";
+import type { TestimonialsContent } from "@/types/sectionContent";
 
-const testimonials = [
-  {
-    id: 1,
-    name: "Ahmad Hassan",
-    role: "Residential Client",
-    initials: "AH",
-    rating: 5,
-    message:
-      "The team demonstrated exceptional professionalism throughout our residential project. Their attention to detail and communication made the entire process smooth.",
-  },
-  {
-    id: 2,
-    name: "Omar Khalil",
-    role: "Business Owner",
-    initials: "OK",
-    rating: 5,
-    message:
-      "From planning to final delivery, the quality of work exceeded our expectations. We appreciated their commitment to deadlines and transparency.",
-  },
-  {
-    id: 3,
-    name: "Karim Mansour",
-    role: "Property Developer",
-    initials: "KM",
-    rating: 5,
-    message:
-      "A reliable construction partner with excellent technical knowledge. The team understood our requirements and delivered impressive results.",
-  },
-];
+type TestimonialsProps = {
+  content: TestimonialsContent;
+};
 
-export default function Testimonials() {
+export default function Testimonials({ content }: TestimonialsProps) {
   return (
     <section
       id="testimonials"
@@ -40,23 +14,22 @@ export default function Testimonials() {
       <div className="mx-auto max-w-7xl">
         <div className="mb-14 text-center">
           <p className="mb-4 text-sm font-semibold uppercase tracking-widest text-brand-accent-text">
-            Client Feedback
+            {content.label}
           </p>
 
           <h2 className="mb-5 text-4xl font-bold md:text-5xl">
-            What Our Clients Say
+            {content.title}
           </h2>
 
           <p className="mx-auto max-w-2xl leading-8 text-brand-muted">
-            Building strong relationships is just as important as building
-            exceptional spaces.
+            {content.description}
           </p>
         </div>
 
         <div className="grid gap-6 lg:grid-cols-3">
-          {testimonials.map((testimonial) => (
+          {content.items.map((testimonial) => (
             <article
-              key={testimonial.id}
+              key={`${testimonial.name}-${testimonial.role}`}
               className="flex flex-col rounded-lg border border-brand-border bg-brand-background p-8 shadow-sm transition duration-300 hover:-translate-y-2 hover:shadow-xl"
             >
               <Quote

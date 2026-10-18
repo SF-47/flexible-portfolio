@@ -1,4 +1,3 @@
-
 import {
   Building2,
   Landmark,
@@ -6,18 +5,24 @@ import {
   Hotel,
   Warehouse,
   BriefcaseBusiness,
+  type LucideIcon,
 } from "lucide-react";
+import type { ClientsContent } from "@/types/sectionContent";
 
-const clients = [
-  { name: "Urban Development", icon: Building2 },
-  { name: "Capital Group", icon: Landmark },
-  { name: "Industrial Solutions", icon: Factory },
-  { name: "Grand Hospitality", icon: Hotel },
-  { name: "Logistics Partners", icon: Warehouse },
-  { name: "Business Alliance", icon: BriefcaseBusiness },
-];
+const icons: Record<string, LucideIcon> = {
+  Building2,
+  Landmark,
+  Factory,
+  Hotel,
+  Warehouse,
+  BriefcaseBusiness,
+};
 
-export default function Clients() {
+type ClientsProps = {
+  content: ClientsContent;
+};
+
+export default function Clients({ content }: ClientsProps) {
   return (
     <section
       id="clients"
@@ -26,22 +31,21 @@ export default function Clients() {
       <div className="mx-auto max-w-7xl">
         <div className="mb-14 text-center">
           <p className="mb-4 text-sm font-semibold uppercase tracking-widest text-brand-accent-text">
-            Our Network
+            {content.label}
           </p>
 
           <h2 className="mb-5 text-4xl font-bold md:text-5xl">
-            Clients & Partners
+            {content.title}
           </h2>
 
           <p className="mx-auto max-w-2xl leading-8 text-brand-muted">
-            We value the relationships we build with organizations that
-            share our commitment to quality and excellence.
+            {content.description}
           </p>
         </div>
 
         <div className="grid grid-cols-2 gap-5 md:grid-cols-3">
-          {clients.map((client) => {
-            const Icon = client.icon;
+          {content.items.map((client) => {
+            const Icon = icons[client.icon] ?? Building2;
 
             return (
               <div

@@ -1,6 +1,11 @@
 import { ArrowUpRight, PhoneCall, MoveUpRight } from "lucide-react";
+import type { CTAContent } from "@/types/sectionContent";
 
-export default function CTA() {
+type CTAProps = {
+  content: CTAContent;
+};
+
+export default function CTA({ content }: CTAProps) {
   return (
     <section
       id="cta"
@@ -15,35 +20,34 @@ export default function CTA() {
               </span>
 
               <span className="text-sm font-bold uppercase tracking-widest">
-                Start Your Project
+                {content.label}
               </span>
             </div>
 
             <h2 className="mb-5 text-4xl font-bold leading-tight md:text-5xl">
-              Have a Vision? Let&apos;s Build It Together.
+              {content.title}
             </h2>
 
             <p className="max-w-2xl text-lg leading-8 opacity-80">
-              Whether you are planning a new development or transforming an
-              existing space, our team is ready to bring your ideas to life.
+              {content.description}
             </p>
           </div>
 
           <div className="flex shrink-0 flex-wrap gap-4">
             <a
-              href="#contact"
+              href={content.primaryButtonLink}
               className="inline-flex items-center gap-3 rounded-lg bg-brand-primary px-7 py-4 font-bold text-brand-on-primary transition hover:opacity-90"
             >
-              Get In Touch
+              {content.primaryButtonText}
               <ArrowUpRight size={20} />
             </a>
 
             <a
-              href="#services"
+              href={content.secondaryButtonLink}
               className="inline-flex items-center gap-3 rounded-lg border-2 border-current px-7 py-4 font-bold transition hover:bg-black/10"
             >
               <PhoneCall size={19} />
-              Our Services
+              {content.secondaryButtonText}
             </a>
           </div>
         </div>

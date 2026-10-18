@@ -5,54 +5,24 @@ import {
   HardHat,
   ClipboardCheck,
   KeyRound,
+  type LucideIcon,
 } from "lucide-react";
+import type { ProcessContent } from "@/types/sectionContent";
 
-const steps = [
-  {
-    number: "01",
-    title: "Initial Consultation",
-    description:
-      "We discuss your vision, requirements, budget, and project objectives.",
-    icon: MessagesSquare,
-  },
-  {
-    number: "02",
-    title: "Design & Planning",
-    description:
-      "Our specialists develop concepts, plans, and technical solutions.",
-    icon: PencilRuler,
-  },
-  {
-    number: "03",
-    title: "Project Preparation",
-    description:
-      "We organize schedules, resources, materials, and project requirements.",
-    icon: ClipboardList,
-  },
-  {
-    number: "04",
-    title: "Construction",
-    description:
-      "Our experienced teams execute the project with precision and care.",
-    icon: HardHat,
-  },
-  {
-    number: "05",
-    title: "Quality Inspection",
-    description:
-      "We review the completed work to ensure it meets our quality standards.",
-    icon: ClipboardCheck,
-  },
-  {
-    number: "06",
-    title: "Project Handover",
-    description:
-      "We deliver the completed project and provide final documentation.",
-    icon: KeyRound,
-  },
-];
+const icons: Record<string, LucideIcon> = {
+  MessagesSquare,
+  PencilRuler,
+  ClipboardList,
+  HardHat,
+  ClipboardCheck,
+  KeyRound,
+};
 
-export default function Process() {
+type ProcessProps = {
+  content: ProcessContent;
+};
+
+export default function Process({ content }: ProcessProps) {
   return (
     <section
       id="process"
@@ -61,20 +31,19 @@ export default function Process() {
       <div className="mx-auto max-w-7xl">
         <div className="mb-16 max-w-2xl">
           <p className="mb-4 text-sm font-semibold uppercase tracking-widest text-brand-accent">
-            Our Workflow
+            {content.label}
           </p>
 
-          <h2 className="mb-5 text-4xl font-bold md:text-5xl">How We Work</h2>
+          <h2 className="mb-5 text-4xl font-bold md:text-5xl">{content.title}</h2>
 
           <p className="leading-8 opacity-75">
-            Our structured approach ensures clarity, collaboration, and quality
-            throughout every stage of your project.
+            {content.description}
           </p>
         </div>
 
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {steps.map((step) => {
-            const Icon = step.icon;
+          {content.steps.map((step) => {
+            const Icon = icons[step.icon] ?? ClipboardList;
 
             return (
               <div

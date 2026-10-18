@@ -5,11 +5,12 @@ import {
   Hammer,
   ClipboardCheck,
   HardHat,
+  type LucideIcon,
 } from "lucide-react";
 
-import { services } from "@/data/portfolio";
+import type { ServicesContent } from "@/types/sectionContent";
 
-const serviceIcons = {
+const serviceIcons: Record<string, LucideIcon> = {
   House,
   Building2,
   DraftingCompass,
@@ -18,7 +19,22 @@ const serviceIcons = {
   HardHat,
 };
 
-export default function Services() {
+// Mirrors CompanyServiceResponse; supplied by the Company Services API.
+type CompanyService = {
+  id: number;
+  title: string;
+  description: string;
+  iconName: string | null;
+  imageMediaId: number | null;
+  sortOrder: number;
+};
+
+type ServicesProps = {
+  content: ServicesContent;
+  services: CompanyService[];
+};
+
+export default function Services({ content, services }: ServicesProps) {
   return (
     <section
       id="services"
@@ -27,21 +43,21 @@ export default function Services() {
       <div className="mx-auto max-w-7xl">
         <div className="mb-14 max-w-2xl">
           <p className="mb-4 text-sm font-semibold uppercase tracking-widest text-brand-accent-text">
-            What We Do
+            {content.label}
           </p>
 
-          <h2 className="mb-5 text-4xl font-bold md:text-5xl">Our Services</h2>
+          <h2 className="mb-5 text-4xl font-bold md:text-5xl">{content.title}</h2>
 
           <p className="leading-8 text-brand-muted">
-            We offer comprehensive construction and engineering solutions
-            tailored to meet the needs of every project.
+            {content.description}
           </p>
         </div>
 
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {services.map((service) => {
             const Icon =
-              serviceIcons[service.icon as keyof typeof serviceIcons];
+              (service.iconName ? serviceIcons[service.iconName] : undefined) ??
+              HardHat;
 
             return (
               <div

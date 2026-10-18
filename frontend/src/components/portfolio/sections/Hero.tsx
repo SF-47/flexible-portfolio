@@ -1,6 +1,10 @@
-import { siteConfig } from "@/data/siteConfig";
+import type { HeroContent } from "@/types/sectionContent";
 
-export default function Hero() {
+type HeroProps = {
+  content: HeroContent;
+};
+
+export default function Hero({ content }: HeroProps) {
   return (
     <section
       id="home"
@@ -8,22 +12,22 @@ export default function Hero() {
     >
       <div className="max-w-3xl">
         <p className="mb-6 text-sm font-semibold tracking-[0.3em] text-brand-accent">
-          {siteConfig.company.tagline}
+          {content.tagline}
         </p>
 
         <h2 className="text-5xl font-bold leading-tight md:text-7xl">
-          {siteConfig.hero.title}
+          {content.title}
         </h2>
 
         <p className="mt-8 max-w-xl text-lg leading-relaxed text-brand-on-primary/80">
-          {siteConfig.company.description}
+          {content.description}
         </p>
 
         <a
-          href={siteConfig.hero.buttonLink}
+          href={content.buttonLink}
           className="mt-10 inline-block bg-brand-accent px-8 py-4 font-semibold text-brand-on-accent transition hover:opacity-85"
         >
-          {siteConfig.hero.buttonText} →
+          {content.buttonText} →
         </a>
       </div>
     </section>
