@@ -1,7 +1,5 @@
 @import "tailwindcss";
 
-@custom-variant dark (&:where(.dark, .dark *));
-
 html {
   scroll-behavior: smooth;
 }
@@ -18,23 +16,8 @@ html {
   --admin-accent: #b45309;
 }
 
-html.dark {
-  --admin-bg: #0b0f14;
-  --admin-surface: #151a21;
-  --admin-subtle: #1b212a;
-  --admin-border: #2a323c;
-  --admin-text: #f1f5f9;
-  --admin-muted: #94a3b8;
-  --admin-faint: #64748b;
-  --admin-accent: #fbbf24;
-}
-
 .admin-shell {
   color-scheme: light;
-}
-
-html.dark .admin-shell {
-  color-scheme: dark;
 }
 
 @layer base {
@@ -55,10 +38,26 @@ html.dark .admin-shell {
   --color-admin-muted: var(--admin-muted);
   --color-admin-faint: var(--admin-faint);
   --color-admin-accent: var(--admin-accent);
-  --color-brand-muted: color-mix(in srgb, var(--color-text) 70%, var(--color-background));
-  --color-brand-surface: color-mix(in srgb, var(--color-text) 5%, var(--color-background));
-  --color-brand-surface-strong: color-mix(in srgb, var(--color-text) 12%, var(--color-background));
-  --color-brand-border: color-mix(in srgb, var(--color-text) 15%, var(--color-background));
+  --color-brand-muted: color-mix(
+    in srgb,
+    var(--color-text) 70%,
+    var(--color-background)
+  );
+  --color-brand-surface: color-mix(
+    in srgb,
+    var(--color-text) 5%,
+    var(--color-background)
+  );
+  --color-brand-surface-strong: color-mix(
+    in srgb,
+    var(--color-text) 12%,
+    var(--color-background)
+  );
+  --color-brand-border: color-mix(
+    in srgb,
+    var(--color-text) 15%,
+    var(--color-background)
+  );
   --color-brand-primary: var(--color-primary);
   --color-brand-accent: var(--color-accent);
   --color-brand-accent-text: var(--color-accent-text);
@@ -66,4 +65,17 @@ html.dark .admin-shell {
   --color-brand-text: var(--color-text);
   --color-brand-on-primary: var(--color-on-primary);
   --color-brand-on-accent: var(--color-on-accent);
+}
+
+.portfolio-theme {
+  font-family: var(--portfolio-body-font), sans-serif;
+}
+
+.portfolio-theme h1,
+.portfolio-theme h2,
+.portfolio-theme h3,
+.portfolio-theme h4,
+.portfolio-theme h5,
+.portfolio-theme h6 {
+  font-family: var(--portfolio-heading-font), sans-serif;
 }

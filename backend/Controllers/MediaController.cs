@@ -34,11 +34,4 @@ public class MediaController : ControllerBase
 
         return Ok(media);
     }
-
-    [HttpPost]
-    public async Task<IActionResult> Upload(IFormFile file, string? altText)
-    {
-        var media = await _mediaService.UploadAsync(file, altText);
-        return Ok(media);
-    }
 }

@@ -19,7 +19,7 @@ export default function PreviewPanel({
     <section className="min-w-0 overflow-hidden rounded-xl border border-admin-border bg-admin-surface shadow-sm">
       <div className="flex flex-wrap items-center justify-between gap-4 border-b border-admin-border px-5 py-4">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-amber-50 text-amber-700 dark:bg-amber-400/15 dark:text-amber-300">
+          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-amber-50 text-amber-700">
             <Eye size={20} />
           </div>
 
