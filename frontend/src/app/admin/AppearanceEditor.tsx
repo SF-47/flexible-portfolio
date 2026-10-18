@@ -285,7 +285,7 @@ export default function AppearanceEditor({
         </div>
       </section>
 
-      <div className="flex flex-wrap items-center justify-between gap-4 rounded-xl border border-admin-border bg-admin-surface p-4">
+      <div className="sticky bottom-4 z-10 flex flex-wrap items-center justify-between gap-4 rounded-xl border border-admin-border bg-admin-surface p-4 shadow-lg">
         <p className="text-sm text-admin-muted">
           {hasChanges
             ? "You have unsaved appearance changes."
