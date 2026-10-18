@@ -2,7 +2,13 @@
 
 import { useState, type DragEvent, type MouseEvent } from "react";
 import Link from "next/link";
-import { ArrowDown, ArrowUp, Pencil, RotateCcw } from "lucide-react";
+import {
+  ArrowDown,
+  ArrowUp,
+  GripVertical,
+  Pencil,
+  RotateCcw,
+} from "lucide-react";
 
 import SectionPreviewPanel from "@/components/admin/SectionPreviewPanel";
 import { sectionDescriptions } from "@/lib/sectionDescriptions";
@@ -15,6 +21,9 @@ const filters: { value: Filter; label: string }[] = [
   { value: "visible", label: "Visible" },
   { value: "hidden", label: "Hidden" },
 ];
+
+const arrowButton =
+  "shrink-0 rounded-md px-1.5 py-0.5 text-admin-muted transition hover:bg-admin-bg disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-transparent";
 
 const controlButton =
   "shrink-0 rounded-lg p-1.5 text-admin-muted transition hover:bg-admin-bg disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-transparent";
@@ -93,10 +102,24 @@ export default function SectionsList({ sections }: { sections: ApiSection[] }) {
     setOverId(null);
   }
 
+  // Only the grip starts a drag, so the drag image is set to the whole card.
   function handleDragStart(event: DragEvent, id: string) {
     event.dataTransfer.effectAllowed = "move";
     // Firefox only starts a drag when some data is set.
     event.dataTransfer.setData("text/plain", id);
+
+    const card = event.currentTarget.closest("li");
+
+    if (card) {
+      const box = card.getBoundingClientRect();
+
+      event.dataTransfer.setDragImage(
+        card,
+        event.clientX - box.left,
+        event.clientY - box.top,
+      );
+    }
+
     setDraggedId(id);
   }
 
@@ -209,10 +232,7 @@ export default function SectionsList({ sections }: { sections: ApiSection[] }) {
             return (
               <li
                 key={section.id}
-                draggable={canReorder}
                 onClick={() => setSelectedId(isSelected ? null : section.id)}
-                onDragStart={(event) => handleDragStart(event, section.id)}
-                onDragEnd={endDrag}
                 onDragOver={(event) => {
                   if (draggedId) {
                     event.preventDefault();
@@ -220,7 +240,7 @@ export default function SectionsList({ sections }: { sections: ApiSection[] }) {
                   }
                 }}
                 onDrop={(event) => handleDrop(event, section.id)}
-                className={`flex min-h-16 cursor-pointer items-center gap-3 rounded-xl border bg-admin-surface px-3 py-2.5 shadow-sm transition ${
+                className={`flex min-h-16 cursor-pointer items-center gap-2 rounded-xl border bg-admin-surface px-3 py-2.5 shadow-sm transition ${
                   isSelected
                     ? "border-amber-400 ring-1 ring-amber-400/40"
                     : "border-admin-border hover:border-admin-faint"
@@ -230,17 +250,24 @@ export default function SectionsList({ sections }: { sections: ApiSection[] }) {
                     : ""
                 }`}
               >
-                <span className="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-admin-bg text-base font-bold text-admin-muted">
+                {/* Drag handle: dragging only starts from here, not from the rest of the card. */}
+                <span
+                  draggable={canReorder}
+                  onDragStart={(event) => handleDragStart(event, section.id)}
+                  onDragEnd={endDrag}
+                  onClick={stop}
+                  title={canReorder ? "Drag to reorder" : undefined}
+                  className={`-mx-1 shrink-0 rounded-md p-1 ${
+                    canReorder
+                      ? "cursor-grab text-admin-faint hover:bg-admin-bg hover:text-admin-muted active:cursor-grabbing"
+                      : "text-admin-border"
+                  }`}
+                >
+                  <GripVertical size={16} aria-hidden="true" />
+                </span>
+
+                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-admin-bg text-sm font-bold text-admin-muted">
                   {position}
-                  <span
-                    title={section.isVisible ? "Visible" : "Hidden"}
-                    className={`absolute -top-1 -right-1 h-3 w-3 rounded-full border-2 border-admin-surface ${
-                      section.isVisible ? "bg-green-500" : "bg-slate-400"
-                    }`}
-                  />
-                  <span className="sr-only">
-                    {section.isVisible ? "Visible" : "Hidden"}
-                  </span>
                 </span>
 
                 {/* A real button so the preview is also reachable with the keyboard. */}
@@ -279,7 +306,7 @@ export default function SectionsList({ sections }: { sections: ApiSection[] }) {
                         ? "Shown on the website. Click to hide it."
                         : "Hidden from the website. Click to show it."
                     }
-                    className="mr-1 flex w-12 shrink-0 flex-col items-center gap-1 rounded-lg px-1 py-1 transition hover:bg-admin-bg"
+                    className="flex w-11 shrink-0 flex-col items-center gap-1 rounded-lg px-1 py-1 transition hover:bg-admin-bg"
                   >
                     <span
                       className={`relative h-5 w-9 rounded-full transition-colors ${
@@ -304,33 +331,35 @@ export default function SectionsList({ sections }: { sections: ApiSection[] }) {
                     </span>
                   </button>
 
-                  <button
-                    type="button"
-                    onClick={(event) => {
-                      stop(event);
-                      moveItem(position - 1, position - 2);
-                    }}
-                    disabled={!canReorder || position === 1}
-                    aria-label={`Move ${section.name} up`}
-                    title="Move up"
-                    className={controlButton}
-                  >
-                    <ArrowUp size={18} />
-                  </button>
+                  <div className="flex shrink-0 flex-col">
+                    <button
+                      type="button"
+                      onClick={(event) => {
+                        stop(event);
+                        moveItem(position - 1, position - 2);
+                      }}
+                      disabled={!canReorder || position === 1}
+                      aria-label={`Move ${section.name} up`}
+                      title="Move up"
+                      className={arrowButton}
+                    >
+                      <ArrowUp size={17} />
+                    </button>
 
-                  <button
-                    type="button"
-                    onClick={(event) => {
-                      stop(event);
-                      moveItem(position - 1, position);
-                    }}
-                    disabled={!canReorder || position === items.length}
-                    aria-label={`Move ${section.name} down`}
-                    title="Move down"
-                    className={controlButton}
-                  >
-                    <ArrowDown size={18} />
-                  </button>
+                    <button
+                      type="button"
+                      onClick={(event) => {
+                        stop(event);
+                        moveItem(position - 1, position);
+                      }}
+                      disabled={!canReorder || position === items.length}
+                      aria-label={`Move ${section.name} down`}
+                      title="Move down"
+                      className={arrowButton}
+                    >
+                      <ArrowDown size={17} />
+                    </button>
+                  </div>
 
                   <Link
                     href={`/admin/content?section=${encodeURIComponent(section.type)}`}
