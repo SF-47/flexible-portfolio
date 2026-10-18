@@ -15,7 +15,7 @@ export default function Hero({ content, media }: HeroProps) {
   return (
     <section
       id="home"
-      className="relative flex min-h-[calc(100vh-88px)] items-center overflow-hidden px-8 py-20 md:px-20"
+      className="relative flex min-h-[calc(100svh-5rem)] items-center overflow-hidden px-8 py-20 md:px-20"
     >
       {imageUrl && (
         <>
