@@ -65,6 +65,21 @@ public static class ThemeSeeder
                 NavbarVariant = "default",
                 IsActive = false,
             },
+            new Theme
+            {
+                Name = "Custom Theme",
+                PrimaryColor = "#000000",
+                AccentColor = "#000000",
+                BackgroundColor = "#000000",
+                TextColor = "#000000",
+                OnPrimaryColor = "#000000",
+                OnAccentColor = "#000000",
+                HeadingFont = "Inter",
+                BodyFont = "Inter",
+                NavbarVariant = "default",
+                IsCustom = true,
+                IsActive = false,
+            },
         };
 
         var existingNames = await context

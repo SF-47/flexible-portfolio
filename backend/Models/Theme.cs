@@ -19,6 +19,7 @@ public class Theme
     public string NavbarVariant { get; set; } = "default";
 
     public bool IsActive { get; set; } = false;
+    public bool IsCustom { get; set; } = false;
 
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 }

@@ -28,7 +28,8 @@ public class ThemeService : IThemeService
             theme.HeadingFont,
             theme.BodyFont,
             theme.NavbarVariant,
-            theme.IsActive
+            theme.IsActive,
+            theme.IsCustom
         );
 
     public async Task<List<ThemeResponse>> GetAllAsync()
@@ -81,7 +82,8 @@ public class ThemeService : IThemeService
             theme.HeadingFont,
             theme.BodyFont,
             theme.NavbarVariant,
-            theme.IsActive
+            theme.IsActive,
+            theme.IsCustom
         );
     }
 

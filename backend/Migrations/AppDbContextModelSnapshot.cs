@@ -188,7 +188,7 @@ namespace Portfolio.Api.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("varchar(100)");
 
-                    b.Property<DateOnly?>("CompletionDate")
+                    b.Property<DateTime?>("CompletionDate")
                         .HasColumnType("date");
 
                     b.Property<DateTime>("CreatedAt")
@@ -454,6 +454,9 @@ namespace Portfolio.Api.Migrations
                         .HasColumnType("varchar(100)");
 
                     b.Property<bool>("IsActive")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<bool>("IsCustom")
                         .HasColumnType("tinyint(1)");
 
                     b.Property<string>("Name")

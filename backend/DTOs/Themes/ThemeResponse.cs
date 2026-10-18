@@ -12,5 +12,6 @@ public record ThemeResponse(
     string HeadingFont,
     string BodyFont,
     string NavbarVariant,
-    bool IsActive
+    bool IsActive,
+    bool IsCustom
 );
