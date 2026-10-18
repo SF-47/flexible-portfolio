@@ -1,19 +1,24 @@
-import { siteConfig } from "@/data/siteConfig";
+
 import type { CSSProperties, ReactNode } from "react";
+import type { Theme } from "@/types/theme";
 
 type SiteThemeProps = {
   children: ReactNode;
+  theme: Theme;
 };
 
-export default function SiteTheme({ children }: SiteThemeProps) {
+export default function SiteTheme({
+  children,
+  theme,
+}: SiteThemeProps) {
   const style = {
-    "--color-primary": siteConfig.theme.primary,
-    "--color-accent": siteConfig.theme.accent,
-    "--color-accent-text": siteConfig.theme.accentText,
-    "--color-background": siteConfig.theme.background,
-    "--color-text": siteConfig.theme.text,
-    "--color-on-primary": siteConfig.theme.onPrimary,
-    "--color-on-accent": siteConfig.theme.onAccent,
+    "--color-primary": theme.primaryColor,
+    "--color-accent": theme.accentColor,
+    "--color-accent-text": theme.accentColor,
+    "--color-background": theme.backgroundColor,
+    "--color-text": theme.textColor,
+    "--color-on-primary": theme.onPrimaryColor,
+    "--color-on-accent": theme.onAccentColor,
   } as CSSProperties;
 
   return (
