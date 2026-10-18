@@ -3,6 +3,7 @@ import Image from "next/image";
 import type { AboutContent } from "@/types/sectionContent";
 import type { MediaAsset } from "@/types/media";
 import { getMediaUrl } from "@/lib/mediaUrl";
+import Reveal from "@/components/portfolio/Reveal";
 
 const fallbackImage = "/images/about.jpg";
 
@@ -19,7 +20,7 @@ export default function About({ content, media }: AboutProps) {
       id="about"
       className="bg-brand-background px-8 py-16 md:py-24 text-brand-text md:px-20"
     >
-      <div className="mx-auto grid max-w-7xl items-center gap-16 lg:grid-cols-2">
+      <Reveal className="mx-auto grid max-w-7xl items-center gap-16 lg:grid-cols-2">
         <div>
           <p className="mb-4 text-sm font-semibold uppercase tracking-widest text-brand-accent-text">
             {content.label}
@@ -54,7 +55,7 @@ export default function About({ content, media }: AboutProps) {
             className="object-cover"
           />
         </div>
-      </div>
+      </Reveal>
     </section>
   );
 }

@@ -3,6 +3,7 @@ import { Images, type LucideIcon } from "lucide-react";
 import type { GalleryContent } from "@/types/sectionContent";
 import type { MediaAsset } from "@/types/media";
 import { getMediaUrl } from "@/lib/mediaUrl";
+import Reveal from "@/components/portfolio/Reveal";
 
 const icons: Record<string, LucideIcon> = {
   Images,
@@ -30,7 +31,7 @@ export default function Gallery({ content, media }: GalleryProps) {
       id="gallery"
       className="bg-brand-surface px-8 py-16 md:py-24 text-brand-text md:px-20"
     >
-      <div className="mx-auto max-w-7xl">
+      <Reveal className="mx-auto max-w-7xl">
         <div className="mb-14 flex flex-wrap items-end justify-between gap-6">
           <div className="max-w-2xl">
             <p className="mb-4 text-sm font-semibold uppercase tracking-widest text-brand-accent-text">
@@ -87,7 +88,7 @@ export default function Gallery({ content, media }: GalleryProps) {
             </div>
           ))}
         </div>
-      </div>
+      </Reveal>
     </section>
   );
 }

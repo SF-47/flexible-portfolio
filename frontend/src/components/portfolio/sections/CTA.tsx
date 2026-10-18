@@ -1,5 +1,6 @@
 import { ArrowUpRight, PhoneCall, MoveUpRight } from "lucide-react";
 import type { CTAContent } from "@/types/sectionContent";
+import Reveal from "@/components/portfolio/Reveal";
 
 type CTAProps = {
   content: CTAContent;
@@ -11,7 +12,7 @@ export default function CTA({ content }: CTAProps) {
       id="cta"
       className="bg-brand-accent px-8 py-20 text-brand-on-accent md:px-20"
     >
-      <div className="mx-auto max-w-7xl">
+      <Reveal className="mx-auto max-w-7xl">
         <div className="flex flex-col items-start justify-between gap-10 lg:flex-row lg:items-center">
           <div className="max-w-3xl">
             <div className="mb-5 flex items-center gap-3">
@@ -51,7 +52,7 @@ export default function CTA({ content }: CTAProps) {
             </a>
           </div>
         </div>
-      </div>
+      </Reveal>
     </section>
   );
 }

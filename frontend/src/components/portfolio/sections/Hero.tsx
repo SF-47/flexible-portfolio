@@ -2,6 +2,7 @@ import Image from "next/image";
 import type { HeroContent } from "@/types/sectionContent";
 import type { MediaAsset } from "@/types/media";
 import { getMediaUrl } from "@/lib/mediaUrl";
+import Reveal from "@/components/portfolio/Reveal";
 
 type HeroProps = {
   content: HeroContent;
@@ -30,7 +31,7 @@ export default function Hero({ content, media }: HeroProps) {
         </>
       )}
 
-      <div className="relative z-10 max-w-3xl">
+      <Reveal className="relative z-10 max-w-3xl">
         <p className="mb-6 text-sm font-semibold tracking-[0.3em] text-brand-accent">
           {content.tagline}
         </p>
@@ -49,7 +50,7 @@ export default function Hero({ content, media }: HeroProps) {
         >
           {content.buttonText} →
         </a>
-      </div>
+      </Reveal>
     </section>
   );
 }

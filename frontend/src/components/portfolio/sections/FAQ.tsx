@@ -1,5 +1,6 @@
 import { CircleHelp, HelpCircle, Plus, type LucideIcon } from "lucide-react";
 import type { FAQContent } from "@/types/sectionContent";
+import Reveal from "@/components/portfolio/Reveal";
 
 const icons: Record<string, LucideIcon> = {
   HelpCircle,
@@ -18,7 +19,7 @@ export default function FAQ({ content }: FAQProps) {
       id="faq"
       className="bg-brand-background px-8 py-16 md:py-24 text-brand-text md:px-20"
     >
-      <div className="mx-auto grid max-w-7xl gap-14 lg:grid-cols-[0.8fr_1.2fr]">
+      <Reveal className="mx-auto grid max-w-7xl gap-14 lg:grid-cols-[0.8fr_1.2fr]">
         <div>
           <p className="mb-4 text-sm font-semibold uppercase tracking-widest text-brand-accent-text">
             {content.label}
@@ -70,7 +71,7 @@ export default function FAQ({ content }: FAQProps) {
             </details>
           ))}
         </div>
-      </div>
+      </Reveal>
     </section>
   );
 }

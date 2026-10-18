@@ -8,6 +8,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import type { CertificationsContent } from "@/types/sectionContent";
+import Reveal from "@/components/portfolio/Reveal";
 
 const icons: Record<string, LucideIcon> = {
   Award,
@@ -28,7 +29,7 @@ export default function Certifications({ content }: CertificationsProps) {
       id="certifications"
       className="bg-brand-background px-8 py-16 md:py-24 text-brand-text md:px-20"
     >
-      <div className="mx-auto max-w-7xl">
+      <Reveal className="mx-auto max-w-7xl">
         <div className="mb-14 max-w-2xl">
           <p className="mb-4 text-sm font-semibold uppercase tracking-widest text-brand-accent-text">
             {content.label}
@@ -71,7 +72,7 @@ export default function Certifications({ content }: CertificationsProps) {
             );
           })}
         </div>
-      </div>
+      </Reveal>
     </section>
   );
 }

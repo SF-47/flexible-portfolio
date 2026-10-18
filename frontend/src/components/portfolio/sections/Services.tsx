@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 
 import type { ServicesContent } from "@/types/sectionContent";
+import Reveal from "@/components/portfolio/Reveal";
 
 const serviceIcons: Record<string, LucideIcon> = {
   House,
@@ -35,7 +36,7 @@ export default function Services({ content, services, media }: ServicesProps) {
       id="services"
       className="bg-brand-surface px-8 py-16 md:py-24 text-brand-text md:px-20"
     >
-      <div className="mx-auto max-w-7xl">
+      <Reveal className="mx-auto max-w-7xl">
         <div className="mb-14 max-w-2xl">
           <p className="mb-4 text-sm font-semibold uppercase tracking-widest text-brand-accent-text">
             {content.label}
@@ -85,7 +86,7 @@ export default function Services({ content, services, media }: ServicesProps) {
             );
           })}
         </div>
-      </div>
+      </Reveal>
     </section>
   );
 }

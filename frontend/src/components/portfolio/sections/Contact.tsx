@@ -4,6 +4,7 @@ import { useState, type FormEvent } from "react";
 import { Mail, MapPin, Phone, Send } from "lucide-react";
 import type { ContactContent } from "@/types/sectionContent";
 import { sendContactMessage } from "@/lib/ContactMessages";
+import Reveal from "@/components/portfolio/Reveal";
 
 type ContactInfo = {
   email: string | null;
@@ -65,7 +66,7 @@ export default function Contact({ content, contactInfo }: ContactProps) {
       id="contact"
       className="bg-brand-surface px-8 py-16 md:py-24 text-brand-text md:px-20"
     >
-      <div className="mx-auto max-w-7xl">
+      <Reveal className="mx-auto max-w-7xl">
         <div className="mb-14 max-w-2xl">
           <p className="mb-4 text-sm font-semibold uppercase tracking-widest text-brand-accent-text">
             {content.label}
@@ -225,7 +226,7 @@ export default function Contact({ content, contactInfo }: ContactProps) {
             )}
           </form>
         </div>
-      </div>
+      </Reveal>
     </section>
   );
 }

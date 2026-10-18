@@ -4,6 +4,7 @@ import { getMediaUrl } from "@/lib/mediaUrl";
 import { Mail, UserRound } from "lucide-react";
 import { FaLinkedin } from "react-icons/fa";
 import type { TeamContent } from "@/types/sectionContent";
+import Reveal from "@/components/portfolio/Reveal";
 
 type TeamProps = {
   content: TeamContent;
@@ -16,7 +17,7 @@ export default function Team({ content, media }: TeamProps) {
       id="team"
       className="bg-brand-surface px-8 py-16 md:py-24 text-brand-text md:px-20"
     >
-      <div className="mx-auto max-w-7xl">
+      <Reveal className="mx-auto max-w-7xl">
         <div className="mb-14 max-w-2xl">
           <p className="mb-4 text-sm font-semibold uppercase tracking-widest text-brand-accent-text">
             {content.label}
@@ -81,7 +82,7 @@ export default function Team({ content, media }: TeamProps) {
             );
           })}
         </div>
-      </div>
+      </Reveal>
     </section>
   );
 }

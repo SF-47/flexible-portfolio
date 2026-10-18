@@ -8,6 +8,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import type { WhyChooseUsContent } from "@/types/sectionContent";
+import Reveal from "@/components/portfolio/Reveal";
 
 const icons: Record<string, LucideIcon> = {
   ShieldCheck,
@@ -28,7 +29,7 @@ export default function WhyChooseUs({ content }: WhyChooseUsProps) {
       id="why-choose-us"
       className="bg-brand-primary px-8 py-16 md:py-24 text-brand-on-primary md:px-20"
     >
-      <div className="mx-auto max-w-7xl">
+      <Reveal className="mx-auto max-w-7xl">
         <div className="mb-14 max-w-2xl">
           <p className="mb-4 text-sm font-semibold uppercase tracking-widest text-brand-accent">
             {content.label}
@@ -61,7 +62,7 @@ export default function WhyChooseUs({ content }: WhyChooseUsProps) {
             );
           })}
         </div>
-      </div>
+      </Reveal>
     </section>
   );
 }
