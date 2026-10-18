@@ -1,6 +1,7 @@
 using System.Threading.RateLimiting;
 using backend.Data;
 using backend.Data.Seeders;
+using backend.Services.Admin;
 using backend.Services.CompanyServices;
 using backend.Services.ContactMessages;
 using backend.Services.Media;
@@ -35,6 +36,7 @@ builder.Services.AddScoped<IMediaService, MediaService>();
 builder.Services.AddScoped<INavigationService, NavigationService>();
 builder.Services.AddScoped<ISocialLinkService, SocialLinkService>();
 builder.Services.AddScoped<IContactMessageService, ContactMessageService>();
+builder.Services.AddScoped<IDashboardService, DashboardService>();
 
 builder.Services.AddRateLimiter(options =>
 {

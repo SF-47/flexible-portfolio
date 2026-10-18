@@ -51,7 +51,7 @@ export default function AdminSidebar({
           {!collapsed && (
             <div className="min-w-0">
               <h1 className="truncate text-xl font-bold tracking-wider">
-                ATLAS.
+                Admin
               </h1>
               <p className="text-xs text-slate-400">Portfolio Manager</p>
             </div>
