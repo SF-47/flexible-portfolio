@@ -1,5 +1,6 @@
 import Navbar from "@/components/portfolio/Navbar";
 import Footer from "@/components/portfolio/Footer";
+import ScrollToTop from "@/components/portfolio/ScrollToTop";
 import SiteTheme from "@/components/SiteTheme";
 import SectionRenderer from "@/components/portfolio/sections/SectionRederer";
 import type { Metadata } from "next";
@@ -92,6 +93,7 @@ export default async function Home() {
           socialLinks={socialLinks}
         />
 
+        <ScrollToTop />
       </main>
     </SiteTheme>
   );

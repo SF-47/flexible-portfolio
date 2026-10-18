@@ -79,7 +79,7 @@ export default function Navbar({
   const middle = Math.ceil(links.length / 2);
 
   return (
-    <nav className="relative z-50 bg-brand-primary px-8 py-6 text-brand-on-primary md:px-20">
+    <nav className="sticky top-0 z-50 bg-brand-primary shadow-sm px-8 py-6 text-brand-on-primary md:px-20">
       {/* Mobile layout */}
       <div className="flex items-center justify-between gap-4 md:hidden">
         {logo}
