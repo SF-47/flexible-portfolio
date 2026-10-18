@@ -26,7 +26,7 @@ export default function Process({ content }: ProcessProps) {
   return (
     <section
       id="process"
-      className="bg-brand-primary px-8 py-24 text-brand-on-primary md:px-20"
+      className="bg-brand-primary px-8 py-16 md:py-24 text-brand-on-primary md:px-20"
     >
       <div className="mx-auto max-w-7xl">
         <div className="mb-16 max-w-2xl">

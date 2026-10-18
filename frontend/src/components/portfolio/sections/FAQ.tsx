@@ -16,7 +16,7 @@ export default function FAQ({ content }: FAQProps) {
   return (
     <section
       id="faq"
-      className="bg-brand-background px-8 py-24 text-brand-text md:px-20"
+      className="bg-brand-background px-8 py-16 md:py-24 text-brand-text md:px-20"
     >
       <div className="mx-auto grid max-w-7xl gap-14 lg:grid-cols-[0.8fr_1.2fr]">
         <div>

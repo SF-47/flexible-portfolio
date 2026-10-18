@@ -63,7 +63,7 @@ export default function Contact({ content, contactInfo }: ContactProps) {
   return (
     <section
       id="contact"
-      className="bg-brand-surface px-8 py-24 text-brand-text md:px-20"
+      className="bg-brand-surface px-8 py-16 md:py-24 text-brand-text md:px-20"
     >
       <div className="mx-auto max-w-7xl">
         <div className="mb-14 max-w-2xl">

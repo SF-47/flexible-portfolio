@@ -17,7 +17,7 @@ export default function About({ content, media }: AboutProps) {
   return (
     <section
       id="about"
-      className="bg-brand-background px-8 py-24 text-brand-text md:px-20"
+      className="bg-brand-background px-8 py-16 md:py-24 text-brand-text md:px-20"
     >
       <div className="mx-auto grid max-w-7xl items-center gap-16 lg:grid-cols-2">
         <div>

@@ -80,7 +80,7 @@ export default function Footer({
                     rel="noopener noreferrer"
                     aria-label={social.platform}
                     title={social.platform}
-                    className="transition hover:text-brand-accent"
+                    className="-m-2.5 p-2.5 transition hover:text-brand-accent md:m-0 md:p-0"
                   >
                     <Icon size={22} />
                   </a>
@@ -108,7 +108,7 @@ export default function Footer({
                       rel={
                         item.openInNewTab ? "noopener noreferrer" : undefined
                       }
-                      className="hover:text-brand-accent"
+                      className="inline-block py-2 hover:text-brand-accent md:py-0"
                     >
                       {item.label}
                     </a>
@@ -127,7 +127,7 @@ export default function Footer({
             {siteSettings.phone && (
               <a
                 href={`tel:${siteSettings.phone.replace(/\s+/g, "")}`}
-                className="block hover:text-brand-accent"
+                className="block py-2 hover:text-brand-accent md:py-0"
               >
                 {siteSettings.phone}
               </a>
@@ -136,7 +136,7 @@ export default function Footer({
             {siteSettings.email && (
               <a
                 href={`mailto:${siteSettings.email}`}
-                className="block hover:text-brand-accent"
+                className="block py-2 hover:text-brand-accent md:py-0"
               >
                 {siteSettings.email}
               </a>

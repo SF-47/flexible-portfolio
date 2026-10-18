@@ -69,7 +69,7 @@ export default function Navbar({
         target={item.openInNewTab ? "_blank" : undefined}
         rel={item.openInNewTab ? "noopener noreferrer" : undefined}
         onClick={() => setMenuOpen(false)}
-        className="transition-colors hover:text-brand-accent"
+        className="py-2 transition-colors hover:text-brand-accent md:py-0"
       >
         {item.label}
       </a>
