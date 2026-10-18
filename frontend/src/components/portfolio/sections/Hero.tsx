@@ -1,16 +1,36 @@
+import Image from "next/image";
 import type { HeroContent } from "@/types/sectionContent";
+import type { MediaAsset } from "@/types/media";
+import { getMediaUrl } from "@/lib/mediaUrl";
 
 type HeroProps = {
   content: HeroContent;
+  media: MediaAsset[];
 };
 
-export default function Hero({ content }: HeroProps) {
+export default function Hero({ content, media }: HeroProps) {
+  const imageUrl = getMediaUrl(content.imageMediaId ?? null, media);
+
   return (
     <section
       id="home"
-      className="flex min-h-[calc(100vh-88px)] items-center px-8 py-20 md:px-20"
+      className="relative flex min-h-[calc(100vh-88px)] items-center overflow-hidden px-8 py-20 md:px-20"
     >
-      <div className="max-w-3xl">
+      {imageUrl && (
+        <>
+          <Image
+            src={imageUrl}
+            alt=""
+            fill
+            priority
+            sizes="100vw"
+            className="object-cover"
+          />
+          <div className="absolute inset-0 bg-black/60" aria-hidden="true" />
+        </>
+      )}
+
+      <div className="relative z-10 max-w-3xl">
         <p className="mb-6 text-sm font-semibold tracking-[0.3em] text-brand-accent">
           {content.tagline}
         </p>

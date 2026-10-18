@@ -1,8 +1,11 @@
 import Image from "next/image";
 import { ArrowUpRight } from "lucide-react";
 import type { ProjectsContent } from "@/types/sectionContent";
+import type { Project } from "@/types/project";
+import type { MediaAsset } from "@/types/media";
+import { getMediaUrl } from "@/lib/mediaUrl";
 
-// Placeholders until media fetching exists and featuredImageId can be resolved.
+// Display these images only when no media asset is selected.
 const fallbackImages = [
   "/images/project-1.jpg",
   "/images/project-2.jpg",
@@ -11,26 +14,13 @@ const fallbackImages = [
   "/images/project-5.jpg",
 ];
 
-// Mirrors ProjectResponse; supplied by the Projects API.
-type Project = {
-  id: number;
-  title: string;
-  slug: string;
-  description: string | null;
-  category: string | null;
-  location: string | null;
-  completionDate: string | null;
-  featuredImageId: number | null;
-  isFeatured: boolean;
-  sortOrder: number;
-};
-
 type ProjectsProps = {
   content: ProjectsContent;
   projects: Project[];
+  media: MediaAsset[];
 };
 
-export default function Projects({ content, projects }: ProjectsProps) {
+export default function Projects({ content, projects, media }: ProjectsProps) {
   return (
     <section
       id="projects"
@@ -52,7 +42,7 @@ export default function Projects({ content, projects }: ProjectsProps) {
             <article key={project.id} className="group">
               <div className="relative h-80 overflow-hidden rounded-lg bg-brand-surface-strong">
                 <Image
-                  src={fallbackImages[index % fallbackImages.length]}
+                  src={getMediaUrl(project.featuredImageId, media) ?? fallbackImages[index % fallbackImages.length]}
                   alt={project.title}
                   fill
                   sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"

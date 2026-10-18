@@ -1,14 +1,19 @@
 import Image from "next/image";
-import type { AboutContent } from "@/types/sectionContent";
 
-// Placeholder until media fetching exists and imageMediaId can be resolved.
+import type { AboutContent } from "@/types/sectionContent";
+import type { MediaAsset } from "@/types/media";
+import { getMediaUrl } from "@/lib/mediaUrl";
+
 const fallbackImage = "/images/about.jpg";
 
 type AboutProps = {
   content: AboutContent;
+  media: MediaAsset[];
 };
 
-export default function About({ content }: AboutProps) {
+export default function About({ content, media }: AboutProps) {
+  const imageUrl = getMediaUrl(content.imageMediaId, media) ?? fallbackImage;
+
   return (
     <section
       id="about"
@@ -42,8 +47,8 @@ export default function About({ content }: AboutProps) {
 
         <div className="relative h-87.5 overflow-hidden rounded-lg md:h-125">
           <Image
-            src={fallbackImage}
-            alt={content.imageAlt}
+            src={imageUrl}
+            alt={content.imageAlt || "About our company"}
             fill
             sizes="(max-width: 1024px) 100vw, 50vw"
             className="object-cover"

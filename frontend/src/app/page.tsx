@@ -10,6 +10,7 @@ import { getSiteSettings } from "@/lib/siteSettings";
 import { getNavigation } from "@/lib/navigation";
 import { getSocialLinks } from "@/lib/socialLinks";
 import { getActiveTheme } from "@/lib/themes";
+import { getMedia } from "@/lib/media";
 
 export default async function Home() {
   const [
@@ -20,6 +21,7 @@ export default async function Home() {
     navigation,
     socialLinks,
     activeTheme,
+    media,
   ] = await Promise.all([
     getSections(),
     getCompanyServices(),
@@ -28,18 +30,25 @@ export default async function Home() {
     getNavigation(),
     getSocialLinks(),
     getActiveTheme(),
+    getMedia(),
   ]);
 
   return (
     <SiteTheme theme={activeTheme}>
       <main className="min-h-screen bg-brand-primary text-brand-on-primary">
-        <Navbar siteSettings={siteSettings} navigation={navigation} />
+        <Navbar
+          siteSettings={siteSettings}
+          navigation={navigation}
+          media={media}
+          navbarVariant={activeTheme.navbarVariant}
+        />
 
         <SectionRenderer
           sections={sections}
           services={services}
           projects={projects}
           siteSettings={siteSettings}
+          media={media}
         />
 
         <Footer

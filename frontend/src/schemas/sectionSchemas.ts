@@ -6,6 +6,7 @@ export const HeroSchema = z.object({
   description: z.string(),
   buttonText: z.string(),
   buttonLink: z.string(),
+  imageMediaId: z.number().int().positive().nullable().optional(),
 });
 
 export const AboutSchema = z.object({

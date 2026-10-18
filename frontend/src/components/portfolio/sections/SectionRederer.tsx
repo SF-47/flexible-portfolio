@@ -2,6 +2,7 @@ import type { ApiSection } from "@/types/apiSections";
 import type { CompanyService } from "@/types/companyService";
 import type { Project } from "@/types/project";
 import type { SiteSettings } from "@/types/siteSettings";
+import type { MediaAsset } from "@/types/media";
 import { z } from "zod";
 
 import {
@@ -43,6 +44,7 @@ type SectionRendererProps = {
   services: CompanyService[];
   projects: Project[];
   siteSettings: SiteSettings;
+  media: MediaAsset[];
 };
 
 function parseContent(json: string, type: string): unknown {
@@ -74,6 +76,7 @@ export default function SectionRenderer({
   services,
   projects,
   siteSettings,
+  media,
 }: SectionRendererProps) {
   const visibleSections = sections
     .filter((section) => section.isVisible)
@@ -89,12 +92,16 @@ export default function SectionRenderer({
         switch (section.type) {
           case "hero": {
             const data = validateContent(HeroSchema, content, section.type);
-            return data ? <Hero key={section.id} content={data} /> : null;
+            return data ? (
+              <Hero key={section.id} content={data} media={media} />
+            ) : null;
           }
 
           case "about": {
             const data = validateContent(AboutSchema, content, section.type);
-            return data ? <About key={section.id} content={data} /> : null;
+            return data ? (
+              <About key={section.id} content={data} media={media} />
+            ) : null;
           }
 
           case "stats": {
@@ -105,14 +112,14 @@ export default function SectionRenderer({
           case "services": {
             const data = validateContent(ServicesSchema, content, section.type);
             return data ? (
-              <Services key={section.id} content={data} services={services} />
+              <Services key={section.id} content={data} services={services} media={media} />
             ) : null;
           }
 
           case "projects": {
             const data = validateContent(ProjectsSchema, content, section.type);
             return data ? (
-              <Projects key={section.id} content={data} projects={projects} />
+              <Projects key={section.id} content={data} projects={projects} media={media} />
             ) : null;
           }
 
@@ -134,12 +141,12 @@ export default function SectionRenderer({
 
           case "gallery": {
             const data = validateContent(GallerySchema, content, section.type);
-            return data ? <Gallery key={section.id} content={data} /> : null;
+            return data ? <Gallery key={section.id} content={data} media={media} /> : null;
           }
 
           case "team": {
             const data = validateContent(TeamSchema, content, section.type);
-            return data ? <Team key={section.id} content={data} /> : null;
+            return data ? <Team key={section.id} content={data} media={media} /> : null;
           }
 
           case "clients": {

@@ -1,12 +1,16 @@
+import Image from "next/image";
+import type { MediaAsset } from "@/types/media";
+import { getMediaUrl } from "@/lib/mediaUrl";
 import { Mail, UserRound } from "lucide-react";
 import { FaLinkedin } from "react-icons/fa";
 import type { TeamContent } from "@/types/sectionContent";
 
 type TeamProps = {
   content: TeamContent;
+  media: MediaAsset[];
 };
 
-export default function Team({ content }: TeamProps) {
+export default function Team({ content, media }: TeamProps) {
   return (
     <section
       id="team"
@@ -26,17 +30,30 @@ export default function Team({ content }: TeamProps) {
         </div>
 
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          {content.members.map((member) => (
+          {content.members.map((member) => {
+            const imageUrl = getMediaUrl(member.imageMediaId, media);
+
+            return (
             <article
               key={member.name}
               className="group overflow-hidden rounded-lg bg-brand-background shadow-sm transition duration-300 hover:-translate-y-2 hover:shadow-xl"
             >
-              <div className="flex aspect-4/4.5 items-center justify-center bg-linear-to-br from-brand-surface-strong to-brand-border">
-                <UserRound
-                  size={95}
-                  strokeWidth={1}
-                  className="text-brand-muted transition group-hover:scale-110"
-                />
+              <div className="relative flex aspect-4/4.5 items-center justify-center overflow-hidden bg-linear-to-br from-brand-surface-strong to-brand-border">
+                {imageUrl ? (
+                  <Image
+                    src={imageUrl}
+                    alt={member.name}
+                    fill
+                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                    className="object-cover transition group-hover:scale-110"
+                  />
+                ) : (
+                  <UserRound
+                    size={95}
+                    strokeWidth={1}
+                    className="text-brand-muted transition group-hover:scale-110"
+                  />
+                )}
               </div>
 
               <div className="p-6">
@@ -61,7 +78,8 @@ export default function Team({ content }: TeamProps) {
                 </div>
               </div>
             </article>
-          ))}
+            );
+          })}
         </div>
       </div>
     </section>

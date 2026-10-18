@@ -1,12 +1,14 @@
 import Image from "next/image";
 import { Images, type LucideIcon } from "lucide-react";
 import type { GalleryContent } from "@/types/sectionContent";
+import type { MediaAsset } from "@/types/media";
+import { getMediaUrl } from "@/lib/mediaUrl";
 
 const icons: Record<string, LucideIcon> = {
   Images,
 };
 
-// Placeholders until media fetching exists and imageMediaId can be resolved.
+// Images shown when a gallery item has no configured media asset.
 const fallbackImages = [
   "/images/project-1.jpg",
   "/images/project-2.jpg",
@@ -17,9 +19,10 @@ const fallbackImages = [
 
 type GalleryProps = {
   content: GalleryContent;
+  media: MediaAsset[];
 };
 
-export default function Gallery({ content }: GalleryProps) {
+export default function Gallery({ content, media }: GalleryProps) {
   const GalleryIcon = icons[content.icon] ?? Images;
 
   return (
@@ -60,7 +63,7 @@ export default function Gallery({ content }: GalleryProps) {
                 }`}
               >
                 <Image
-                  src={fallbackImages[index % fallbackImages.length]}
+                  src={getMediaUrl(item.imageMediaId, media) ?? fallbackImages[index % fallbackImages.length]}
                   alt={item.title}
                   fill
                   sizes={

@@ -1,3 +1,7 @@
+import Image from "next/image";
+import type { MediaAsset } from "@/types/media";
+import { getMediaUrl } from "@/lib/mediaUrl";
+import type { CompanyService } from "@/types/companyService";
 import {
   House,
   Building2,
@@ -19,22 +23,13 @@ const serviceIcons: Record<string, LucideIcon> = {
   HardHat,
 };
 
-// Mirrors CompanyServiceResponse; supplied by the Company Services API.
-type CompanyService = {
-  id: number;
-  title: string;
-  description: string;
-  iconName: string | null;
-  imageMediaId: number | null;
-  sortOrder: number;
-};
-
 type ServicesProps = {
   content: ServicesContent;
   services: CompanyService[];
+  media: MediaAsset[];
 };
 
-export default function Services({ content, services }: ServicesProps) {
+export default function Services({ content, services, media }: ServicesProps) {
   return (
     <section
       id="services"
@@ -55,6 +50,7 @@ export default function Services({ content, services }: ServicesProps) {
 
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {services.map((service) => {
+            const imageUrl = getMediaUrl(service.imageMediaId, media);
             const Icon =
               (service.iconName ? serviceIcons[service.iconName] : undefined) ??
               HardHat;
@@ -67,6 +63,18 @@ export default function Services({ content, services }: ServicesProps) {
                 <div className="mb-7 flex h-14 w-14 items-center justify-center rounded-lg bg-brand-accent/15 text-brand-accent-text">
                   <Icon size={28} />
                 </div>
+
+                {imageUrl && (
+                  <div className="relative mb-6 aspect-video overflow-hidden rounded-lg bg-brand-surface-strong">
+                    <Image
+                      src={imageUrl}
+                      alt={service.title}
+                      fill
+                      sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                      className="object-cover"
+                    />
+                  </div>
+                )}
 
                 <h3 className="mb-4 text-xl font-bold">{service.title}</h3>
 
