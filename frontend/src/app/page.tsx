@@ -2,6 +2,8 @@ import Navbar from "@/components/portfolio/Navbar";
 import Footer from "@/components/portfolio/Footer";
 import SiteTheme from "@/components/SiteTheme";
 import SectionRenderer from "@/components/portfolio/sections/SectionRederer";
+import type { Metadata } from "next";
+import { getMediaUrl } from "@/lib/mediaUrl";
 
 import { getSections } from "@/lib/sections";
 import { getCompanyServices } from "@/lib/companyServices";
@@ -11,6 +13,39 @@ import { getNavigation } from "@/lib/navigation";
 import { getSocialLinks } from "@/lib/socialLinks";
 import { getActiveTheme } from "@/lib/themes";
 import { getMedia } from "@/lib/media";
+
+export async function generateMetadata(): Promise<Metadata> {
+  const [siteSettings, media] = await Promise.all([
+    getSiteSettings(),
+    getMedia(),
+  ]);
+
+  const title = siteSettings.seoTitle?.trim() || siteSettings.companyName;
+
+  const description =
+    siteSettings.seoDescription?.trim() ||
+    siteSettings.description ||
+    `Welcome to ${siteSettings.companyName}.`;
+
+  const faviconUrl = getMediaUrl(siteSettings.faviconMediaId, media);
+
+  return {
+    title,
+    description,
+
+    icons: faviconUrl
+      ? {
+          icon: faviconUrl,
+        }
+      : undefined,
+
+    openGraph: {
+      title,
+      description,
+      type: "website",
+    },
+  };
+}
 
 export default async function Home() {
   const [
@@ -56,6 +91,7 @@ export default async function Home() {
           navigation={navigation}
           socialLinks={socialLinks}
         />
+
       </main>
     </SiteTheme>
   );
