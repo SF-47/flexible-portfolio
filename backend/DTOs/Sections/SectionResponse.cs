@@ -6,7 +6,7 @@ public record SectionResponse(
     string Name,
     string Variant,
     int Order,
-    bool IsVisble,
+    bool IsVisible,
     string? NavLabel,
     string ContentJson,
     string SettingsJson
