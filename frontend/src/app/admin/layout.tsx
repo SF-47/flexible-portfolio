@@ -1,12 +1,14 @@
 "use client";
 
 import { useEffect, useState, type ReactNode } from "react";
+import { usePathname } from "next/navigation";
 import { Menu } from "lucide-react";
 import AdminSidebar from "@/components/admin/AdminSidebar";
 
 export default function AdminLayout({ children }: { children: ReactNode }) {
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const pathname = usePathname();
 
   useEffect(() => {
     if (!mobileOpen) return;
@@ -23,6 +25,9 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
       window.removeEventListener("keydown", onKeyDown);
     };
   }, [mobileOpen]);
+
+  // The section preview is shown inside an iframe, so it renders without the admin shell.
+  if (pathname.startsWith("/admin/preview")) return <>{children}</>;
 
   return (
     <div className="admin-shell flex min-h-screen bg-admin-bg text-admin-text">

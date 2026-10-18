@@ -7,7 +7,10 @@ type StatsProps = {
 
 export default function Stats({ content }: StatsProps) {
   return (
-    <section className="bg-brand-accent px-8 py-16 text-brand-on-accent md:px-20">
+    <section
+      id="stats"
+      className="bg-brand-accent px-8 py-16 text-brand-on-accent md:px-20"
+    >
       <Reveal className="mx-auto grid max-w-7xl grid-cols-2 gap-10 lg:grid-cols-4">
         {content.items.map((stat) => (
           <div key={stat.label} className="text-center">
