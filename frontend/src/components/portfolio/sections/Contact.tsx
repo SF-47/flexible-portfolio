@@ -3,8 +3,8 @@
 import { useState, type FormEvent } from "react";
 import { Mail, MapPin, Phone, Send } from "lucide-react";
 import type { ContactContent } from "@/types/sectionContent";
+import { sendContactMessage } from "@/lib/ContactMessages";
 
-// Subset of SiteSettingsResponse; company contact details do not live in ContentJson.
 type ContactInfo = {
   email: string | null;
   phone: string | null;
@@ -24,16 +24,40 @@ export default function Contact({ content, contactInfo }: ContactProps) {
   });
 
   const [submitted, setSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState("");
 
-  function handleSubmit(e: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
+
+    if (isSubmitting) return;
 
     if (!form.name.trim() || !form.email.trim() || !form.message.trim()) {
       return;
     }
 
-    setSubmitted(true);
-    setForm({ name: "", email: "", message: "" });
+    setIsSubmitting(true);
+    setSubmitted(false);
+    setError("");
+
+    try {
+      await sendContactMessage({
+        name: form.name.trim(),
+        email: form.email.trim(),
+        message: form.message.trim(),
+      });
+
+      setSubmitted(true);
+      setForm({ name: "", email: "", message: "" });
+    } catch (err) {
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Something went wrong. Please try again.",
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   return (
@@ -119,13 +143,15 @@ export default function Contact({ content, contactInfo }: ContactProps) {
                 type="text"
                 required
                 maxLength={100}
+                disabled={isSubmitting}
                 value={form.name}
                 onChange={(e) => {
                   setForm({ ...form, name: e.target.value });
                   setSubmitted(false);
+                  setError("");
                 }}
                 placeholder={content.namePlaceholder}
-                className="w-full rounded-lg border border-brand-border px-4 py-3 outline-none focus:border-brand-accent"
+                className="w-full rounded-lg border border-brand-border px-4 py-3 outline-none focus:border-brand-accent disabled:opacity-60"
               />
             </div>
 
@@ -141,13 +167,15 @@ export default function Contact({ content, contactInfo }: ContactProps) {
                 type="email"
                 required
                 maxLength={254}
+                disabled={isSubmitting}
                 value={form.email}
                 onChange={(e) => {
                   setForm({ ...form, email: e.target.value });
                   setSubmitted(false);
+                  setError("");
                 }}
                 placeholder={content.emailPlaceholder}
-                className="w-full rounded-lg border border-brand-border px-4 py-3 outline-none focus:border-brand-accent"
+                className="w-full rounded-lg border border-brand-border px-4 py-3 outline-none focus:border-brand-accent disabled:opacity-60"
               />
             </div>
 
@@ -163,27 +191,36 @@ export default function Contact({ content, contactInfo }: ContactProps) {
                 rows={5}
                 required
                 maxLength={3000}
+                disabled={isSubmitting}
                 value={form.message}
                 onChange={(e) => {
                   setForm({ ...form, message: e.target.value });
                   setSubmitted(false);
+                  setError("");
                 }}
                 placeholder={content.messagePlaceholder}
-                className="w-full resize-none rounded-lg border border-brand-border px-4 py-3 outline-none focus:border-brand-accent"
+                className="w-full resize-none rounded-lg border border-brand-border px-4 py-3 outline-none focus:border-brand-accent disabled:opacity-60"
               />
             </div>
 
             <button
               type="submit"
-              className="flex items-center gap-3 rounded-lg bg-brand-accent px-8 py-4 font-semibold text-brand-on-accent transition hover:opacity-85"
+              disabled={isSubmitting}
+              className="flex items-center gap-3 rounded-lg bg-brand-accent px-8 py-4 font-semibold text-brand-on-accent transition hover:opacity-85 disabled:cursor-not-allowed disabled:opacity-60"
             >
-              {content.buttonText}
+              {isSubmitting ? "Sending..." : content.buttonText}
               <Send size={18} />
             </button>
 
             {submitted && (
-              <p role="status" className="text-sm text-brand-accent-text">
-                Demo only: your message was not sent or saved.
+              <p role="status" className="text-sm text-green-600">
+                Your message has been sent successfully!
+              </p>
+            )}
+
+            {error && (
+              <p role="alert" className="text-sm text-red-600">
+                {error}
               </p>
             )}
           </form>

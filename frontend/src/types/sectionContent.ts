@@ -1,159 +1,35 @@
-export type HeroContent = {
-  tagline: string;
-  title: string;
-  description: string;
-  buttonText: string;
-  buttonLink: string;
-};
+import type { z } from "zod";
 
-export type AboutContent = {
-  label: string;
-  title: string;
-  description: string;
-  secondDescription: string;
-  linkText: string;
-  linkUrl: string;
-  imageMediaId: number | null;
-  imageAlt: string;
-};
+import {
+  HeroSchema,
+  AboutSchema,
+  StatsSchema,
+  ServicesSchema,
+  ProjectsSchema,
+  WhyChooseUsSchema,
+  ProcessSchema,
+  GallerySchema,
+  TeamSchema,
+  ClientsSchema,
+  TestimonialsSchema,
+  CertificationsSchema,
+  FAQSchema,
+  CTASchema,
+  ContactSchema,
+} from "@/schemas/sectionSchemas";
 
-export type StatsContent = {
-  items: {
-    value: string;
-    label: string;
-  }[];
-};
-
-export type ServicesContent = {
-  label: string;
-  title: string;
-  description: string;
-};
-
-export type ProjectsContent = {
-  label: string;
-  title: string;
-};
-
-export type WhyChooseUsContent = {
-  label: string;
-  title: string;
-  description: string;
-  items: {
-    icon: string;
-    title: string;
-    description: string;
-  }[];
-};
-
-export type ProcessContent = {
-  label: string;
-  title: string;
-  description: string;
-  steps: {
-    number: string;
-    icon: string;
-    title: string;
-    description: string;
-  }[];
-};
-
-export type GalleryContent = {
-  label: string;
-  title: string;
-  description: string;
-  icon: string;
-  items: {
-    title: string;
-    category: string;
-    imageMediaId: number | null;
-    featured: boolean;
-  }[];
-};
-
-export type TeamContent = {
-  label: string;
-  title: string;
-  description: string;
-  members: {
-    name: string;
-    position: string;
-    description: string;
-    imageMediaId: number | null;
-  }[];
-};
-
-export type ClientsContent = {
-  label: string;
-  title: string;
-  description: string;
-  items: {
-    name: string;
-    icon: string;
-  }[];
-};
-
-export type TestimonialsContent = {
-  label: string;
-  title: string;
-  description: string;
-  items: {
-    name: string;
-    role: string;
-    initials: string;
-    rating: number;
-    message: string;
-  }[];
-};
-
-export type CertificationsContent = {
-  label: string;
-  title: string;
-  description: string;
-  items: {
-    icon: string;
-    title: string;
-    subtitle: string;
-    description: string;
-  }[];
-};
-
-export type FAQContent = {
-  label: string;
-  title: string;
-  description: string;
-  helpIcon: string;
-  helpTitle: string;
-  helpLinkText: string;
-  helpLinkUrl: string;
-  items: {
-    question: string;
-    answer: string;
-  }[];
-};
-
-export type CTAContent = {
-  label: string;
-  title: string;
-  description: string;
-  primaryButtonText: string;
-  primaryButtonLink: string;
-  secondaryButtonText: string;
-  secondaryButtonLink: string;
-};
-
-export type ContactContent = {
-  label: string;
-  title: string;
-  description: string;
-  addressTitle: string;
-  phoneTitle: string;
-  emailTitle: string;
-  nameLabel: string;
-  namePlaceholder: string;
-  emailLabel: string;
-  emailPlaceholder: string;
-  messageLabel: string;
-  messagePlaceholder: string;
-  buttonText: string;
-};
+export type HeroContent = z.infer<typeof HeroSchema>;
+export type AboutContent = z.infer<typeof AboutSchema>;
+export type StatsContent = z.infer<typeof StatsSchema>;
+export type ServicesContent = z.infer<typeof ServicesSchema>;
+export type ProjectsContent = z.infer<typeof ProjectsSchema>;
+export type WhyChooseUsContent = z.infer<typeof WhyChooseUsSchema>;
+export type ProcessContent = z.infer<typeof ProcessSchema>;
+export type GalleryContent = z.infer<typeof GallerySchema>;
+export type TeamContent = z.infer<typeof TeamSchema>;
+export type ClientsContent = z.infer<typeof ClientsSchema>;
+export type TestimonialsContent = z.infer<typeof TestimonialsSchema>;
+export type CertificationsContent = z.infer<typeof CertificationsSchema>;
+export type FAQContent = z.infer<typeof FAQSchema>;
+export type CTAContent = z.infer<typeof CTASchema>;
+export type ContactContent = z.infer<typeof ContactSchema>;

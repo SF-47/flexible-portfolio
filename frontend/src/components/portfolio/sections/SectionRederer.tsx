@@ -1,24 +1,26 @@
 import type { ApiSection } from "@/types/apiSections";
-import type {
-  HeroContent,
-  AboutContent,
-  StatsContent,
-  ServicesContent,
-  ProjectsContent,
-  WhyChooseUsContent,
-  ProcessContent,
-  GalleryContent,
-  TeamContent,
-  ClientsContent,
-  TestimonialsContent,
-  CertificationsContent,
-  FAQContent,
-  CTAContent,
-  ContactContent,
-} from "@/types/sectionContent";
 import type { CompanyService } from "@/types/companyService";
 import type { Project } from "@/types/project";
 import type { SiteSettings } from "@/types/siteSettings";
+import { z } from "zod";
+
+import {
+  HeroSchema,
+  AboutSchema,
+  StatsSchema,
+  ServicesSchema,
+  ProjectsSchema,
+  WhyChooseUsSchema,
+  ProcessSchema,
+  GallerySchema,
+  TeamSchema,
+  ClientsSchema,
+  TestimonialsSchema,
+  CertificationsSchema,
+  FAQSchema,
+  CTASchema,
+  ContactSchema,
+} from "@/schemas/sectionSchemas";
 
 import Hero from "./Hero";
 import About from "./About";
@@ -45,22 +47,26 @@ type SectionRendererProps = {
 
 function parseContent(json: string, type: string): unknown {
   try {
-    const content: unknown = JSON.parse(json);
-
-    if (
-      typeof content !== "object" ||
-      content === null ||
-      Array.isArray(content)
-    ) {
-      console.error(`Invalid content for section: ${type}`);
-      return null;
-    }
-
-    return content;
+    return JSON.parse(json);
   } catch {
     console.error(`Invalid JSON for section: ${type}`);
     return null;
   }
+}
+
+function validateContent<T extends z.ZodType>(
+  schema: T,
+  content: unknown,
+  type: string,
+): z.infer<T> | null {
+  const result = schema.safeParse(content);
+
+  if (!result.success) {
+    console.error(`Invalid content for section: ${type}`, result.error.issues);
+    return null;
+  }
+
+  return result.data;
 }
 
 export default function SectionRenderer({
@@ -81,93 +87,113 @@ export default function SectionRenderer({
         if (!content) return null;
 
         switch (section.type) {
-          case "hero":
-            return <Hero key={section.id} content={content as HeroContent} />;
+          case "hero": {
+            const data = validateContent(HeroSchema, content, section.type);
+            return data ? <Hero key={section.id} content={data} /> : null;
+          }
 
-          case "about":
-            return <About key={section.id} content={content as AboutContent} />;
+          case "about": {
+            const data = validateContent(AboutSchema, content, section.type);
+            return data ? <About key={section.id} content={data} /> : null;
+          }
 
-          case "stats":
-            return <Stats key={section.id} content={content as StatsContent} />;
+          case "stats": {
+            const data = validateContent(StatsSchema, content, section.type);
+            return data ? <Stats key={section.id} content={data} /> : null;
+          }
 
-          case "services":
-            return (
-              <Services
-                key={section.id}
-                content={content as ServicesContent}
-                services={services}
-              />
+          case "services": {
+            const data = validateContent(ServicesSchema, content, section.type);
+            return data ? (
+              <Services key={section.id} content={data} services={services} />
+            ) : null;
+          }
+
+          case "projects": {
+            const data = validateContent(ProjectsSchema, content, section.type);
+            return data ? (
+              <Projects key={section.id} content={data} projects={projects} />
+            ) : null;
+          }
+
+          case "whyChooseUs": {
+            const data = validateContent(
+              WhyChooseUsSchema,
+              content,
+              section.type,
             );
+            return data ? (
+              <WhyChooseUs key={section.id} content={data} />
+            ) : null;
+          }
 
-          case "projects":
-            return (
-              <Projects
-                key={section.id}
-                content={content as ProjectsContent}
-                projects={projects}
-              />
+          case "process": {
+            const data = validateContent(ProcessSchema, content, section.type);
+            return data ? <Process key={section.id} content={data} /> : null;
+          }
+
+          case "gallery": {
+            const data = validateContent(GallerySchema, content, section.type);
+            return data ? <Gallery key={section.id} content={data} /> : null;
+          }
+
+          case "team": {
+            const data = validateContent(TeamSchema, content, section.type);
+            return data ? <Team key={section.id} content={data} /> : null;
+          }
+
+          case "clients": {
+            const data = validateContent(ClientsSchema, content, section.type);
+            return data ? <Clients key={section.id} content={data} /> : null;
+          }
+
+          case "testimonials": {
+            const data = validateContent(
+              TestimonialsSchema,
+              content,
+              section.type,
             );
+            return data ? (
+              <Testimonials key={section.id} content={data} />
+            ) : null;
+          }
 
-          case "whyChooseUs":
-            return (
-              <WhyChooseUs
-                key={section.id}
-                content={content as WhyChooseUsContent}
-              />
+          case "certifications": {
+            const data = validateContent(
+              CertificationsSchema,
+              content,
+              section.type,
             );
+            return data ? (
+              <Certifications key={section.id} content={data} />
+            ) : null;
+          }
 
-          case "process":
-            return (
-              <Process key={section.id} content={content as ProcessContent} />
-            );
+          case "faq": {
+            const data = validateContent(FAQSchema, content, section.type);
+            return data ? <FAQ key={section.id} content={data} /> : null;
+          }
 
-          case "gallery":
-            return (
-              <Gallery key={section.id} content={content as GalleryContent} />
-            );
+          case "cta": {
+            const data = validateContent(CTASchema, content, section.type);
+            return data ? <CTA key={section.id} content={data} /> : null;
+          }
 
-          case "team":
-            return <Team key={section.id} content={content as TeamContent} />;
+          case "contact": {
+            const data = validateContent(ContactSchema, content, section.type);
 
-          case "clients":
-            return (
-              <Clients key={section.id} content={content as ClientsContent} />
-            );
-
-          case "testimonials":
-            return (
-              <Testimonials
-                key={section.id}
-                content={content as TestimonialsContent}
-              />
-            );
-
-          case "certifications":
-            return (
-              <Certifications
-                key={section.id}
-                content={content as CertificationsContent}
-              />
-            );
-
-          case "faq":
-            return <FAQ key={section.id} content={content as FAQContent} />;
-
-          case "cta":
-            return <CTA key={section.id} content={content as CTAContent} />;
-
-          case "contact":
-            return (
+            return data ? (
               <Contact
                 key={section.id}
-                content={content as ContactContent}
+                content={data}
                 contactInfo={{
                   email: siteSettings.email,
                   phone: siteSettings.phone,
                   address: siteSettings.address,
                 }}
               />
-            );
+            ) : null;
+          }
 
           default:
             console.warn(`Unknown section type: ${section.type}`);
