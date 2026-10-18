@@ -1,5 +1,6 @@
 using backend.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace backend.Data;
 
@@ -134,6 +135,16 @@ public class AppDbContext : DbContext
             entity.Property(x => x.Category).HasMaxLength(100);
 
             entity.Property(x => x.Location).HasMaxLength(200);
+
+            entity
+                .Property(x => x.CompletionDate)
+                .HasColumnType("date")
+                .HasConversion(
+                    new ValueConverter<DateOnly, DateTime>(
+                        date => date.ToDateTime(TimeOnly.MinValue),
+                        dateTime => DateOnly.FromDateTime(dateTime)
+                    )
+                );
 
             entity.HasIndex(x => x.Slug).IsUnique();
             entity.HasIndex(x => x.SortOrder);
