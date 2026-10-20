@@ -70,4 +70,80 @@ public class SectionService : ISectionService
             ))
             .FirstOrDefaultAsync();
     }
+
+    public async Task<bool> ReorderAsync(List<Guid> sectionIds)
+    {
+        if (sectionIds is null || sectionIds.Count == 0)
+            return false;
+
+        // Duplicate IDs are not allowed.
+        if (sectionIds.Count != sectionIds.Distinct().Count())
+            return false;
+
+        // Load every section, including hidden sections.
+        var sections = await _db.Sections.ToListAsync();
+
+        // The request must contain every database section exactly once.
+        if (sectionIds.Count != sections.Count)
+            return false;
+
+        var sectionsById = sections.ToDictionary(s => s.Id);
+
+        // Reject unknown IDs before changing anything.
+        if (sectionIds.Any(id => !sectionsById.ContainsKey(id)))
+            return false;
+
+        // Update each section's order, starting at 1.
+        int order = 1;
+
+        foreach (var sectionId in sectionIds)
+        {
+            var section = sectionsById[sectionId];
+            section.SortOrder = order++;
+        }
+
+        // EF Core saves the tracked changes together.
+        await _db.SaveChangesAsync();
+
+        return true;
+    }
+
+    public async Task<bool> UpdateLayoutAsync(List<SectionLayoutItem> items)
+    {
+        if (items is null || items.Count == 0)
+            return false;
+
+        // Duplicate IDs are not allowed.
+        if (items.Count != items.Select(i => i.Id).Distinct().Count())
+            return false;
+
+        // Load every section, including hidden sections.
+        var sections = await _db.Sections.ToListAsync();
+
+        // The request must contain every database section exactly once.
+        if (items.Count != sections.Count)
+            return false;
+
+        var sectionsById = sections.ToDictionary(s => s.Id);
+
+        // Reject unknown IDs before changing anything.
+        if (items.Any(item => !sectionsById.ContainsKey(item.Id)))
+            return false;
+
+        // Order starts at 1; only the order and visibility change.
+        int order = 1;
+
+        foreach (var item in items)
+        {
+            var section = sectionsById[item.Id];
+
+            section.SortOrder = order++;
+            section.IsVisible = item.IsVisible;
+            section.UpdatedAt = DateTime.UtcNow;
+        }
+
+        await _db.SaveChangesAsync();
+
+        return true;
+    }
 }

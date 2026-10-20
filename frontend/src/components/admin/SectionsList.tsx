@@ -1,15 +1,18 @@
 "use client";
 
-import { useState, type DragEvent, type MouseEvent } from "react";
+import { useState, useTransition, type DragEvent, type MouseEvent } from "react";
 import Link from "next/link";
 import {
   ArrowDown,
   ArrowUp,
   GripVertical,
+  Loader2,
   Pencil,
   RotateCcw,
+  Save,
 } from "lucide-react";
 
+import { saveSections } from "@/app/admin/sections/actions";
 import SectionPreviewPanel from "@/components/admin/SectionPreviewPanel";
 import { sectionDescriptions } from "@/lib/sectionDescriptions";
 import type { ApiSection } from "@/types/apiSections";
@@ -34,17 +37,18 @@ function stop(event: MouseEvent) {
 }
 
 export default function SectionsList({ sections }: { sections: ApiSection[] }) {
-  // Visibility and order are edited locally; they are not saved to the backend yet.
   const [items, setItems] = useState(sections);
   const [filter, setFilter] = useState<Filter>("all");
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [draggedId, setDraggedId] = useState<string | null>(null);
   const [overId, setOverId] = useState<string | null>(null);
+  const [isSaving, startSaving] = useTransition();
+  const [saveError, setSaveError] = useState<string | null>(null);
+  const [saved, setSaved] = useState(false);
 
   const selected = items.find((section) => section.id === selectedId) ?? null;
 
   const visibleCount = items.filter((section) => section.isVisible).length;
-
   const counts: Record<Filter, number> = {
     all: items.length,
     visible: visibleCount,
@@ -66,6 +70,23 @@ export default function SectionsList({ sections }: { sections: ApiSection[] }) {
 
   // Moving is only meaningful against the full order, not a filtered subset.
   const canReorder = filter === "all";
+
+  function handleSave() {
+    setSaveError(null);
+    setSaved(false);
+
+    startSaving(async () => {
+      const result = await saveSections(
+        items.map(({ id, isVisible }) => ({ id, isVisible })),
+      );
+
+      if (result.ok) {
+        setSaved(true);
+      } else {
+        setSaveError(result.message);
+      }
+    });
+  }
 
   function toggleVisibility(id: string) {
     setItems((previous) =>
@@ -191,19 +212,50 @@ export default function SectionsList({ sections }: { sections: ApiSection[] }) {
             className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-lg border border-amber-300 bg-amber-50 px-4 py-2.5 text-sm text-amber-900"
           >
             <p>
-              Visibility and order changes are not saved yet. Saving will be
-              added with section editing.
+              {saveError ? (
+                <span role="alert" className="text-red-700">
+                  {saveError}
+                </span>
+              ) : (
+                "You have unsaved visibility and order changes."
+              )}
             </p>
 
-            <button
-              type="button"
-              onClick={() => setItems(sections)}
-              className="inline-flex items-center gap-1.5 font-semibold"
-            >
-              <RotateCcw size={15} />
-              Reset
-            </button>
+            <div className="flex items-center gap-4">
+              <button
+                type="button"
+                onClick={() => {
+                  setItems(sections);
+                  setSaveError(null);
+                }}
+                disabled={isSaving}
+                className="inline-flex items-center gap-1.5 font-semibold disabled:opacity-50"
+              >
+                <RotateCcw size={15} />
+                Reset
+              </button>
+
+              <button
+                type="button"
+                onClick={handleSave}
+                disabled={isSaving}
+                className="inline-flex items-center gap-1.5 rounded-md bg-amber-400 px-3 py-1.5 font-semibold text-slate-950 disabled:opacity-60"
+              >
+                {isSaving ? (
+                  <Loader2 size={15} className="animate-spin" />
+                ) : (
+                  <Save size={15} />
+                )}
+                {isSaving ? "Saving…" : "Save changes"}
+              </button>
+            </div>
           </div>
+        )}
+
+        {!hasChanges && saved && (
+          <p role="status" className="mb-4 text-sm text-green-700">
+            Changes saved. The website now uses this order and visibility.
+          </p>
         )}
 
         {!canReorder && (

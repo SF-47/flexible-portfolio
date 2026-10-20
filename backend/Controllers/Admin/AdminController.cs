@@ -1,3 +1,4 @@
+using backend.DTOs.Sections;
 using backend.Services.Admin;
 using backend.Services.Sections;
 using Microsoft.AspNetCore.Mvc;
@@ -29,5 +30,43 @@ public class AdminController : ControllerBase
     {
         var sections = await _sectionService.GetAllAsync();
         return Ok(sections);
+    }
+
+    [HttpPut("sections/reorder")]
+    public async Task<IActionResult> ReorderSections([FromBody] ReorderSectionsRequest request)
+    {
+        if (request.SectionIds is null)
+        {
+            return BadRequest(new { message = "Section IDs are required." });
+        }
+
+        var success = await _sectionService.ReorderAsync(request.SectionIds);
+
+        if (!success)
+        {
+            return BadRequest(new { message = "Provide every section ID exactly once." });
+        }
+
+        return Ok(new { message = "Sections reordered successfully." });
+    }
+
+    [HttpPut("sections/layout")]
+    public async Task<IActionResult> UpdateSectionsLayout(
+        [FromBody] UpdateSectionsLayoutRequest request
+    )
+    {
+        if (request.Sections is null)
+        {
+            return BadRequest(new { message = "Sections are required." });
+        }
+
+        var success = await _sectionService.UpdateLayoutAsync(request.Sections);
+
+        if (!success)
+        {
+            return BadRequest(new { message = "Provide every section exactly once." });
+        }
+
+        return Ok(new { message = "Sections saved successfully." });
     }
 }

@@ -8,3 +8,15 @@ export async function getSections(): Promise<ApiSection[]> {
 
   return response.data;
 }
+
+export async function reorderSections(sectionIds: string[]): Promise<void> {
+  await axiosClient.put("/api/admin/sections/reorder", {
+    sectionIds,
+  });
+}
+
+export async function saveSectionsLayout(
+  sections: { id: string; isVisible: boolean }[],
+): Promise<void> {
+  await axiosClient.put("/api/admin/sections/layout", { sections });
+}
