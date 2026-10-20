@@ -1,7 +1,7 @@
-import Image from "next/image";
 import type { HeroContent } from "@/types/sectionContent";
 import type { MediaAsset } from "@/types/media";
 import { getMediaUrl } from "@/lib/mediaUrl";
+import HeroFrame from "./HeroFrame";
 import Reveal from "@/components/portfolio/Reveal";
 
 type HeroProps = {
@@ -13,24 +13,7 @@ export default function Hero({ content, media }: HeroProps) {
   const imageUrl = getMediaUrl(content.imageMediaId ?? null, media);
 
   return (
-    <section
-      id="home"
-      className="relative flex min-h-[calc(100svh-5rem)] items-center overflow-hidden px-8 py-20 md:px-20"
-    >
-      {imageUrl && (
-        <>
-          <Image
-            src={imageUrl}
-            alt=""
-            fill
-            priority
-            sizes="100vw"
-            className="object-cover"
-          />
-          <div className="absolute inset-0 bg-black/60" aria-hidden="true" />
-        </>
-      )}
-
+    <HeroFrame imageUrl={imageUrl}>
       <Reveal className="relative z-10 max-w-3xl">
         <p className="mb-6 text-sm font-semibold tracking-[0.3em] text-brand-accent">
           {content.tagline}
@@ -40,7 +23,7 @@ export default function Hero({ content, media }: HeroProps) {
           {content.title}
         </h2>
 
-        <p className="mt-8 max-w-xl text-lg leading-relaxed text-brand-on-primary/80">
+        <p className="mt-8 max-w-xl text-lg leading-relaxed text-current/80">
           {content.description}
         </p>
 
@@ -51,6 +34,6 @@ export default function Hero({ content, media }: HeroProps) {
           {content.buttonText} →
         </a>
       </Reveal>
-    </section>
+    </HeroFrame>
   );
 }

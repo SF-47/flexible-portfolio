@@ -12,6 +12,9 @@ const nextConfig: NextConfig = {
     },
   },
   images: {
+    // The local API resolves to a private IP, which Next blocks by default (SSRF
+    // protection). Only allow it in development; production uses a public host.
+    dangerouslyAllowLocalIP: process.env.NODE_ENV === "development",
     remotePatterns: [
       {
         protocol: "http",
