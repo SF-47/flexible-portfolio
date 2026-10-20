@@ -31,6 +31,10 @@ public class AdminThemesController : ControllerBase
         {
             return BadRequest(new { message = exception.Message });
         }
+        catch (InvalidOperationException exception)
+        {
+            return Conflict(new { message = exception.Message });
+        }
     }
 
     [HttpPut("{id:int}/activate")]

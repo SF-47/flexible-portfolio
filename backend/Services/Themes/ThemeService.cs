@@ -36,7 +36,8 @@ public class ThemeService : IThemeService
     {
         return await _context
             .Themes.AsNoTracking()
-            .OrderBy(theme => theme.Id)
+            .OrderBy(theme => theme.IsCustom)
+            .ThenBy(theme => theme.Id)
             .Select(ThemeProjection)
             .ToListAsync();
     }
@@ -93,6 +94,11 @@ public class ThemeService : IThemeService
 
         if (theme is null)
             return null;
+
+        if (!theme.IsCustom)
+        {
+            throw new InvalidOperationException("Predefined themes cannot be edited.");
+        }
 
         if (
             !SupportedFonts.Contains(request.HeadingFont)

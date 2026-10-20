@@ -1,6 +1,9 @@
 import { getThemes, getActiveTheme } from "@/lib/themes";
 import AppearanceEditor from "../AppearanceEditor";
 
+// Always read the active theme from the API, so it reflects the database after a save.
+export const dynamic = "force-dynamic";
+
 export default async function AppearancePage() {
   const [themes, activeTheme] = await Promise.all([
     getThemes(),
