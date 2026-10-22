@@ -1,13 +1,13 @@
 import type { Metadata } from "next";
 
 import SiteTheme from "@/components/SiteTheme";
-import SectionRenderer from "@/components/portfolio/sections/SectionRederer";
 import { getAdminSections } from "@/lib/adminSections";
 import { getCompanyServices } from "@/lib/companyServices";
 import { getMedia } from "@/lib/media";
 import { getProjects } from "@/lib/projects";
 import { getSiteSettings } from "@/lib/siteSettings";
 import { getActiveTheme } from "@/lib/themes";
+import LiveSectionPreview from "@/components/admin/preview/LiveSectionPreview";
 
 export const metadata: Metadata = {
   title: "Section preview",
@@ -61,9 +61,8 @@ export default async function SectionPreviewPage({
     <SiteTheme theme={data.activeTheme}>
       {/* inert keeps the preview read-only: nothing inside can be clicked or submitted. */}
       <main inert className="bg-brand-primary text-brand-on-primary">
-        <SectionRenderer
-          // Hidden sections are previewable, so force this one visible.
-          sections={[{ ...section, isVisible: true }]}
+        <LiveSectionPreview
+          section={section}
           services={data.services}
           projects={data.projects}
           siteSettings={data.siteSettings}

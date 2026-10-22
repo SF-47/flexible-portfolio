@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 
 import { saveSections } from "@/app/admin/sections/actions";
-import SectionPreviewPanel from "@/components/admin/SectionPreviewPanel";
+import SectionPreviewPanel from "@/components/admin/preview/SectionPreviewPanel";
 import { sectionDescriptions } from "@/lib/sectionDescriptions";
 import type { ApiSection } from "@/types/apiSections";
 

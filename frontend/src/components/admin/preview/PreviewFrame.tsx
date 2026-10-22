@@ -1,29 +1,14 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import Link from "next/link";
-import {
-  AlertTriangle,
-  ExternalLink,
-  Loader2,
-  Monitor,
-  Pencil,
-  RotateCw,
-  Smartphone,
-  Tablet,
-  X,
-  type LucideIcon,
-} from "lucide-react";
+import { AlertTriangle, Loader2, Monitor, RotateCw, Smartphone, Tablet } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 
 import type { ApiSection } from "@/types/apiSections";
 
-// If the preview has not loaded after this long, offer a retry.
 const LOAD_TIMEOUT_MS = 20000;
 
-// `width` is the iframe's real layout viewport, so the public site's responsive
-// breakpoints fire exactly as they would on that device. `height` is the typical
-// viewport height, used for the Hero (whose height is relative to the viewport).
-const devices = [
+export const devices = [
   { id: "desktop", label: "Desktop", width: 1440, height: 900, icon: Monitor },
   { id: "tablet", label: "Tablet", width: 768, height: 1024, icon: Tablet },
   { id: "mobile", label: "Mobile", width: 390, height: 844, icon: Smartphone },
@@ -35,19 +20,31 @@ const devices = [
   icon: LucideIcon;
 }[];
 
-type Device = (typeof devices)[number];
+export type Device = (typeof devices)[number];
 
-function PreviewFrame({
+// Shows /admin/preview in an iframe at the device's real width, scaled to fit.
+//
+// Draft protocol (both sides check origin, source and section id):
+//   iframe -> parent  { type: "PREVIEW_READY", sectionId }   its listener is attached
+//   parent -> iframe  { type: "SECTION_DRAFT", sectionId, contentJson }
+// The parent sends the latest draft whenever the iframe announces it is ready and
+// whenever the draft changes, so nothing is lost if the iframe loads late.
+export function PreviewFrame({
   section,
   device,
+  draftContentJson,
 }: {
   section: ApiSection;
   device: Device;
+  draftContentJson?: string;
 }) {
   const [status, setStatus] = useState<"loading" | "ready" | "error">(
     "loading",
   );
   const [attempt, setAttempt] = useState(0);
+  // Counts PREVIEW_READY messages from the current iframe (0 = not ready yet). A
+  // counter, not a boolean, so a reloaded iframe is sent the draft again.
+  const [readyCount, setReadyCount] = useState(0);
   // Width available for the scaled preview, and the section's real content height.
   const [availableWidth, setAvailableWidth] = useState(0);
   // Remember which device a height was measured on: the Hero's height depends on the
@@ -106,6 +103,42 @@ function PreviewFrame({
   }, []);
 
   useEffect(() => () => contentObserver.current?.disconnect(), []);
+
+  // The iframe announces that its message listener is attached.
+  useEffect(() => {
+    function handleMessage(event: MessageEvent) {
+      if (event.origin !== window.location.origin) return;
+      if (event.source !== iframeRef.current?.contentWindow) return;
+
+      const message = event.data;
+
+      if (
+        message &&
+        message.type === "PREVIEW_READY" &&
+        message.sectionId === section.id
+      ) {
+        setReadyCount((count) => count + 1);
+      }
+    }
+
+    window.addEventListener("message", handleMessage);
+
+    return () => window.removeEventListener("message", handleMessage);
+  }, [section.id]);
+
+  // Send the draft once the iframe is ready, and again whenever it changes.
+  useEffect(() => {
+    if (draftContentJson === undefined || readyCount === 0) return;
+
+    iframeRef.current?.contentWindow?.postMessage(
+      {
+        type: "SECTION_DRAFT",
+        sectionId: section.id,
+        contentJson: draftContentJson,
+      },
+      window.location.origin,
+    );
+  }, [draftContentJson, section.id, readyCount]);
 
   // Follow the section's content height so the iframe never needs its own scrollbar.
   function trackContentHeight(iframe: HTMLIFrameElement) {
@@ -166,6 +199,7 @@ function PreviewFrame({
             src={`/admin/preview?section=${encodeURIComponent(section.type)}`}
             title={`${section.name} preview`}
             scrolling="no"
+            tabIndex={-1}
             onLoad={(event) => {
               setStatus("ready");
               trackContentHeight(event.currentTarget);
@@ -196,6 +230,7 @@ function PreviewFrame({
             type="button"
             onClick={() => {
               setStatus("loading");
+              setReadyCount(0);
               setAttempt((previous) => previous + 1);
             }}
             className="inline-flex items-center gap-2 rounded-lg bg-amber-400 px-4 py-2 font-semibold text-slate-950"
@@ -206,131 +241,5 @@ function PreviewFrame({
         </div>
       )}
     </div>
-  );
-}
-
-export default function SectionPreviewPanel({
-  section,
-  onClose,
-}: {
-  section: ApiSection | null;
-  onClose: () => void;
-}) {
-  const open = section !== null;
-  const [deviceId, setDeviceId] = useState<Device["id"]>("desktop");
-
-  const device = devices.find((item) => item.id === deviceId) ?? devices[0];
-
-  useEffect(() => {
-    if (!open) return;
-
-    function onKeyDown(event: KeyboardEvent) {
-      if (event.key === "Escape") onClose();
-    }
-
-    window.addEventListener("keydown", onKeyDown);
-
-    return () => window.removeEventListener("keydown", onKeyDown);
-  }, [open, onClose]);
-
-  const previewHref = section
-    ? `/admin/preview?section=${encodeURIComponent(section.type)}`
-    : "#";
-
-  return (
-    <>
-      {open && (
-        <div
-          className="fixed inset-x-0 top-16 bottom-0 z-20 bg-slate-950/40 lg:hidden"
-          onClick={onClose}
-          aria-hidden="true"
-        />
-      )}
-
-      <aside
-        aria-label="Section preview"
-        aria-hidden={!open}
-        inert={!open}
-        className={`fixed top-16 right-0 bottom-0 z-30 flex w-full flex-col border-l border-admin-border bg-admin-surface shadow-2xl transition-transform duration-300 sm:w-[70vw] lg:w-[40vw] ${
-          open ? "translate-x-0" : "translate-x-full"
-        }`}
-      >
-        {section && (
-          <>
-            <div className="flex items-center justify-between gap-3 border-b border-admin-border px-4 py-3">
-              <div className="min-w-0">
-                <p className="text-xs font-medium tracking-wide text-admin-muted uppercase">
-                  Preview
-                </p>
-                <h2 className="truncate font-bold">{section.name}</h2>
-              </div>
-
-              <div className="flex shrink-0 items-center gap-2">
-                <Link
-                  href={`/admin/content?section=${encodeURIComponent(section.type)}`}
-                  className="inline-flex items-center gap-2 rounded-lg bg-amber-400 px-3 py-2 text-sm font-semibold text-slate-950"
-                >
-                  <Pencil size={15} />
-                  Edit Content
-                </Link>
-
-                <button
-                  type="button"
-                  onClick={onClose}
-                  aria-label="Close preview"
-                  className="rounded-lg p-2 text-admin-muted transition hover:bg-admin-bg"
-                >
-                  <X size={20} />
-                </button>
-              </div>
-            </div>
-
-            <div className="flex items-center justify-between gap-3 border-b border-admin-border px-4 py-2">
-              <div
-                role="group"
-                aria-label="Preview device"
-                className="flex rounded-lg border border-admin-border bg-admin-bg p-0.5"
-              >
-                {devices.map((item) => {
-                  const Icon = item.icon;
-                  const active = item.id === device.id;
-
-                  return (
-                    <button
-                      key={item.id}
-                      type="button"
-                      onClick={() => setDeviceId(item.id)}
-                      aria-pressed={active}
-                      aria-label={`${item.label} preview, ${item.width}px`}
-                      title={`${item.label} · ${item.width}px`}
-                      className={`inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs font-medium transition ${
-                        active
-                          ? "bg-amber-400 text-slate-950"
-                          : "text-admin-muted hover:text-admin-text"
-                      }`}
-                    >
-                      <Icon size={16} />
-                      <span className="hidden sm:inline">{item.label}</span>
-                    </button>
-                  );
-                })}
-              </div>
-
-              <a
-                href={previewHref}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 text-xs font-semibold text-admin-accent"
-              >
-                Open Full Preview
-                <ExternalLink size={14} />
-              </a>
-            </div>
-
-            <PreviewFrame key={section.id} section={section} device={device} />
-          </>
-        )}
-      </aside>
-    </>
   );
 }
