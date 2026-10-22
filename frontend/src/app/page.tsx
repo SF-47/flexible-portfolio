@@ -3,7 +3,7 @@ import Footer from "@/components/portfolio/Footer";
 import ScrollToTop from "@/components/portfolio/ScrollToTop";
 import ScrollReset from "@/components/portfolio/ScrollReset";
 import SiteTheme from "@/components/SiteTheme";
-import SectionRenderer from "@/components/portfolio/sections/SectionRederer";
+import SectionRenderer from "@/components/portfolio/sections/SectionRenderer";
 import type { Metadata } from "next";
 import { getMediaUrl } from "@/lib/mediaUrl";
 

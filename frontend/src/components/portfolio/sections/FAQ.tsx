@@ -2,7 +2,7 @@ import { CircleHelp, HelpCircle, Plus, type LucideIcon } from "lucide-react";
 import type { FAQContent } from "@/types/sectionContent";
 import Reveal from "@/components/portfolio/Reveal";
 
-const icons: Record<string, LucideIcon> = {
+export const icons: Record<string, LucideIcon> = {
   HelpCircle,
   CircleHelp,
 };

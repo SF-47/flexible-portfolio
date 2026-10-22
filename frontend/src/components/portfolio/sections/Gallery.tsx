@@ -5,7 +5,7 @@ import type { MediaAsset } from "@/types/media";
 import { getMediaUrl } from "@/lib/mediaUrl";
 import Reveal from "@/components/portfolio/Reveal";
 
-const icons: Record<string, LucideIcon> = {
+export const icons: Record<string, LucideIcon> = {
   Images,
 };
 

@@ -10,7 +10,7 @@ import {
 import type { WhyChooseUsContent } from "@/types/sectionContent";
 import Reveal from "@/components/portfolio/Reveal";
 
-const icons: Record<string, LucideIcon> = {
+export const icons: Record<string, LucideIcon> = {
   ShieldCheck,
   Award,
   Clock3,
