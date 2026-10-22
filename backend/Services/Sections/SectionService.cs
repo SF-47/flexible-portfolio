@@ -1,4 +1,5 @@
 using backend.Data;
+using System.Text.Json;
 using backend.DTOs.Sections;
 using Microsoft.EntityFrameworkCore;
 
@@ -6,6 +7,9 @@ namespace backend.Services.Sections;
 
 public class SectionService : ISectionService
 {
+    // Matches the 100,000 character limit the live preview accepts.
+    private const int MaxContentLength = 100_000;
+
     private readonly AppDbContext _db;
 
     public SectionService(AppDbContext db)
@@ -27,7 +31,8 @@ public class SectionService : ISectionService
                 s.IsVisible,
                 s.NavLabel,
                 s.ContentJson,
-                s.SettingsJson
+                s.SettingsJson,
+                s.UpdatedAt
             ))
             .ToListAsync();
     }
@@ -47,7 +52,8 @@ public class SectionService : ISectionService
                 s.IsVisible,
                 s.NavLabel,
                 s.ContentJson,
-                s.SettingsJson
+                s.SettingsJson,
+                s.UpdatedAt
             ))
             .ToListAsync();
     }
@@ -66,7 +72,8 @@ public class SectionService : ISectionService
                 s.IsVisible,
                 s.NavLabel,
                 s.ContentJson,
-                s.SettingsJson
+                s.SettingsJson,
+                s.UpdatedAt
             ))
             .FirstOrDefaultAsync();
     }
@@ -145,5 +152,93 @@ public class SectionService : ISectionService
         await _db.SaveChangesAsync();
 
         return true;
+    }
+
+    // Returns null when the section does not exist. Throws ArgumentException for
+    // invalid content and InvalidOperationException when the section changed since
+    // the editor loaded it. Only ContentJson and UpdatedAt are written.
+    public async Task<SectionResponse?> UpdateContentAsync(
+        Guid id,
+        string contentJson,
+        DateTime? expectedUpdatedAt
+    )
+    {
+        var section = await _db.Sections.FirstOrDefaultAsync(s => s.Id == id);
+
+        if (section is null)
+            return null;
+
+        if (string.IsNullOrWhiteSpace(contentJson) || contentJson.Length > MaxContentLength)
+            throw new ArgumentException(
+                $"Content is required and must be at most {MaxContentLength} characters."
+            );
+
+        JsonDocument document;
+
+        try
+        {
+            document = JsonDocument.Parse(contentJson);
+        }
+        catch (JsonException)
+        {
+            throw new ArgumentException("Content is not valid JSON.");
+        }
+
+        string normalizedJson;
+        var mediaIds = new List<int>();
+
+        using (document)
+        {
+            var root = document.RootElement;
+
+            if (root.ValueKind != JsonValueKind.Object)
+                throw new ArgumentException("Content must be a JSON object.");
+
+            var error = SectionContentValidator.Validate(section.Type, root, mediaIds);
+
+            if (error is not null)
+                throw new ArgumentException(error);
+
+            normalizedJson = root.GetRawText();
+        }
+
+        var distinctMediaIds = mediaIds.Distinct().ToList();
+
+        if (distinctMediaIds.Count > 0)
+        {
+            var found = await _db.MediaAssets.CountAsync(m => distinctMediaIds.Contains(m.Id));
+
+            if (found != distinctMediaIds.Count)
+                throw new ArgumentException("A selected image no longer exists.");
+        }
+
+        if (
+            expectedUpdatedAt is not null
+            && expectedUpdatedAt.Value.Ticks != section.UpdatedAt.Ticks
+        )
+            throw new InvalidOperationException(
+                "This section was changed elsewhere. Reload the page to see the latest version."
+            );
+
+        // MySQL keeps microseconds, so drop the extra ticks to match what is stored.
+        var now = DateTime.UtcNow;
+
+        section.ContentJson = normalizedJson;
+        section.UpdatedAt = new DateTime(now.Ticks - now.Ticks % 10, DateTimeKind.Utc);
+
+        await _db.SaveChangesAsync();
+
+        return new SectionResponse(
+            section.Id,
+            section.Type,
+            section.Name,
+            section.Variant,
+            section.SortOrder,
+            section.IsVisible,
+            section.NavLabel,
+            section.ContentJson,
+            section.SettingsJson,
+            section.UpdatedAt
+        );
     }
 }

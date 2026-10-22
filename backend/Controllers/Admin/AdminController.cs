@@ -69,4 +69,33 @@ public class AdminController : ControllerBase
 
         return Ok(new { message = "Sections saved successfully." });
     }
+
+    [HttpPut("sections/{id:guid}/content")]
+    public async Task<IActionResult> UpdateSectionContent(
+        Guid id,
+        [FromBody] UpdateSectionContentRequest request
+    )
+    {
+        try
+        {
+            var section = await _sectionService.UpdateContentAsync(
+                id,
+                request.ContentJson,
+                request.ExpectedUpdatedAt
+            );
+
+            if (section is null)
+                return NotFound(new { message = "Section not found." });
+
+            return Ok(section);
+        }
+        catch (ArgumentException exception)
+        {
+            return BadRequest(new { message = exception.Message });
+        }
+        catch (InvalidOperationException exception)
+        {
+            return Conflict(new { message = exception.Message });
+        }
+    }
 }

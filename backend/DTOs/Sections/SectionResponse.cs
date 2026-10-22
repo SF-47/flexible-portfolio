@@ -9,5 +9,6 @@ public record SectionResponse(
     bool IsVisible,
     string? NavLabel,
     string ContentJson,
-    string SettingsJson
+    string SettingsJson,
+    DateTime UpdatedAt
 );
