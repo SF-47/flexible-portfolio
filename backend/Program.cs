@@ -171,6 +171,24 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
 }
 
+// There is no admin authentication yet, so every /api/admin endpoint (reads and
+// writes) is closed outside local development. Remove this once auth exists.
+if (!app.Environment.IsDevelopment())
+{
+    app.Use(
+        async (context, next) =>
+        {
+            if (context.Request.Path.StartsWithSegments("/api/admin"))
+            {
+                context.Response.StatusCode = StatusCodes.Status404NotFound;
+                return;
+            }
+
+            await next();
+        }
+    );
+}
+
 app.UseHttpsRedirection();
 app.UseCors("AllowFrontend");
 app.UseRateLimiter();
