@@ -10,4 +10,5 @@ export type ApiSection = {
   navLabel: string | null;
   contentJson: string;
   settingsJson: string;
+  updatedAt: string;
 };
