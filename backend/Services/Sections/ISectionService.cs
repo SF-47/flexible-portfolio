@@ -9,9 +9,19 @@ public interface ISectionService
     Task<SectionResponse?> GetByIdAsync(Guid id);
     Task<bool> ReorderAsync(List<Guid> sectionIds);
     Task<bool> UpdateLayoutAsync(List<SectionLayoutItem> items);
-    Task<SectionResponse?> UpdateContentAsync(
-        Guid id,
-        string contentJson,
-        DateTime? expectedUpdatedAt
-    );
+    Task<UpdateContentResult> UpdateContentAsync(Guid id, UpdateSectionContentRequest request);
 }
+
+public enum UpdateContentStatus
+{
+    Success,
+    NotFound,
+    Invalid,
+    Conflict,
+}
+
+public record UpdateContentResult(
+    UpdateContentStatus Status,
+    string? Error = null,
+    UpdateSectionContentResponse? Saved = null
+);

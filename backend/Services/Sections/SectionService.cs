@@ -1,15 +1,13 @@
 using backend.Data;
-using System.Text.Json;
 using backend.DTOs.Sections;
+using System.Text.Json;
+using System.Text.Json.Nodes;
 using Microsoft.EntityFrameworkCore;
 
 namespace backend.Services.Sections;
 
 public class SectionService : ISectionService
 {
-    // Matches the 100,000 character limit the live preview accepts.
-    private const int MaxContentLength = 100_000;
-
     private readonly AppDbContext _db;
 
     public SectionService(AppDbContext db)
@@ -154,91 +152,97 @@ public class SectionService : ISectionService
         return true;
     }
 
-    // Returns null when the section does not exist. Throws ArgumentException for
-    // invalid content and InvalidOperationException when the section changed since
-    // the editor loaded it. Only ContentJson and UpdatedAt are written.
-    public async Task<SectionResponse?> UpdateContentAsync(
+    public async Task<UpdateContentResult> UpdateContentAsync(
         Guid id,
-        string contentJson,
-        DateTime? expectedUpdatedAt
+        UpdateSectionContentRequest request
     )
     {
-        var section = await _db.Sections.FirstOrDefaultAsync(s => s.Id == id);
+        var section = await _db.Sections.AsNoTracking().FirstOrDefaultAsync(s => s.Id == id);
 
         if (section is null)
-            return null;
+            return new UpdateContentResult(UpdateContentStatus.NotFound, "Section not found.");
 
-        if (string.IsNullOrWhiteSpace(contentJson) || contentJson.Length > MaxContentLength)
-            throw new ArgumentException(
-                $"Content is required and must be at most {MaxContentLength} characters."
-            );
-
-        JsonDocument document;
-
+        JsonObject? submitted;
+        JsonObject? stored;
         try
         {
-            document = JsonDocument.Parse(contentJson);
+            submitted = JsonNode.Parse(request.ContentJson ?? "") as JsonObject;
+            stored = JsonNode.Parse(section.ContentJson) as JsonObject;
         }
         catch (JsonException)
         {
-            throw new ArgumentException("Content is not valid JSON.");
+            return Invalid("Content must be a valid JSON object.");
         }
 
-        string normalizedJson;
+        if (submitted is null || stored is null)
+            return Invalid("Content must be a valid JSON object.");
+
+        // Copy only the properties this section type defines onto the stored JSON;
+        // anything else already stored stays exactly as it is.
+        foreach (var key in SectionContentValidator.Keys(section.Type))
+        {
+            if (submitted.TryGetPropertyValue(key, out var value))
+                stored[key] = value?.DeepClone();
+        }
+
         var mediaIds = new List<int>();
+        using var document = JsonDocument.Parse(stored.ToJsonString());
+        var error = SectionContentValidator.Validate(section.Type, document.RootElement, mediaIds);
 
-        using (document)
-        {
-            var root = document.RootElement;
+        if (error is not null)
+            return Invalid(error);
 
-            if (root.ValueKind != JsonValueKind.Object)
-                throw new ArgumentException("Content must be a JSON object.");
+        var distinctIds = mediaIds.Distinct().ToList();
+        var existing = await _db.MediaAssets.CountAsync(m => distinctIds.Contains(m.Id));
 
-            var error = SectionContentValidator.Validate(section.Type, root, mediaIds);
+        if (existing != distinctIds.Count)
+            return Invalid("An image in this content does not exist in the Media Library.");
 
-            if (error is not null)
-                throw new ArgumentException(error);
+        // Fast stale check. MySQL keeps microseconds, so compare at that precision.
+        if (!SameInstant(request.ExpectedUpdatedAt, section.UpdatedAt))
+            return Conflict();
 
-            normalizedJson = root.GetRawText();
-        }
+        var newContent = stored.ToJsonString();
+        var newUpdatedAt = DateTime.UtcNow;
 
-        var distinctMediaIds = mediaIds.Distinct().ToList();
-
-        if (distinctMediaIds.Count > 0)
-        {
-            var found = await _db.MediaAssets.CountAsync(m => distinctMediaIds.Contains(m.Id));
-
-            if (found != distinctMediaIds.Count)
-                throw new ArgumentException("A selected image no longer exists.");
-        }
-
-        if (
-            expectedUpdatedAt is not null
-            && expectedUpdatedAt.Value.Ticks != section.UpdatedAt.Ticks
-        )
-            throw new InvalidOperationException(
-                "This section was changed elsewhere. Reload the page to see the latest version."
+        // Atomic compare-and-set: the UPDATE only matches if UpdatedAt is still the
+        // value we read, so a concurrent save makes it affect 0 rows.
+        var rows = await _db
+            .Sections.Where(s => s.Id == id && s.UpdatedAt == section.UpdatedAt)
+            .ExecuteUpdateAsync(setters =>
+                setters
+                    .SetProperty(s => s.ContentJson, newContent)
+                    .SetProperty(s => s.UpdatedAt, newUpdatedAt)
             );
 
-        // MySQL keeps microseconds, so drop the extra ticks to match what is stored.
-        var now = DateTime.UtcNow;
+        if (rows == 0)
+            return Conflict();
 
-        section.ContentJson = normalizedJson;
-        section.UpdatedAt = new DateTime(now.Ticks - now.Ticks % 10, DateTimeKind.Utc);
+        // Read back so the returned timestamp is exactly what MySQL stored.
+        var saved = await _db
+            .Sections.AsNoTracking()
+            .Where(s => s.Id == id)
+            .Select(s => new UpdateSectionContentResponse(s.ContentJson, s.UpdatedAt))
+            .FirstAsync();
 
-        await _db.SaveChangesAsync();
-
-        return new SectionResponse(
-            section.Id,
-            section.Type,
-            section.Name,
-            section.Variant,
-            section.SortOrder,
-            section.IsVisible,
-            section.NavLabel,
-            section.ContentJson,
-            section.SettingsJson,
-            section.UpdatedAt
-        );
+        return new UpdateContentResult(UpdateContentStatus.Success, Saved: saved);
     }
+
+    private static UpdateContentResult Conflict() =>
+        new(
+            UpdateContentStatus.Conflict,
+            "This section was changed after you loaded it. Reload the page and try again."
+        );
+
+    // MySQL returns UpdatedAt without a "Z" (Kind Unspecified); treat it as UTC.
+    private static DateTime AsUtc(DateTime value) =>
+        value.Kind == DateTimeKind.Local
+            ? value.ToUniversalTime()
+            : DateTime.SpecifyKind(value, DateTimeKind.Utc);
+
+    private static bool SameInstant(DateTime a, DateTime b) =>
+        Math.Abs((AsUtc(a) - AsUtc(b)).Ticks) < 10;
+
+    private static UpdateContentResult Invalid(string message) =>
+        new(UpdateContentStatus.Invalid, message);
 }

@@ -35,6 +35,17 @@ public static class SectionContentValidator
             ? null
             : $"{path} must be empty or start with #, /, https://, mailto: or tel:.";
 
+    // An icon is a plain Lucide name such as "ShieldCheck", only ever used as a lookup key.
+    private static readonly Regex IconPattern = new(
+        "^[A-Za-z][A-Za-z0-9]{0,63}$",
+        RegexOptions.Compiled
+    );
+
+    private static readonly Rule Icon = (value, path, _) =>
+        value.ValueKind == JsonValueKind.String && IconPattern.IsMatch(value.GetString()!)
+            ? null
+            : $"{path} must be an icon name such as ShieldCheck.";
+
     private static readonly Rule Bool = (value, path, _) =>
         value.ValueKind is JsonValueKind.True or JsonValueKind.False
             ? null
@@ -62,11 +73,23 @@ public static class SectionContentValidator
         return $"{path} must be null or a media id.";
     };
 
-    private static Rule ListOf(params Field[] fields) =>
+    // A list of 1 to max items. The maximums match the public layouts; the cards of
+    // Services and Projects live in their own tables, so their maximum (6) must be
+    // enforced by their CRUD endpoints when those are built.
+    private static Rule ListOf(int max, params Field[] fields) => CountedList(1, max, fields);
+
+    private static Rule CountedList(int min, int max, params Field[] fields) =>
         (value, path, mediaIds) =>
         {
             if (value.ValueKind != JsonValueKind.Array)
                 return $"{path} must be a list.";
+
+            var length = value.GetArrayLength();
+
+            if (length < min || length > max)
+                return min == max
+                    ? $"{path} must have exactly {min} items."
+                    : $"{path} must have between {min} and {max} items.";
 
             var index = 0;
 
@@ -140,26 +163,26 @@ public static class SectionContentValidator
             F("imageMediaId", Media),
             F("imageAlt", Text),
         ],
-        ["stats"] = [F("items", ListOf(F("value", Text), F("label", Text)))],
+        ["stats"] = [F("items", ListOf(6, F("value", Text), F("label", Text)))],
         ["services"] = Header(),
         ["projects"] = [F("label", Text), F("title", Text)],
         ["whyChooseUs"] = Concat(
             Header(),
-            F("items", ListOf(F("icon", Text), F("title", Text), F("description", Text)))
+            F("items", ListOf(6, F("icon", Icon), F("title", Text), F("description", Text)))
         ),
         ["process"] = Concat(
             Header(),
             F(
                 "steps",
-                ListOf(F("number", Text), F("icon", Text), F("title", Text), F("description", Text))
+                ListOf(6, F("number", Text), F("icon", Icon), F("title", Text), F("description", Text))
             )
         ),
         ["gallery"] = Concat(
             Header(),
-            F("icon", Text),
+            F("icon", Icon),
             F(
                 "items",
-                ListOf(
+                ListOf(12, 
                     F("title", Text),
                     F("category", Text),
                     F("imageMediaId", Media),
@@ -171,7 +194,7 @@ public static class SectionContentValidator
             Header(),
             F(
                 "members",
-                ListOf(
+                ListOf(6, 
                     F("name", Text),
                     F("position", Text),
                     F("description", Text),
@@ -179,12 +202,12 @@ public static class SectionContentValidator
                 )
             )
         ),
-        ["clients"] = Concat(Header(), F("items", ListOf(F("name", Text), F("icon", Text)))),
+        ["clients"] = Concat(Header(), F("items", ListOf(6, F("name", Text), F("icon", Icon)))),
         ["testimonials"] = Concat(
             Header(),
             F(
                 "items",
-                ListOf(
+                ListOf(6,
                     F("name", Text),
                     F("role", Text),
                     F("initials", Text),
@@ -197,16 +220,16 @@ public static class SectionContentValidator
             Header(),
             F(
                 "items",
-                ListOf(F("icon", Text), F("title", Text), F("subtitle", Text), F("description", Text))
+                ListOf(6, F("icon", Icon), F("title", Text), F("subtitle", Text), F("description", Text))
             )
         ),
         ["faq"] = Concat(
             Header(),
-            F("helpIcon", Text),
+            F("helpIcon", Icon),
             F("helpTitle", Text),
             F("helpLinkText", Text),
             F("helpLinkUrl", Link),
-            F("items", ListOf(F("question", Text), F("answer", Text)))
+            F("items", ListOf(5, F("question", Text), F("answer", Text)))
         ),
         ["cta"] = Concat(
             Header(),
@@ -229,6 +252,10 @@ public static class SectionContentValidator
             F("buttonText", Text)
         ),
     };
+
+    // The top-level keys the editor may change for a section type.
+    public static IEnumerable<string> Keys(string type) =>
+        Specs.TryGetValue(type, out var fields) ? fields.Select(f => f.Key) : [];
 
     // Returns an error message, or null when the content is valid for the section type.
     public static string? Validate(string type, JsonElement content, List<int> mediaIds)

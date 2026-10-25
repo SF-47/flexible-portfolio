@@ -76,26 +76,26 @@ public class AdminController : ControllerBase
         [FromBody] UpdateSectionContentRequest request
     )
     {
+        if (request is null || string.IsNullOrWhiteSpace(request.ContentJson))
+        {
+            return BadRequest(new { message = "Content is required." });
+        }
+
         try
         {
-            var section = await _sectionService.UpdateContentAsync(
-                id,
-                request.ContentJson,
-                request.ExpectedUpdatedAt
-            );
+            var result = await _sectionService.UpdateContentAsync(id, request);
 
-            if (section is null)
-                return NotFound(new { message = "Section not found." });
-
-            return Ok(section);
+            return result.Status switch
+            {
+                UpdateContentStatus.Success => Ok(result.Saved),
+                UpdateContentStatus.NotFound => NotFound(new { message = result.Error }),
+                UpdateContentStatus.Conflict => Conflict(new { message = result.Error }),
+                _ => BadRequest(new { message = result.Error }),
+            };
         }
-        catch (ArgumentException exception)
+        catch (Exception)
         {
-            return BadRequest(new { message = exception.Message });
-        }
-        catch (InvalidOperationException exception)
-        {
-            return Conflict(new { message = exception.Message });
+            return StatusCode(500, new { message = "Could not save the content." });
         }
     }
 }
