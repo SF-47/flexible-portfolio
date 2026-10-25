@@ -5,4 +5,6 @@ namespace backend.Services.Navigation;
 public interface INavigationService
 {
     Task<List<NavigationResponse>> GetVisibleAsync();
+    Task<List<AdminNavigationItemResponse>> GetAllAsync();
+    Task<List<AdminNavigationItemResponse>> ReplaceAsync(UpdateNavigationRequest request);
 }
