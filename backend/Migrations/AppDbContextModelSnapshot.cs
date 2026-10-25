@@ -497,7 +497,7 @@ namespace Portfolio.Api.Migrations
                     b.HasOne("backend.Models.Section", "Section")
                         .WithMany("NavigationItems")
                         .HasForeignKey("SectionId")
-                        .OnDelete(DeleteBehavior.SetNull);
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.Navigation("Section");
                 });

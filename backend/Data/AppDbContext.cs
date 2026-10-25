@@ -119,7 +119,7 @@ public class AppDbContext : DbContext
                 .HasOne(x => x.Section)
                 .WithMany(x => x.NavigationItems)
                 .HasForeignKey(x => x.SectionId)
-                .OnDelete(DeleteBehavior.SetNull);
+                .OnDelete(DeleteBehavior.Restrict);
 
             entity.HasIndex(x => x.SortOrder);
         });
