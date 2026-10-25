@@ -1,23 +1,7 @@
-import {
-  Award,
-  ShieldCheck,
-  Medal,
-  BadgeCheck,
-  FileCheck2,
-  Trophy,
-  type LucideIcon,
-} from "lucide-react";
+import { BadgeCheck } from "lucide-react";
+import { IconByName } from "@/lib/icons";
 import type { CertificationsContent } from "@/types/sectionContent";
 import Reveal from "@/components/portfolio/Reveal";
-
-export const icons: Record<string, LucideIcon> = {
-  Award,
-  ShieldCheck,
-  Medal,
-  BadgeCheck,
-  FileCheck2,
-  Trophy,
-};
 
 type CertificationsProps = {
   content: CertificationsContent;
@@ -45,16 +29,15 @@ export default function Certifications({ content }: CertificationsProps) {
         </div>
 
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {content.items.map((certification) => {
-            const Icon = icons[certification.icon] ?? BadgeCheck;
+          {content.items.map((certification, index) => {
 
             return (
               <div
-                key={certification.title}
+                key={index}
                 className="group rounded-lg border border-brand-border bg-brand-surface p-8 transition duration-300 hover:-translate-y-2 hover:border-brand-accent hover:shadow-lg"
               >
                 <div className="mb-7 flex h-16 w-16 items-center justify-center rounded-full border border-brand-accent/30 bg-brand-accent/10 text-brand-accent-text">
-                  <Icon size={30} strokeWidth={1.5} />
+                  <IconByName icon={certification.icon} fallback={BadgeCheck} size={30} strokeWidth={1.5} />
                 </div>
 
                 <p className="mb-3 text-xs font-bold uppercase tracking-widest text-brand-accent-text">

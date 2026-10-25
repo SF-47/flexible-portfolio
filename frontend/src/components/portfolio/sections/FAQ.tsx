@@ -1,18 +1,13 @@
-import { CircleHelp, HelpCircle, Plus, type LucideIcon } from "lucide-react";
+import { HelpCircle, Plus } from "lucide-react";
+import { IconByName } from "@/lib/icons";
 import type { FAQContent } from "@/types/sectionContent";
 import Reveal from "@/components/portfolio/Reveal";
-
-export const icons: Record<string, LucideIcon> = {
-  HelpCircle,
-  CircleHelp,
-};
 
 type FAQProps = {
   content: FAQContent;
 };
 
 export default function FAQ({ content }: FAQProps) {
-  const HelpIcon = icons[content.helpIcon] ?? HelpCircle;
 
   return (
     <section
@@ -35,7 +30,7 @@ export default function FAQ({ content }: FAQProps) {
 
           <div className="flex items-center gap-4 rounded-lg bg-brand-surface p-6">
             <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-brand-accent/15 text-brand-accent-text">
-              <HelpIcon size={25} />
+              <IconByName icon={content.helpIcon} fallback={HelpCircle} size={25} />
             </div>
 
             <div>
@@ -51,9 +46,9 @@ export default function FAQ({ content }: FAQProps) {
         </div>
 
         <div className="space-y-4">
-          {content.items.map((item) => (
+          {content.items.map((item, index) => (
             <details
-              key={item.question}
+              key={index}
               className="group rounded-lg border border-brand-border bg-brand-surface open:border-brand-accent"
             >
               <summary className="flex cursor-pointer list-none items-center justify-between gap-4 p-6 [&::-webkit-details-marker]:hidden">

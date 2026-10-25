@@ -28,9 +28,9 @@ export default function Testimonials({ content }: TestimonialsProps) {
         </div>
 
         <div className="grid gap-6 lg:grid-cols-3">
-          {content.items.map((testimonial) => (
+          {content.items.map((testimonial, itemIndex) => (
             <article
-              key={`${testimonial.name}-${testimonial.role}`}
+              key={itemIndex}
               className="flex flex-col rounded-lg border border-brand-border bg-brand-background p-8 shadow-sm transition duration-300 hover:-translate-y-2 hover:shadow-xl"
             >
               <Quote

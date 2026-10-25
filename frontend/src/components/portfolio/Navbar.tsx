@@ -45,19 +45,20 @@ export default function Navbar({
       onClick={() => setMenuOpen(false)}
       className="flex min-w-0 items-center gap-3"
     >
-      {logoUrl && (
+      {logoUrl ? (
+        // Keeps the image's own proportions; only its height and width are capped.
         <Image
           src={logoUrl}
-          alt={`${siteSettings.companyName} logo`}
-          width={48}
+          alt={siteSettings.companyName}
+          width={192}
           height={48}
-          className="h-12 w-auto max-w-40 object-contain"
+          className="h-auto max-h-12 w-auto max-w-40 object-contain md:max-w-48"
         />
+      ) : (
+        <span className="truncate text-2xl font-bold tracking-widest">
+          {siteSettings.companyName}
+        </span>
       )}
-
-      <span className="truncate text-2xl font-bold tracking-widest">
-        {siteSettings.companyName}
-      </span>
     </a>
   );
 

@@ -1,13 +1,10 @@
 import Image from "next/image";
-import { Images, type LucideIcon } from "lucide-react";
+import { Images } from "lucide-react";
+import { IconByName } from "@/lib/icons";
 import type { GalleryContent } from "@/types/sectionContent";
 import type { MediaAsset } from "@/types/media";
 import { getMediaUrl } from "@/lib/mediaUrl";
 import Reveal from "@/components/portfolio/Reveal";
-
-export const icons: Record<string, LucideIcon> = {
-  Images,
-};
 
 // Images shown when a gallery item has no configured media asset.
 const fallbackImages = [
@@ -24,7 +21,6 @@ type GalleryProps = {
 };
 
 export default function Gallery({ content, media }: GalleryProps) {
-  const GalleryIcon = icons[content.icon] ?? Images;
 
   return (
     <section
@@ -46,14 +42,14 @@ export default function Gallery({ content, media }: GalleryProps) {
           </div>
 
           <div className="flex h-14 w-14 items-center justify-center rounded-lg bg-brand-accent/15 text-brand-accent-text">
-            <GalleryIcon size={26} />
+            <IconByName icon={content.icon} fallback={Images} size={26} />
           </div>
         </div>
 
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {content.items.map((item, index) => (
             <div
-              key={item.title}
+              key={index}
               className={`group relative overflow-hidden rounded-lg bg-brand-surface-strong ${
                 item.featured ? "md:col-span-2 md:row-span-2" : ""
               }`}

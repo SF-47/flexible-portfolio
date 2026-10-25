@@ -1,23 +1,7 @@
-import {
-  ShieldCheck,
-  Award,
-  Clock3,
-  Users,
-  BadgeCheck,
-  Lightbulb,
-  type LucideIcon,
-} from "lucide-react";
+import { BadgeCheck } from "lucide-react";
+import { IconByName } from "@/lib/icons";
 import type { WhyChooseUsContent } from "@/types/sectionContent";
 import Reveal from "@/components/portfolio/Reveal";
-
-export const icons: Record<string, LucideIcon> = {
-  ShieldCheck,
-  Award,
-  Clock3,
-  Users,
-  BadgeCheck,
-  Lightbulb,
-};
 
 type WhyChooseUsProps = {
   content: WhyChooseUsContent;
@@ -43,16 +27,15 @@ export default function WhyChooseUs({ content }: WhyChooseUsProps) {
         </div>
 
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {content.items.map((advantage) => {
-            const Icon = icons[advantage.icon] ?? BadgeCheck;
+          {content.items.map((advantage, index) => {
 
             return (
               <div
-                key={advantage.title}
+                key={index}
                 className="group rounded-lg border border-current/15 p-8 transition duration-300 hover:-translate-y-2 hover:border-brand-accent"
               >
                 <div className="mb-7 flex h-14 w-14 items-center justify-center rounded-lg bg-brand-accent text-brand-on-accent">
-                  <Icon size={27} />
+                  <IconByName icon={advantage.icon} fallback={BadgeCheck} size={27} />
                 </div>
 
                 <h3 className="mb-4 text-xl font-bold">{advantage.title}</h3>

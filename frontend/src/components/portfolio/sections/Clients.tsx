@@ -1,23 +1,7 @@
-import {
-  Building2,
-  Landmark,
-  Factory,
-  Hotel,
-  Warehouse,
-  BriefcaseBusiness,
-  type LucideIcon,
-} from "lucide-react";
+import { Building2 } from "lucide-react";
+import { IconByName } from "@/lib/icons";
 import type { ClientsContent } from "@/types/sectionContent";
 import Reveal from "@/components/portfolio/Reveal";
-
-export const icons: Record<string, LucideIcon> = {
-  Building2,
-  Landmark,
-  Factory,
-  Hotel,
-  Warehouse,
-  BriefcaseBusiness,
-};
 
 type ClientsProps = {
   content: ClientsContent;
@@ -45,15 +29,15 @@ export default function Clients({ content }: ClientsProps) {
         </div>
 
         <div className="grid grid-cols-2 gap-5 md:grid-cols-3">
-          {content.items.map((client) => {
-            const Icon = icons[client.icon] ?? Building2;
-
+          {content.items.map((client, index) => {
             return (
               <div
-                key={client.name}
+                key={index}
                 className="group flex min-h-44 flex-col items-center justify-center gap-5 rounded-lg border border-brand-border bg-brand-surface p-6 text-center transition duration-300 hover:border-brand-accent hover:bg-brand-background hover:shadow-lg"
               >
-                <Icon
+                <IconByName
+                  icon={client.icon}
+                  fallback={Building2}
                   size={42}
                   strokeWidth={1.5}
                   className="text-brand-muted transition group-hover:text-brand-accent-text"

@@ -30,14 +30,16 @@ export default function Team({ content, media }: TeamProps) {
           </p>
         </div>
 
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          {content.members.map((member) => {
+        {/* Wrapping flex row: 1 per row on mobile, 2 from sm, 4 from lg. Cards keep one
+            size and a last row with fewer cards is centered, for any number of members. */}
+        <div className="flex flex-wrap justify-center gap-6">
+          {content.members.map((member, index) => {
             const imageUrl = getMediaUrl(member.imageMediaId, media);
 
             return (
             <article
-              key={member.name}
-              className="group overflow-hidden rounded-lg bg-brand-background shadow-sm transition duration-300 hover:-translate-y-2 hover:shadow-xl"
+              key={index}
+              className="group w-full overflow-hidden rounded-lg sm:w-[calc(50%-0.75rem)] lg:w-[calc(25%-1.125rem)] bg-brand-background shadow-sm transition duration-300 hover:-translate-y-2 hover:shadow-xl"
             >
               <div className="relative flex aspect-4/4.5 items-center justify-center overflow-hidden bg-linear-to-br from-brand-surface-strong to-brand-border">
                 {imageUrl ? (

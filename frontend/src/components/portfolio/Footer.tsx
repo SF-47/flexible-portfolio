@@ -1,31 +1,14 @@
-import { ArrowUpRight } from "lucide-react";
+import { ArrowUpRight, Globe } from "lucide-react";
 import type { SocialLink } from "@/types/socialLink";
-import {
-  FaFacebook,
-  FaInstagram,
-  FaLinkedin,
-  FaYoutube,
-  FaTiktok,
-  FaXTwitter,
-} from "react-icons/fa6";
 import type { SiteSettings } from "@/types/siteSettings";
 import type { NavigationItem } from "@/types/navigation";
 import { getNavigationHref } from "@/lib/navigationLinks";
+import { platformIcon } from "@/lib/socialPlatforms";
 
 type FooterProps = {
   siteSettings: SiteSettings;
   navigation: NavigationItem[];
   socialLinks: SocialLink[];
-};
-
-const socialIcons = {
-  facebook: FaFacebook,
-  instagram: FaInstagram,
-  linkedin: FaLinkedin,
-  youtube: FaYoutube,
-  tiktok: FaTiktok,
-  twitter: FaXTwitter,
-  x: FaXTwitter,
 };
 
 export default function Footer({
@@ -51,11 +34,8 @@ export default function Footer({
             {[...socialLinks]
               .sort((a, b) => a.sortOrder - b.sortOrder)
               .map((social) => {
-                const platform = social.platform.trim().toLowerCase();
-
-                const Icon = socialIcons[platform as keyof typeof socialIcons];
-
-                if (!Icon) return null;
+                // Custom platforms get a generic globe icon.
+                const Icon = platformIcon(social.platform) ?? Globe;
 
                 let safeUrl: URL;
 

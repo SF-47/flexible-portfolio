@@ -1,23 +1,7 @@
-import {
-  MessagesSquare,
-  PencilRuler,
-  ClipboardList,
-  HardHat,
-  ClipboardCheck,
-  KeyRound,
-  type LucideIcon,
-} from "lucide-react";
+import { ClipboardList } from "lucide-react";
+import { IconByName } from "@/lib/icons";
 import type { ProcessContent } from "@/types/sectionContent";
 import Reveal from "@/components/portfolio/Reveal";
-
-export const icons: Record<string, LucideIcon> = {
-  MessagesSquare,
-  PencilRuler,
-  ClipboardList,
-  HardHat,
-  ClipboardCheck,
-  KeyRound,
-};
 
 type ProcessProps = {
   content: ProcessContent;
@@ -43,12 +27,11 @@ export default function Process({ content }: ProcessProps) {
         </div>
 
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {content.steps.map((step) => {
-            const Icon = icons[step.icon] ?? ClipboardList;
+          {content.steps.map((step, index) => {
 
             return (
               <div
-                key={step.number}
+                key={index}
                 className="relative rounded-lg border border-current/15 p-8 transition duration-300 hover:border-brand-accent"
               >
                 <span className="absolute right-6 top-5 text-5xl font-black opacity-25">
@@ -56,7 +39,7 @@ export default function Process({ content }: ProcessProps) {
                 </span>
 
                 <div className="mb-8 flex h-14 w-14 items-center justify-center rounded-lg bg-brand-accent text-brand-on-accent">
-                  <Icon size={26} />
+                  <IconByName icon={step.icon} fallback={ClipboardList} size={26} />
                 </div>
 
                 <p className="mb-3 text-sm font-bold tracking-widest text-brand-accent">
