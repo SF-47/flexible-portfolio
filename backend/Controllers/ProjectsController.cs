@@ -34,4 +34,17 @@ public class ProjectsController : ControllerBase
 
         return Ok(project);
     }
+
+    [HttpGet("slug/{slug}")]
+    public async Task<IActionResult> GetBySlug(string slug)
+    {
+        var project = await _projectService.GetBySlugAsync(slug);
+
+        if (project is null)
+        {
+            return NotFound(new { message = "Project not found." });
+        }
+
+        return Ok(project);
+    }
 }
