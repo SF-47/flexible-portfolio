@@ -1,169 +1,32 @@
-import {
-  Menu,
-  Plus,
-  GripVertical,
-  Pencil,
-  Trash2,
-  ExternalLink,
-  ImagePlus,
-  Save,
-} from "lucide-react";
+import type { Metadata } from "next";
+import NavigationEditor from "@/components/admin/navigation/NavigationEditor";
+import { getAdminSections } from "@/lib/adminSections";
+import { getMedia } from "@/lib/media";
+import { getAdminNavigation } from "@/lib/navigation";
+import { getSiteSettings } from "@/lib/siteSettings";
+import { getAdminSocialLinks } from "@/lib/socialLinks";
 
-import {
-  mockBrand,
-  mockNavLinks,
-  mockSocialLinks,
-} from "@/components/admin/mockData";
+export const metadata: Metadata = { title: "Navigation & Footer" };
 
-type NavLink = {
-  id: number;
-  label: string;
-  destination: string;
-  visible: boolean;
-};
+export const dynamic = "force-dynamic";
 
-type SocialLink = {
-  platform: string;
-  url: string;
-};
+export default async function NavigationPage() {
+  const [navigation, socialLinks, settings, sections, media] =
+    await Promise.all([
+      getAdminNavigation(),
+      getAdminSocialLinks(),
+      getSiteSettings(),
+      getAdminSections(),
+      getMedia(),
+    ]);
 
-const links: NavLink[] = mockNavLinks;
-
-const socialLinks: SocialLink[] = mockSocialLinks;
-
-export default function NavigationPage() {
   return (
-    <div className="mx-auto max-w-7xl space-y-8">
-      <div>
-        <h1 className="text-3xl font-bold">Navigation & Footer</h1>
-        <p className="mt-2 text-admin-muted">
-          Organize website links and manage branding.
-        </p>
-      </div>
-
-      <section className="rounded-xl border border-admin-border bg-admin-surface">
-        <div className="flex flex-wrap items-center justify-between gap-4 border-b border-admin-border p-6">
-          <div className="flex items-center gap-3">
-            <Menu className="text-admin-accent" />
-            <h2 className="text-xl font-bold">Navigation Links</h2>
-          </div>
-
-          <div className="flex items-center gap-2 rounded-lg bg-amber-400 px-4 py-2 text-sm font-semibold">
-            <Plus size={17} />
-            Add Link
-          </div>
-        </div>
-
-        <div className="divide-y divide-admin-border">
-          {links.length === 0 && (
-            <p className="px-6 py-10 text-center text-sm text-admin-muted">
-              No navigation links yet.
-            </p>
-          )}
-
-          {links.map((link, index) => (
-            <div
-              key={link.id}
-              className="flex flex-wrap items-center justify-between gap-4 px-6 py-5"
-            >
-              <div className="flex items-center gap-4">
-                <GripVertical className="text-admin-faint" size={20} />
-                <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-admin-bg text-sm font-semibold">
-                  {index + 1}
-                </span>
-
-                <div>
-                  <p className="font-semibold">{link.label}</p>
-                  <p className="text-sm text-admin-muted">{link.destination}</p>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-4">
-                <span className="rounded-full bg-admin-bg px-3 py-1 text-xs font-medium text-admin-muted">
-                  {link.visible ? "Visible" : "Hidden"}
-                </span>
-                <Pencil size={18} className="text-admin-muted" />
-                <Trash2 size={18} className="text-red-500" />
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      <div className="grid gap-6 lg:grid-cols-2">
-        <section className="rounded-xl border border-admin-border bg-admin-surface p-6">
-          <h2 className="mb-6 text-xl font-bold">Brand Identity</h2>
-
-          <div className="space-y-5">
-            <div>
-              <label className="mb-2 block text-sm font-medium">
-                Company Name
-              </label>
-              <input
-                type="text"
-                readOnly
-                defaultValue={mockBrand.companyName}
-                className="w-full rounded-lg border border-admin-border bg-admin-subtle px-4 py-3"
-              />
-            </div>
-
-            <div>
-              <label className="mb-2 block text-sm font-medium">
-                Navbar Logo
-              </label>
-              <div className="flex h-28 items-center justify-center rounded-lg border-2 border-dashed border-admin-border bg-admin-subtle">
-                <ImagePlus size={27} className="text-admin-faint" />
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <section className="rounded-xl border border-admin-border bg-admin-surface p-6">
-          <h2 className="mb-6 text-xl font-bold">Footer Settings</h2>
-
-          <div className="space-y-5">
-            <div>
-              <label className="mb-2 block text-sm font-medium">
-                Footer Description
-              </label>
-              <textarea
-                rows={4}
-                readOnly
-                defaultValue={mockBrand.footerDescription}
-                className="w-full resize-none rounded-lg border border-admin-border bg-admin-subtle px-4 py-3"
-              />
-            </div>
-
-            <h3 className="font-semibold">Social Links</h3>
-
-            {socialLinks.length === 0 && (
-              <p className="text-sm text-admin-muted">No social links yet.</p>
-            )}
-
-            {socialLinks.map((social) => (
-              <div
-                key={social.platform}
-                className="flex items-center justify-between gap-3 rounded-lg border border-admin-border p-3"
-              >
-                <div className="min-w-0">
-                  <p className="text-sm font-semibold">{social.platform}</p>
-                  <p className="truncate text-xs text-admin-muted">
-                    {social.url}
-                  </p>
-                </div>
-                <ExternalLink size={17} className="shrink-0 text-admin-faint" />
-              </div>
-            ))}
-          </div>
-        </section>
-      </div>
-
-      <div className="flex justify-end">
-        <div className="flex items-center gap-2 rounded-lg bg-amber-400 px-6 py-3 font-semibold">
-          <Save size={18} />
-          Save Changes
-        </div>
-      </div>
-    </div>
+    <NavigationEditor
+      navigation={navigation}
+      socialLinks={socialLinks}
+      settings={settings}
+      sections={sections}
+      media={media}
+    />
   );
 }
