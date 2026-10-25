@@ -2,27 +2,11 @@ import Image from "next/image";
 import type { MediaAsset } from "@/types/media";
 import { getMediaUrl } from "@/lib/mediaUrl";
 import type { CompanyService } from "@/types/companyService";
-import {
-  House,
-  Building2,
-  DraftingCompass,
-  Hammer,
-  ClipboardCheck,
-  HardHat,
-  type LucideIcon,
-} from "lucide-react";
+import { HardHat } from "lucide-react";
+import { IconByName } from "@/lib/icons";
 
 import type { ServicesContent } from "@/types/sectionContent";
 import Reveal from "@/components/portfolio/Reveal";
-
-const serviceIcons: Record<string, LucideIcon> = {
-  House,
-  Building2,
-  DraftingCompass,
-  Hammer,
-  ClipboardCheck,
-  HardHat,
-};
 
 type ServicesProps = {
   content: ServicesContent;
@@ -52,9 +36,6 @@ export default function Services({ content, services, media }: ServicesProps) {
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {services.map((service) => {
             const imageUrl = getMediaUrl(service.imageMediaId, media);
-            const Icon =
-              (service.iconName ? serviceIcons[service.iconName] : undefined) ??
-              HardHat;
 
             return (
               <div
@@ -62,7 +43,7 @@ export default function Services({ content, services, media }: ServicesProps) {
                 className="group rounded-lg border border-brand-border bg-brand-background p-8 transition duration-300 hover:-translate-y-2 hover:shadow-xl"
               >
                 <div className="mb-7 flex h-14 w-14 items-center justify-center rounded-lg bg-brand-accent/15 text-brand-accent-text">
-                  <Icon size={28} />
+                  <IconByName icon={service.iconName} fallback={HardHat} size={28} />
                 </div>
 
                 {imageUrl && (
