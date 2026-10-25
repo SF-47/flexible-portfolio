@@ -70,6 +70,19 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
+if (args.Contains("--seed-media"))
+{
+    using var scope = app.Services.CreateScope();
+
+    var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    var environment = scope.ServiceProvider.GetRequiredService<IWebHostEnvironment>();
+
+    await MediaSeeder.SeedAsync(context, environment.ContentRootPath, environment.WebRootPath);
+
+    Console.WriteLine("Media seeding completed.");
+    return;
+}
+
 if (args.Contains("--seed-sections"))
 {
     using var scope = app.Services.CreateScope();

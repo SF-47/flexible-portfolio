@@ -53,6 +53,18 @@ public static class ProjectSeeder
             },
         };
 
+        // The demo images come from MediaSeeder (run --seed-media first); without them the
+        // projects are still created, just without a featured image.
+        var seedImages = await context
+            .MediaAssets.Where(media => media.StorageKey.StartsWith(MediaSeeder.StoragePrefix))
+            .ToDictionaryAsync(media => media.StorageKey, media => media.Id);
+
+        for (var index = 0; index < projects.Count; index++)
+        {
+            if (seedImages.TryGetValue($"{MediaSeeder.StoragePrefix}project-{index + 1}.jpg", out var id))
+                projects[index].FeaturedImageId = id;
+        }
+
         var existingSlugs = await context.Projects.Select(project => project.Slug).ToListAsync();
 
         var newProjects = projects.Where(project => !existingSlugs.Contains(project.Slug)).ToList();
