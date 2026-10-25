@@ -32,7 +32,7 @@ public static class ThemeSeeder
                 TextColor = "#18332B",
                 OnPrimaryColor = "#FFFFFF",
                 OnAccentColor = "#12372A",
-                HeadingFont = "Inter",
+                HeadingFont = "Playfair Display",
                 BodyFont = "Inter",
                 NavbarVariant = "default",
                 IsActive = false,
@@ -88,62 +88,62 @@ public static class ThemeSeeder
                 TextColor = "#183446",
                 OnPrimaryColor = "#FFFFFF",
                 OnAccentColor = "#FFFFFF",
-                HeadingFont = "Roboto",
-                BodyFont = "Roboto",
+                HeadingFont = "Oswald",
+                BodyFont = "Inter",
                 NavbarVariant = "default",
                 IsActive = false,
             },
             new Theme
             {
-                Name = "Terracotta",
-                PrimaryColor = "#6D3B2D",
-                AccentColor = "#D98D63",
-                BackgroundColor = "#FBF5EC",
-                TextColor = "#3C2C27",
+                Name = "Midnight Gold",
+                PrimaryColor = "#0B0F19",
+                AccentColor = "#FBBF24",
+                BackgroundColor = "#0F172A",
+                TextColor = "#F1F5F9",
                 OnPrimaryColor = "#FFFFFF",
-                OnAccentColor = "#26170F",
-                HeadingFont = "Lato",
-                BodyFont = "Lato",
-                NavbarVariant = "centered",
+                OnAccentColor = "#0B0F19",
+                HeadingFont = "Inter",
+                BodyFont = "Inter",
+                NavbarVariant = "default",
                 IsActive = false,
             },
             new Theme
             {
-                Name = "Arctic Minimal",
-                PrimaryColor = "#E8EDF2",
-                AccentColor = "#2563EB",
-                BackgroundColor = "#FFFFFF",
-                TextColor = "#172033",
-                OnPrimaryColor = "#172033",
-                OnAccentColor = "#FFFFFF",
-                HeadingFont = "Inter",
+                Name = "Graphite Blue",
+                PrimaryColor = "#111827",
+                AccentColor = "#60A5FA",
+                BackgroundColor = "#0B1220",
+                TextColor = "#E5E7EB",
+                OnPrimaryColor = "#FFFFFF",
+                OnAccentColor = "#0B1220",
+                HeadingFont = "Space Mono",
                 BodyFont = "Inter",
                 NavbarVariant = "centered",
                 IsActive = false,
             },
             new Theme
             {
-                Name = "Burgundy Luxe",
-                PrimaryColor = "#4C1026",
-                AccentColor = "#D8B16D",
-                BackgroundColor = "#FFF9F5",
-                TextColor = "#341B23",
+                Name = "Dark Burgundy",
+                PrimaryColor = "#2A0A18",
+                AccentColor = "#E0B76F",
+                BackgroundColor = "#1A0B12",
+                TextColor = "#F6E9ED",
                 OnPrimaryColor = "#FFFFFF",
                 OnAccentColor = "#24140B",
-                HeadingFont = "Lato",
-                BodyFont = "Lato",
+                HeadingFont = "Playfair Display",
+                BodyFont = "Inter",
                 NavbarVariant = "split",
                 IsActive = false,
             },
             new Theme
             {
-                Name = "Emerald Slate",
-                PrimaryColor = "#142B32",
-                AccentColor = "#36C6A0",
-                BackgroundColor = "#F2F8F7",
-                TextColor = "#17313B",
+                Name = "Dark Emerald",
+                PrimaryColor = "#06231D",
+                AccentColor = "#34D399",
+                BackgroundColor = "#0A1F1A",
+                TextColor = "#E6F4EF",
                 OnPrimaryColor = "#FFFFFF",
-                OnAccentColor = "#082C23",
+                OnAccentColor = "#06231D",
                 HeadingFont = "Poppins",
                 BodyFont = "Inter",
                 NavbarVariant = "default",
@@ -151,27 +151,27 @@ public static class ThemeSeeder
             },
             new Theme
             {
-                Name = "Sunset Copper",
-                PrimaryColor = "#38242A",
+                Name = "Dark Copper",
+                PrimaryColor = "#1F1412",
                 AccentColor = "#E98957",
-                BackgroundColor = "#FFF4EC",
-                TextColor = "#3A2826",
+                BackgroundColor = "#17100E",
+                TextColor = "#F5E9E2",
                 OnPrimaryColor = "#FFFFFF",
                 OnAccentColor = "#26150B",
-                HeadingFont = "Roboto",
-                BodyFont = "Lato",
+                HeadingFont = "Oswald",
+                BodyFont = "Merriweather",
                 NavbarVariant = "centered",
                 IsActive = false,
             },
             new Theme
             {
-                Name = "Monochrome",
-                PrimaryColor = "#171717",
-                AccentColor = "#737373",
-                BackgroundColor = "#FAFAFA",
-                TextColor = "#171717",
+                Name = "Noir",
+                PrimaryColor = "#0A0A0A",
+                AccentColor = "#A3A3A3",
+                BackgroundColor = "#121212",
+                TextColor = "#F5F5F5",
                 OnPrimaryColor = "#FFFFFF",
-                OnAccentColor = "#FFFFFF",
+                OnAccentColor = "#0A0A0A",
                 HeadingFont = "Inter",
                 BodyFont = "Inter",
                 NavbarVariant = "split",
@@ -193,6 +193,55 @@ public static class ThemeSeeder
                 IsActive = false,
             },
         };
+
+        // Presets that were replaced by newer ones. They are removed unless one is active.
+        var retiredNames = new[]
+        {
+            "Terracotta",
+            "Arctic Minimal",
+            "Burgundy Luxe",
+            "Emerald Slate",
+            "Sunset Copper",
+            "Monochrome",
+        };
+
+        var retired = await context
+            .Themes.Where(theme =>
+                !theme.IsCustom && !theme.IsActive && retiredNames.Contains(theme.Name)
+            )
+            .ToListAsync();
+
+        if (retired.Count > 0)
+        {
+            context.Themes.RemoveRange(retired);
+            await context.SaveChangesAsync();
+        }
+
+        // Fonts that were removed from the supported list (Roboto, Lato). Existing themes that
+        // still use one get the font their preset now defines, or Inter for the Custom Theme.
+        var removedFonts = new[] { "Roboto", "Lato" };
+
+        var outdated = await context
+            .Themes.Where(theme =>
+                removedFonts.Contains(theme.HeadingFont) || removedFonts.Contains(theme.BodyFont)
+            )
+            .ToListAsync();
+
+        foreach (var theme in outdated)
+        {
+            var preset = presets.FirstOrDefault(item =>
+                !theme.IsCustom && item.Name.Equals(theme.Name, StringComparison.OrdinalIgnoreCase)
+            );
+
+            if (removedFonts.Contains(theme.HeadingFont))
+                theme.HeadingFont = preset?.HeadingFont ?? "Inter";
+
+            if (removedFonts.Contains(theme.BodyFont))
+                theme.BodyFont = preset?.BodyFont ?? "Inter";
+        }
+
+        if (outdated.Count > 0)
+            await context.SaveChangesAsync();
 
         var existingNames = await context
             .Themes.AsNoTracking()

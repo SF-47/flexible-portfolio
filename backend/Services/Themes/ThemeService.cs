@@ -56,8 +56,10 @@ public class ThemeService : IThemeService
     {
         "Inter",
         "Poppins",
-        "Roboto",
-        "Lato",
+        "Playfair Display",
+        "Merriweather",
+        "Oswald",
+        "Space Mono",
     };
 
     private static readonly HashSet<string> SupportedNavbarVariants = new(
@@ -95,11 +97,6 @@ public class ThemeService : IThemeService
         if (theme is null)
             return null;
 
-        if (!theme.IsCustom)
-        {
-            throw new InvalidOperationException("Predefined themes cannot be edited.");
-        }
-
         if (
             !SupportedFonts.Contains(request.HeadingFont)
             || !SupportedFonts.Contains(request.BodyFont)
@@ -113,12 +110,16 @@ public class ThemeService : IThemeService
             throw new ArgumentException("Unsupported navbar variant.");
         }
 
-        theme.PrimaryColor = request.PrimaryColor;
-        theme.AccentColor = request.AccentColor;
-        theme.BackgroundColor = request.BackgroundColor;
-        theme.TextColor = request.TextColor;
-        theme.OnPrimaryColor = request.OnPrimaryColor;
-        theme.OnAccentColor = request.OnAccentColor;
+        // Predefined themes keep their colors; only fonts and the navbar layout can change.
+        if (theme.IsCustom)
+        {
+            theme.PrimaryColor = request.PrimaryColor;
+            theme.AccentColor = request.AccentColor;
+            theme.BackgroundColor = request.BackgroundColor;
+            theme.TextColor = request.TextColor;
+            theme.OnPrimaryColor = request.OnPrimaryColor;
+            theme.OnAccentColor = request.OnAccentColor;
+        }
 
         theme.HeadingFont = request.HeadingFont;
         theme.BodyFont = request.BodyFont;
