@@ -31,6 +31,10 @@ export default async function AdminPage() {
     {
       label: "Messages",
       value: statsData.totalMessages,
+      note:
+        statsData.unreadMessages > 0
+          ? `${statsData.unreadMessages} unread`
+          : "All read",
       icon: Mail,
     },
   ];
@@ -45,7 +49,7 @@ export default async function AdminPage() {
       </div>
 
       <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-4">
-        {stats.map(({ label, value, icon: Icon }) => (
+        {stats.map(({ label, value, note, icon: Icon }) => (
           <div
             key={label}
             className="rounded-xl bg-admin-surface p-6 shadow-sm"
@@ -59,6 +63,8 @@ export default async function AdminPage() {
             </div>
 
             <p className="text-4xl font-bold">{value}</p>
+
+            {note && <p className="mt-1 text-sm text-admin-muted">{note}</p>}
           </div>
         ))}
       </div>
