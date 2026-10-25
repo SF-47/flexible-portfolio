@@ -1,26 +1,30 @@
 "use client";
 
-import { useEffect, useState, useTransition } from "react";
+import { useEffect, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import {
   Check,
   ChevronDown,
   ChevronUp,
   ExternalLink,
-  Loader2,
   Lock,
   Palette,
   Type,
   PanelTop,
-  Save,
-  RotateCcw,
 } from "lucide-react";
 
+import StickyActionBar from "@/components/admin/StickyActionBar";
 import { saveTheme } from "@/app/admin/appearance/actions";
+import {
+  fontFamilies,
+  fontNames as fonts,
+  fontVariableClasses,
+} from "@/lib/portfolioFonts";
 import type { Theme, ThemeConfig } from "@/types/theme";
 
 // Number of presets shown (besides the Custom Theme) before the admin presses "Show all".
 const collapsedPresetCount = 4;
+const collapsedThemeCount = collapsedPresetCount + 1;
 
 type AppearanceEditorProps = {
   themes: Theme[];
@@ -50,8 +54,8 @@ const colorFields: { label: string; key: ColorKey }[] = [
   { label: "Text on Accent", key: "onAccentColor" },
 ];
 
-// Match the fonts currently supported by portfolioFonts.ts.
-const fonts = ["Inter", "Poppins", "Roboto", "Lato"];
+// The font CSS variables are only applied on the public site, so they are applied
+// to this page too and each font name can be shown in its own typeface.
 
 const navbarLayouts = [
   {
@@ -104,6 +108,94 @@ function NavbarSketch({ variant }: { variant: string }) {
   );
 }
 
+// A dropdown whose options are written in their own typeface (a native <select>
+// ignores font styling on its options in most browsers).
+function FontSelect({
+  id,
+  value,
+  onChange,
+}: {
+  id: string;
+  value: string;
+  onChange: (font: string) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+  const options = fonts.includes(value) ? fonts : [value, ...fonts];
+
+  useEffect(() => {
+    if (!open) return;
+
+    function close(event: MouseEvent | KeyboardEvent) {
+      if (event instanceof KeyboardEvent) {
+        if (event.key === "Escape") setOpen(false);
+      } else if (!ref.current?.contains(event.target as Node)) {
+        setOpen(false);
+      }
+    }
+
+    document.addEventListener("mousedown", close);
+    document.addEventListener("keydown", close);
+
+    return () => {
+      document.removeEventListener("mousedown", close);
+      document.removeEventListener("keydown", close);
+    };
+  }, [open]);
+
+  return (
+    <div ref={ref} className="relative">
+      <button
+        id={id}
+        type="button"
+        aria-haspopup="listbox"
+        aria-expanded={open}
+        onClick={() => setOpen((previous) => !previous)}
+        style={{ fontFamily: fontFamilies[value] }}
+        className="flex w-full items-center justify-between rounded-lg border border-admin-border bg-admin-subtle p-4 text-left"
+      >
+        <span>{value}</span>
+        <ChevronDown size={16} className="text-admin-muted" />
+      </button>
+
+      {open && (
+        <ul
+          role="listbox"
+          aria-labelledby={id}
+          className="absolute z-20 mt-1 w-full overflow-hidden rounded-lg border border-admin-border bg-admin-surface shadow-lg"
+        >
+          {options.map((font) => (
+            <li
+              key={font}
+              role="option"
+              aria-selected={font === value}
+              tabIndex={0}
+              onClick={() => {
+                onChange(font);
+                setOpen(false);
+              }}
+              onKeyDown={(event) => {
+                if (event.key === "Enter" || event.key === " ") {
+                  event.preventDefault();
+                  onChange(font);
+                  setOpen(false);
+                }
+              }}
+              style={{ fontFamily: fontFamilies[font] }}
+              className="flex cursor-pointer items-center justify-between px-4 py-3 text-lg hover:bg-admin-subtle focus:bg-admin-subtle focus:outline-none"
+            >
+              {fonts.includes(font) ? font : `${font} (unsupported)`}
+              {font === value && (
+                <Check size={16} className="text-admin-accent" />
+              )}
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
+
 const hexColor = /^#[0-9a-fA-F]{6}$/;
 
 // The admin API has no authentication yet, so saving is a local-development feature.
@@ -142,19 +234,20 @@ export default function AppearanceEditor({
   const router = useRouter();
   const [isRefreshing, startRefresh] = useTransition();
 
-  const customTheme = themes.find((theme) => theme.isCustom);
-  const savedCustom = customTheme ? toConfig(customTheme) : null;
+  const savedConfigs = Object.fromEntries(
+    themes.map((theme) => [theme.id, toConfig(theme)]),
+  ) as Record<number, ThemeConfig>;
 
   // Clicking a card only changes this local selection; nothing is sent to the API.
   const [selectedId, setSelectedId] = useState(activeTheme.id);
-  // Edits to the Custom Theme survive switching to another card until saved or cancelled.
-  const [customDraft, setCustomDraft] = useState<ThemeConfig | null>(
-    savedCustom,
-  );
+  // Edits survive switching to another card until saved or cancelled. Colors can only
+  // be edited on the Custom Theme; fonts and the navbar layout on every theme.
+  const [drafts, setDrafts] =
+    useState<Record<number, ThemeConfig>>(savedConfigs);
   const [status, setStatus] = useState<Status>({ type: "idle" });
   const [showAllThemes, setShowAllThemes] = useState(false);
 
-  // Collapsed: the first presets and the Custom Theme. The selected theme always stays visible.
+  // Collapsed: the first presets and the Custom Theme.
   const firstPresetIds = new Set(
     themes
       .filter((theme) => !theme.isCustom)
@@ -164,25 +257,28 @@ export default function AppearanceEditor({
 
   const visibleThemes = showAllThemes
     ? themes
-    : themes.filter(
-        (theme) =>
-          theme.isCustom || firstPresetIds.has(theme.id) || theme.id === selectedId,
-      );
+    : themes.filter((theme) => theme.isCustom || firstPresetIds.has(theme.id));
 
   const selected =
     themes.find((theme) => theme.id === selectedId) ?? activeTheme;
-  const editable = selected.isCustom && customDraft !== null;
-  const view: ThemeConfig = editable ? customDraft : toConfig(selected);
+  const colorsEditable = selected.isCustom;
+  const view: ThemeConfig = drafts[selected.id] ?? toConfig(selected);
 
-  const customChanged =
-    customDraft !== null &&
-    savedCustom !== null &&
-    configKeys.some((key) => customDraft[key] !== savedCustom[key]);
+  function isChanged(theme: Theme) {
+    const draft = drafts[theme.id];
+    const saved = savedConfigs[theme.id];
 
-  const hasChanges = selectedId !== activeTheme.id || customChanged;
+    return (
+      !!draft && !!saved && configKeys.some((key) => draft[key] !== saved[key])
+    );
+  }
 
-  const invalidColors = editable
-    ? colorFields.filter(({ key }) => !hexColor.test(customDraft[key]))
+  const selectedChanged = isChanged(selected);
+  const hasChanges =
+    selectedId !== activeTheme.id || themes.some((theme) => isChanged(theme));
+
+  const invalidColors = colorsEditable
+    ? colorFields.filter(({ key }) => !hexColor.test(view[key]))
     : [];
 
   const canSave =
@@ -190,9 +286,7 @@ export default function AppearanceEditor({
     status.type !== "saving" &&
     !isRefreshing &&
     invalidColors.length === 0 &&
-    (selected.isCustom
-      ? customChanged || !selected.isActive
-      : !selected.isActive);
+    (selectedChanged || !selected.isActive);
 
   const isBusy = status.type === "saving" || isRefreshing;
 
@@ -214,16 +308,17 @@ export default function AppearanceEditor({
     setStatus({ type: "idle" });
   }
 
-  function updateCustom(changes: Partial<ThemeConfig>) {
-    setCustomDraft((previous) =>
-      previous ? { ...previous, ...changes } : previous,
-    );
+  function updateDraft(changes: Partial<ThemeConfig>) {
+    setDrafts((previous) => ({
+      ...previous,
+      [selected.id]: { ...(previous[selected.id] ?? view), ...changes },
+    }));
     setStatus({ type: "idle" });
   }
 
   function resetChanges() {
     setSelectedId(activeTheme.id);
-    setCustomDraft(savedCustom);
+    setDrafts(savedConfigs);
     setStatus({ type: "idle" });
   }
 
@@ -233,10 +328,7 @@ export default function AppearanceEditor({
     let result;
 
     try {
-      result = await saveTheme(
-        selected.id,
-        selected.isCustom && customDraft ? customDraft : null,
-      );
+      result = await saveTheme(selected.id, selectedChanged ? view : null);
     } catch {
       result = {
         ok: false as const,
@@ -250,10 +342,10 @@ export default function AppearanceEditor({
         type: "success",
         message: `${selected.name} is now the active theme.`,
       });
-    } else if (result.stage === "activate" && selected.isCustom) {
+    } else if (result.stage === "activate" && selectedChanged) {
       setStatus({
         type: "error",
-        message: `Custom Theme settings were saved, but activating it failed: ${result.message}`,
+        message: `${selected.name} settings were saved, but activating it failed: ${result.message}`,
       });
     } else {
       setStatus({
@@ -267,7 +359,7 @@ export default function AppearanceEditor({
   }
 
   return (
-    <div className="mx-auto max-w-7xl space-y-8">
+    <div className={`mx-auto max-w-7xl space-y-8 ${fontVariableClasses}`}>
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold">Appearance</h1>
@@ -313,7 +405,7 @@ export default function AppearanceEditor({
         <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-5">
           {visibleThemes.map((theme) => {
             const isSelected = selectedId === theme.id;
-            const preview = theme.isCustom && customDraft ? customDraft : theme;
+            const preview = drafts[theme.id] ?? theme;
             const swatches = [
               preview.primaryColor,
               preview.accentColor,
@@ -334,17 +426,47 @@ export default function AppearanceEditor({
                   isSelected ? "border-admin-accent" : "border-admin-border"
                 }`}
               >
+                {/* Miniature page: navbar in the primary color, then heading, text and button */}
                 <div
-                  className="flex h-28 items-end p-4"
-                  style={{ backgroundColor: preview.primaryColor }}
+                  className="h-32 p-3"
+                  style={{ backgroundColor: preview.backgroundColor }}
                 >
                   <div
-                    className="h-6 w-16 rounded"
-                    style={{ backgroundColor: preview.accentColor }}
-                  />
+                    className="flex items-center justify-between rounded px-2 py-1.5"
+                    style={{ backgroundColor: preview.primaryColor }}
+                  >
+                    <span
+                      className="h-1.5 w-8 rounded"
+                      style={{ backgroundColor: preview.onPrimaryColor }}
+                    />
+                    <span
+                      className="h-1.5 w-10 rounded opacity-60"
+                      style={{ backgroundColor: preview.onPrimaryColor }}
+                    />
+                  </div>
+
+                  <div className="mt-3 space-y-1.5 px-1">
+                    <span
+                      className="block h-2.5 w-24 rounded"
+                      style={{ backgroundColor: preview.textColor }}
+                    />
+                    <span
+                      className="block h-1.5 w-32 rounded opacity-50"
+                      style={{ backgroundColor: preview.textColor }}
+                    />
+                    <span
+                      className="mt-2 flex h-5 w-14 items-center justify-center rounded"
+                      style={{ backgroundColor: preview.accentColor }}
+                    >
+                      <span
+                        className="h-1 w-7 rounded"
+                        style={{ backgroundColor: preview.onAccentColor }}
+                      />
+                    </span>
+                  </div>
                 </div>
 
-                <div className="flex h-5">
+                <div className="flex h-2">
                   {swatches.map((color, index) => (
                     <div
                       key={index}
@@ -382,7 +504,7 @@ export default function AppearanceEditor({
                     </span>
                   )}
 
-                  {theme.isCustom && customChanged && (
+                  {isChanged(theme) && (
                     <span className="text-admin-muted">Unsaved edits</span>
                   )}
                 </div>
@@ -391,7 +513,7 @@ export default function AppearanceEditor({
           })}
         </div>
 
-        {themes.length > visibleThemes.length || showAllThemes && (
+        {themes.length > collapsedThemeCount && (
           <div className="mt-6 flex justify-center">
             <button
               type="button"
@@ -415,18 +537,19 @@ export default function AppearanceEditor({
         )}
       </section>
 
-      {!editable && (
+      {!colorsEditable && (
         <p className="flex items-center gap-2 text-sm text-admin-muted">
           <Lock size={14} />
-          {selected.name} is a predefined theme and cannot be edited. Select
-          Custom Theme to change colors, fonts and navbar layout.
+          {selected.name} is a predefined theme, so its colors are locked. You
+          can still change its fonts and navbar layout. Select Custom Theme to
+          edit colors.
         </p>
       )}
 
       {/* Colors */}
       <section className="rounded-xl border border-admin-border bg-admin-surface p-6">
         <h2 className="mb-6 text-xl font-bold">
-          {editable ? "Custom Colors" : `${selected.name} Colors`}
+          {colorsEditable ? "Custom Colors" : `${selected.name} Colors`}
         </h2>
 
         <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
@@ -452,9 +575,9 @@ export default function AppearanceEditor({
                     type="color"
                     aria-label={`${label} color picker`}
                     value={valid ? value : "#000000"}
-                    disabled={!editable}
+                    disabled={!colorsEditable}
                     onChange={(event) =>
-                      updateCustom({ [key]: event.target.value })
+                      updateDraft({ [key]: event.target.value })
                     }
                     className="h-9 w-12 cursor-pointer disabled:cursor-not-allowed disabled:opacity-60"
                   />
@@ -463,12 +586,12 @@ export default function AppearanceEditor({
                     id={`${key}-hex`}
                     type="text"
                     value={value}
-                    readOnly={!editable}
+                    readOnly={!colorsEditable}
                     maxLength={7}
                     spellCheck={false}
                     aria-invalid={!valid}
                     onChange={(event) =>
-                      updateCustom({ [key]: event.target.value })
+                      updateDraft({ [key]: event.target.value })
                     }
                     className="w-full min-w-0 rounded border border-admin-border px-2 py-1.5 font-mono text-sm read-only:bg-admin-subtle"
                   />
@@ -504,24 +627,11 @@ export default function AppearanceEditor({
                 {label}
               </label>
 
-              <select
+              <FontSelect
                 id={id}
                 value={view[key]}
-                disabled={!editable}
-                onChange={(event) =>
-                  updateCustom({ [key]: event.target.value })
-                }
-                className="w-full rounded-lg border border-admin-border bg-admin-subtle p-4 disabled:opacity-70"
-              >
-                {!fonts.includes(view[key]) && (
-                  <option value={view[key]}>{view[key]} (unsupported)</option>
-                )}
-                {fonts.map((font) => (
-                  <option key={font} value={font}>
-                    {font}
-                  </option>
-                ))}
-              </select>
+                onChange={(font) => updateDraft({ [key]: font })}
+              />
             </div>
           ))}
         </div>
@@ -539,13 +649,12 @@ export default function AppearanceEditor({
             <button
               key={layout.value}
               type="button"
-              disabled={!editable}
               aria-pressed={view.navbarVariant === layout.value}
-              onClick={() => updateCustom({ navbarVariant: layout.value })}
-              className={`rounded-xl border-2 p-5 text-left transition enabled:hover:border-admin-accent disabled:cursor-not-allowed ${
+              onClick={() => updateDraft({ navbarVariant: layout.value })}
+              className={`rounded-xl border-2 p-5 text-left transition hover:border-admin-accent ${
                 view.navbarVariant === layout.value
                   ? "border-admin-accent"
-                  : "border-admin-border disabled:opacity-60"
+                  : "border-admin-border"
               }`}
             >
               <NavbarSketch variant={layout.value} />
@@ -566,11 +675,17 @@ export default function AppearanceEditor({
         </div>
       </section>
 
-      <div className="sticky bottom-4 z-10 flex flex-wrap items-center justify-between gap-4 rounded-xl border border-admin-border bg-admin-surface p-4 shadow-lg">
-        <div className="text-sm" role="status" aria-live="polite">
-          {status.type === "saving" || isRefreshing ? (
-            <p className="inline-flex items-center gap-2 text-admin-muted">
-              <Loader2 size={16} className="animate-spin" />
+      <StickyActionBar
+        visible
+        saving={isBusy}
+        saveDisabled={!canSave}
+        resetDisabled={!hasChanges}
+        saveLabel={selectedChanged ? "Save & Apply" : "Activate Theme"}
+        onReset={resetChanges}
+        onSave={handleSave}
+        message={
+          status.type === "saving" || isRefreshing ? (
+            <p className="text-admin-muted">
               {status.type === "saving" ? "Saving…" : "Refreshing…"}
             </p>
           ) : status.type === "success" ? (
@@ -584,7 +699,7 @@ export default function AppearanceEditor({
               Fix the invalid colors before saving.
             </p>
           ) : hasChanges ? (
-            <p className="text-admin-muted">
+            <p className="text-amber-700">
               {selectedId !== activeTheme.id
                 ? `${selected.name} is selected but not active yet.`
                 : "You have unsaved appearance changes."}
@@ -593,36 +708,9 @@ export default function AppearanceEditor({
             <p className="text-admin-muted">
               Your appearance settings match the active theme.
             </p>
-          )}
-        </div>
-
-        <div className="flex items-center gap-3">
-          <button
-            type="button"
-            onClick={resetChanges}
-            disabled={!hasChanges || isBusy}
-            className="inline-flex items-center gap-2 rounded-lg border border-admin-border px-5 py-3 font-medium disabled:opacity-50"
-          >
-            <RotateCcw size={18} />
-            Cancel
-          </button>
-
-          <button
-            type="button"
-            onClick={handleSave}
-            disabled={!canSave}
-            title={
-              writesEnabled
-                ? undefined
-                : "Saving is only available in local development"
-            }
-            className="inline-flex items-center gap-2 rounded-lg bg-amber-400 px-6 py-3 font-semibold text-slate-950 disabled:cursor-not-allowed disabled:opacity-50"
-          >
-            <Save size={18} />
-            {selected.isCustom ? "Save & Apply" : "Activate Theme"}
-          </button>
-        </div>
-      </div>
+          )
+        }
+      />
     </div>
   );
 }

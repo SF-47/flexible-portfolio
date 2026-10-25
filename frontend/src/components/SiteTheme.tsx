@@ -1,18 +1,11 @@
 import type { CSSProperties, ReactNode } from "react";
 import type { Theme } from "@/types/theme";
 
-import { inter, poppins, roboto, lato } from "@/lib/portfolioFonts";
+import { fontFamilies, fontVariableClasses } from "@/lib/portfolioFonts";
 
 type SiteThemeProps = {
   children: ReactNode;
   theme: Theme;
-};
-
-const fontFamilies: Record<string, string> = {
-  Inter: "var(--font-portfolio-inter)",
-  Poppins: "var(--font-portfolio-poppins)",
-  Roboto: "var(--font-portfolio-roboto)",
-  Lato: "var(--font-portfolio-lato)",
 };
 
 export default function SiteTheme({ children, theme }: SiteThemeProps) {
@@ -34,7 +27,7 @@ export default function SiteTheme({ children, theme }: SiteThemeProps) {
   return (
     <div
       style={style}
-      className={`min-h-screen ${inter.variable} ${poppins.variable} ${roboto.variable} ${lato.variable} portfolio-theme`}
+      className={`min-h-screen ${fontVariableClasses} portfolio-theme`}
     >
       {children}
     </div>
