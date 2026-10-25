@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 
 import SectionRenderer from "@/components/portfolio/sections/SectionRenderer";
-import { sectionSchemas } from "@/schemas/sectionSchemas";
 
 import type { ApiSection } from "@/types/apiSections";
 import type { CompanyService } from "@/types/companyService";
@@ -19,11 +18,6 @@ type Props = {
   media: MediaAsset[];
 };
 
-const MAX_DRAFT_LENGTH = 100_000;
-
-// Runs inside the preview iframe. It renders the saved section, then swaps in drafts
-// sent by the Content Editor (see PreviewFrame for the message protocol). Drafts that
-// are not valid for the section are ignored, so the preview keeps the last good one.
 export default function LiveSectionPreview({
   section,
   services,
@@ -31,11 +25,10 @@ export default function LiveSectionPreview({
   siteSettings,
   media,
 }: Props) {
-  const [draft, setDraft] = useState(section);
+  const [contentJson, setContentJson] = useState(section.contentJson);
 
   useEffect(() => {
     function handleMessage(event: MessageEvent) {
-      // Accept messages only from the admin page that embeds this iframe.
       if (event.origin !== window.location.origin) return;
       if (event.source !== window.parent) return;
 
@@ -45,41 +38,33 @@ export default function LiveSectionPreview({
         !message ||
         message.type !== "SECTION_DRAFT" ||
         message.sectionId !== section.id ||
-        typeof message.contentJson !== "string" ||
-        message.contentJson.length > MAX_DRAFT_LENGTH
+        typeof message.contentJson !== "string"
       ) {
         return;
       }
 
-      try {
-        const content: unknown = JSON.parse(message.contentJson);
+      if (message.contentJson.length > 100_000) return;
 
-        if (!sectionSchemas[section.type].safeParse(content).success) return;
-      } catch {
-        return;
-      }
-
-      setDraft({ ...section, contentJson: message.contentJson });
+      setContentJson(message.contentJson);
     }
 
     window.addEventListener("message", handleMessage);
 
-    // Tell the editor the listener is attached, so it can send the current draft.
-    // (Nothing to tell when the preview is opened directly in its own tab.)
-    if (window.parent !== window) {
-      window.parent.postMessage(
-        { type: "PREVIEW_READY", sectionId: section.id },
-        window.location.origin,
-      );
-    }
+    // Tell the parent that our listener is ready.
+    window.parent.postMessage(
+      {
+        type: "PREVIEW_READY",
+        sectionId: section.id,
+      },
+      window.location.origin,
+    );
 
     return () => window.removeEventListener("message", handleMessage);
-  }, [section]);
+  }, [section.id]);
 
   return (
     <SectionRenderer
-      // A hidden section is previewed too, so it is always rendered as visible.
-      sections={[{ ...draft, isVisible: true }]}
+      sections={[{ ...section, contentJson, isVisible: true }]}
       services={services}
       projects={projects}
       siteSettings={siteSettings}

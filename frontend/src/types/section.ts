@@ -1,4 +1,3 @@
-
 export type SectionType =
   | "hero"
   | "about"

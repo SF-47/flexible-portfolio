@@ -1,5 +1,8 @@
+import type { Metadata } from "next";
 import SectionsList from "@/components/admin/SectionsList";
 import { getAdminSections } from "@/lib/adminSections";
+
+export const metadata: Metadata = { title: "Sections" };
 
 export default async function SectionsPage() {
   const sections = await getAdminSections();

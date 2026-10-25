@@ -1,7 +1,14 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { AlertTriangle, Loader2, Monitor, RotateCw, Smartphone, Tablet } from "lucide-react";
+import {
+  AlertTriangle,
+  Loader2,
+  Monitor,
+  RotateCw,
+  Smartphone,
+  Tablet,
+} from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
 import type { ApiSection } from "@/types/apiSections";
@@ -22,13 +29,6 @@ export const devices = [
 
 export type Device = (typeof devices)[number];
 
-// Shows /admin/preview in an iframe at the device's real width, scaled to fit.
-//
-// Draft protocol (both sides check origin, source and section id):
-//   iframe -> parent  { type: "PREVIEW_READY", sectionId }   its listener is attached
-//   parent -> iframe  { type: "SECTION_DRAFT", sectionId, contentJson }
-// The parent sends the latest draft whenever the iframe announces it is ready and
-// whenever the draft changes, so nothing is lost if the iframe loads late.
 export function PreviewFrame({
   section,
   device,
@@ -42,18 +42,14 @@ export function PreviewFrame({
     "loading",
   );
   const [attempt, setAttempt] = useState(0);
-  // Counts PREVIEW_READY messages from the current iframe (0 = not ready yet). A
-  // counter, not a boolean, so a reloaded iframe is sent the draft again.
-  const [readyCount, setReadyCount] = useState(0);
-  // Width available for the scaled preview, and the section's real content height.
+
   const [availableWidth, setAvailableWidth] = useState(0);
-  // Remember which device a height was measured on: the Hero's height depends on the
-  // iframe height, so a reading from another device must never be reused.
+
   const [measured, setMeasured] = useState<{
     deviceId: string;
     height: number;
   } | null>(null);
-
+  const [readyCount, setReadyCount] = useState(0);
   const areaRef = useRef<HTMLDivElement>(null);
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const contentObserver = useRef<ResizeObserver | null>(null);
@@ -70,7 +66,6 @@ export function PreviewFrame({
     });
   }, []);
 
-  // When the device changes, the iframe reflows: measure again once it has settled.
   useEffect(() => {
     deviceIdRef.current = device.id;
 
@@ -87,7 +82,6 @@ export function PreviewFrame({
     return () => window.clearTimeout(timer);
   }, [attempt]);
 
-  // Measure the area the scaled preview has to fit in.
   useEffect(() => {
     const area = areaRef.current;
 
@@ -104,21 +98,25 @@ export function PreviewFrame({
 
   useEffect(() => () => contentObserver.current?.disconnect(), []);
 
-  // The iframe announces that its message listener is attached.
   useEffect(() => {
     function handleMessage(event: MessageEvent) {
       if (event.origin !== window.location.origin) return;
-      if (event.source !== iframeRef.current?.contentWindow) return;
+
+      if (event.source !== iframeRef.current?.contentWindow) {
+        return;
+      }
 
       const message = event.data;
 
       if (
-        message &&
-        message.type === "PREVIEW_READY" &&
-        message.sectionId === section.id
+        !message ||
+        message.type !== "PREVIEW_READY" ||
+        message.sectionId !== section.id
       ) {
-        setReadyCount((count) => count + 1);
+        return;
       }
+
+      setReadyCount((previous) => previous + 1);
     }
 
     window.addEventListener("message", handleMessage);
@@ -126,9 +124,10 @@ export function PreviewFrame({
     return () => window.removeEventListener("message", handleMessage);
   }, [section.id]);
 
-  // Send the draft once the iframe is ready, and again whenever it changes.
   useEffect(() => {
-    if (draftContentJson === undefined || readyCount === 0) return;
+    if (readyCount === 0 || draftContentJson === undefined) {
+      return;
+    }
 
     iframeRef.current?.contentWindow?.postMessage(
       {
@@ -138,9 +137,8 @@ export function PreviewFrame({
       },
       window.location.origin,
     );
-  }, [draftContentJson, section.id, readyCount]);
+  }, [readyCount, draftContentJson, section.id]);
 
-  // Follow the section's content height so the iframe never needs its own scrollbar.
   function trackContentHeight(iframe: HTMLIFrameElement) {
     contentObserver.current?.disconnect();
 
@@ -148,12 +146,10 @@ export function PreviewFrame({
     const main = iframe.contentDocument?.querySelector("main");
 
     if (!win || !main) {
-      // The preview route showed a message instead of a section.
       setMeasured({ deviceId: deviceIdRef.current, height: 240 });
       return;
     }
 
-    // Use the iframe's own ResizeObserver so it reports for its own document.
     const observer = new (win as Window & typeof globalThis).ResizeObserver(
       measure,
     );
@@ -162,13 +158,9 @@ export function PreviewFrame({
     contentObserver.current = observer;
   }
 
-  // transform: scale() does not change layout size, so the wrapper is sized to the
-  // scaled dimensions and the iframe is scaled from its top-left corner.
   const scale =
     availableWidth > 0 ? Math.min(1, availableWidth / device.width) : 1;
 
-  // The Hero is sized from the viewport height (100svh minus the 5rem navbar), so it
-  // gets a realistic device height, and the navbar's 80px is cropped from the bottom.
   const contentHeight = measured?.deviceId === device.id ? measured.height : 0;
   const isHero = section.type === "hero";
   const heroOffset = isHero ? 80 : 0;
@@ -204,7 +196,6 @@ export function PreviewFrame({
               setStatus("ready");
               trackContentHeight(event.currentTarget);
             }}
-            // Read-only: the preview ignores clicks, and wheel scrolling goes to the panel.
             className="pointer-events-none absolute top-0 left-0 origin-top-left border-0"
             style={{
               width: device.width,
@@ -230,7 +221,6 @@ export function PreviewFrame({
             type="button"
             onClick={() => {
               setStatus("loading");
-              setReadyCount(0);
               setAttempt((previous) => previous + 1);
             }}
             className="inline-flex items-center gap-2 rounded-lg bg-amber-400 px-4 py-2 font-semibold text-slate-950"

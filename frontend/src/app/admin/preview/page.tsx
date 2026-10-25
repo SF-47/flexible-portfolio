@@ -61,6 +61,7 @@ export default async function SectionPreviewPage({
     <SiteTheme theme={data.activeTheme}>
       {/* inert keeps the preview read-only: nothing inside can be clicked or submitted. */}
       <main inert className="bg-brand-primary text-brand-on-primary">
+        {/* A hidden section is previewed too, so it is always rendered as visible. */}
         <LiveSectionPreview
           section={section}
           services={data.services}

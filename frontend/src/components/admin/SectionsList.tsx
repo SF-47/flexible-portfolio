@@ -1,16 +1,14 @@
 "use client";
 
-import { useState, useTransition, type DragEvent, type MouseEvent } from "react";
-import Link from "next/link";
 import {
-  ArrowDown,
-  ArrowUp,
-  GripVertical,
-  Loader2,
-  Pencil,
-  RotateCcw,
-  Save,
-} from "lucide-react";
+  useState,
+  useTransition,
+  type DragEvent,
+  type MouseEvent,
+} from "react";
+import Link from "next/link";
+import { ArrowDown, ArrowUp, GripVertical, Pencil } from "lucide-react";
+import StickyActionBar from "@/components/admin/StickyActionBar";
 
 import { saveSections } from "@/app/admin/sections/actions";
 import SectionPreviewPanel from "@/components/admin/preview/SectionPreviewPanel";
@@ -206,58 +204,6 @@ export default function SectionsList({ sections }: { sections: ApiSection[] }) {
           </div>
         </div>
 
-        {hasChanges && (
-          <div
-            role="status"
-            className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-lg border border-amber-300 bg-amber-50 px-4 py-2.5 text-sm text-amber-900"
-          >
-            <p>
-              {saveError ? (
-                <span role="alert" className="text-red-700">
-                  {saveError}
-                </span>
-              ) : (
-                "You have unsaved visibility and order changes."
-              )}
-            </p>
-
-            <div className="flex items-center gap-4">
-              <button
-                type="button"
-                onClick={() => {
-                  setItems(sections);
-                  setSaveError(null);
-                }}
-                disabled={isSaving}
-                className="inline-flex items-center gap-1.5 font-semibold disabled:opacity-50"
-              >
-                <RotateCcw size={15} />
-                Reset
-              </button>
-
-              <button
-                type="button"
-                onClick={handleSave}
-                disabled={isSaving}
-                className="inline-flex items-center gap-1.5 rounded-md bg-amber-400 px-3 py-1.5 font-semibold text-slate-950 disabled:opacity-60"
-              >
-                {isSaving ? (
-                  <Loader2 size={15} className="animate-spin" />
-                ) : (
-                  <Save size={15} />
-                )}
-                {isSaving ? "Saving…" : "Save changes"}
-              </button>
-            </div>
-          </div>
-        )}
-
-        {!hasChanges && saved && (
-          <p role="status" className="mb-4 text-sm text-green-700">
-            Changes saved. The website now uses this order and visibility.
-          </p>
-        )}
-
         {!canReorder && (
           <p className="mb-3 text-xs text-admin-muted">
             Show all sections to reorder them.
@@ -427,6 +373,34 @@ export default function SectionsList({ sections }: { sections: ApiSection[] }) {
             );
           })}
         </ul>
+
+        <StickyActionBar
+          className="mt-4"
+          visible={hasChanges || saved}
+          saving={isSaving}
+          saveDisabled={!hasChanges}
+          resetDisabled={!hasChanges}
+          onReset={() => {
+            setItems(sections);
+            setSaveError(null);
+          }}
+          onSave={handleSave}
+          message={
+            saveError ? (
+              <p role="alert" className="text-red-700">
+                {saveError}
+              </p>
+            ) : hasChanges ? (
+              <p className="text-amber-700">
+                You have unsaved visibility and order changes.
+              </p>
+            ) : (
+              <p className="text-green-700">
+                Changes saved. The website now uses this order and visibility.
+              </p>
+            )
+          }
+        />
       </div>
 
       <SectionPreviewPanel
