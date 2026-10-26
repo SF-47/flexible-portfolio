@@ -1,7 +1,9 @@
 using System.Threading.RateLimiting;
 using backend.Data;
 using backend.Data.Seeders;
+using backend.Models;
 using backend.Services.Admin;
+using backend.Services.Auth;
 using backend.Services.CompanyServices;
 using backend.Services.ContactMessages;
 using backend.Services.Media;
@@ -11,6 +13,8 @@ using backend.Services.Sections;
 using backend.Services.SiteSettings;
 using backend.Services.SocialLinks;
 using backend.Services.Themes;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -37,6 +41,39 @@ builder.Services.AddScoped<INavigationService, NavigationService>();
 builder.Services.AddScoped<ISocialLinkService, SocialLinkService>();
 builder.Services.AddScoped<IContactMessageService, ContactMessageService>();
 builder.Services.AddScoped<IDashboardService, DashboardService>();
+
+builder.Services.AddScoped<IAuthService, AuthService>();
+
+builder.Services.AddScoped<IPasswordHasher<AdminUser>, PasswordHasher<AdminUser>>();
+
+builder
+    .Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(options =>
+    {
+        options.Cookie.Name = "portfolio_admin";
+        options.Cookie.HttpOnly = true;
+        options.Cookie.SameSite = SameSiteMode.Lax;
+        options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+
+        options.ExpireTimeSpan = TimeSpan.FromHours(8);
+        options.SlidingExpiration = false;
+
+        options.LoginPath = "/api/auth/login";
+
+        options.Events.OnRedirectToLogin = context =>
+        {
+            context.Response.StatusCode = 401;
+            return Task.CompletedTask;
+        };
+
+        options.Events.OnRedirectToAccessDenied = context =>
+        {
+            context.Response.StatusCode = 403;
+            return Task.CompletedTask;
+        };
+    });
+
+builder.Services.AddAuthorization();
 
 builder.Services.AddRateLimiter(options =>
 {
@@ -179,13 +216,43 @@ if (args.Contains("--seed-section-content"))
     return;
 }
 
+if (args.Contains("--seed-admin"))
+{
+    if (!app.Environment.IsDevelopment())
+        throw new InvalidOperationException("Admin seeding is only allowed in Development.");
+
+    var fullName = Environment.GetEnvironmentVariable("ADMIN_FULL_NAME");
+
+    var email = Environment.GetEnvironmentVariable("ADMIN_EMAIL");
+
+    var password = Environment.GetEnvironmentVariable("ADMIN_PASSWORD");
+
+    if (
+        string.IsNullOrWhiteSpace(fullName)
+        || string.IsNullOrWhiteSpace(email)
+        || string.IsNullOrWhiteSpace(password)
+        || password.Length < 12
+    )
+    {
+        throw new InvalidOperationException(
+            "Set ADMIN_FULL_NAME, ADMIN_EMAIL and ADMIN_PASSWORD. "
+                + "The password must contain at least 12 characters."
+        );
+    }
+
+    using var scope = app.Services.CreateScope();
+
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+
+    await AdminSeeder.SeedAsync(db, fullName, email, password);
+
+    return;
+}
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
 }
 
-// There is no admin authentication yet, so every /api/admin endpoint (reads and
-// writes) is closed outside local development. Remove this once auth exists.
 if (!app.Environment.IsDevelopment())
 {
     app.Use(
@@ -205,7 +272,10 @@ if (!app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseCors("AllowFrontend");
 app.UseRateLimiter();
+
+app.UseAuthentication();
 app.UseAuthorization();
+
 app.UseStaticFiles();
 app.MapControllers();
 

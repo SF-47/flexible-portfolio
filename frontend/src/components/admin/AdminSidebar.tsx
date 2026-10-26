@@ -15,6 +15,7 @@ import {
   PanelLeftOpen,
   X,
 } from "lucide-react";
+import LogoutButton from "../auth/LogoutButton";
 
 const navigation = [
   { label: "Dashboard", href: "/admin", icon: LayoutDashboard },
@@ -149,6 +150,7 @@ export default function AdminSidebar({
               </span>
             </Link>
           </div>
+          <LogoutButton/>
         </div>
       </aside>
     </>

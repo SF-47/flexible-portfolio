@@ -14,7 +14,7 @@ import {
 } from "lucide-react";
 
 import StickyActionBar from "@/components/admin/StickyActionBar";
-import { saveTheme } from "@/app/admin/appearance/actions";
+import { saveTheme } from "@/app/admin/(Dashboard)/appearance/actions";
 import {
   fontFamilies,
   fontNames as fonts,

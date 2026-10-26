@@ -10,7 +10,7 @@ import Link from "next/link";
 import { ArrowDown, ArrowUp, GripVertical, Pencil } from "lucide-react";
 import StickyActionBar from "@/components/admin/StickyActionBar";
 
-import { saveSections } from "@/app/admin/sections/actions";
+import { saveSections } from "@/app/admin/(Dashboard)/sections/actions";
 import SectionPreviewPanel from "@/components/admin/preview/SectionPreviewPanel";
 import { sectionDescriptions } from "@/lib/site/sectionDescriptions";
 import type { ApiSection } from "@/types/apiSections";
