@@ -2,7 +2,7 @@ import { isAxiosError } from "axios";
 import { revalidatePath } from "next/cache";
 import { NextResponse } from "next/server";
 
-import { axiosClient } from "@/lib/axios";
+import { axiosClient } from "@/lib/api/client";
 import type { AdminMediaAsset, MediaAsset } from "@/types/media";
 
 const MAX_IMAGE_BYTES = 5 * 1024 * 1024;

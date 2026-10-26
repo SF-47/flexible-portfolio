@@ -3,7 +3,7 @@ import { revalidatePath } from "next/cache";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 
-import { axiosClient } from "@/lib/axios";
+import { axiosClient } from "@/lib/api/client";
 
 type Params = { params: Promise<{ id: string }> };
 

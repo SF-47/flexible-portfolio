@@ -6,7 +6,7 @@ import { Loader2, Trash2 } from "lucide-react";
 
 import Modal from "@/components/admin/media/Modal";
 import { formatBytes, formatName } from "@/components/admin/media/mediaFormat";
-import { getMediaUrl } from "@/lib/mediaUrl";
+import { getMediaUrl } from "@/lib/ui/mediaUrl";
 import { MAX_ALT_TEXT, UpdateMediaSchema } from "@/schemas/mediaSchemas";
 import type { AdminMediaAsset } from "@/types/media";
 

@@ -6,7 +6,7 @@ import { ImagePlus, X } from "lucide-react";
 
 import { MediaContext } from "@/components/admin/content/MediaContext";
 import MediaPicker from "./MediaPicker";
-import { getMediaUrl } from "@/lib/mediaUrl";
+import { getMediaUrl } from "@/lib/ui/mediaUrl";
 
 // An image field: shows the chosen MediaAsset and opens the picker. The value is the
 // MediaAsset id (or null), exactly what ContentJson stores as imageMediaId.

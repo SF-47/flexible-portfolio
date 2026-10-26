@@ -1,6 +1,6 @@
 import "server-only";
 
-import { axiosClient } from "@/lib/axios";
+import { axiosClient } from "@/lib/api/client";
 import type { AdminMediaAsset, MediaAsset } from "@/types/media";
 
 export async function getMedia(): Promise<MediaAsset[]> {

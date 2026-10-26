@@ -2,7 +2,7 @@ import { useContext, useId, useState } from "react";
 
 import Combobox from "@/components/admin/Combobox";
 import { LinkTargetsContext } from "@/components/admin/content/LinkTargetsContext";
-import { sectionAnchors } from "@/lib/sectionAnchors";
+import { sectionAnchors } from "@/lib/site/sectionAnchors";
 
 const CUSTOM = "__custom__";
 const NONE = "__none__";

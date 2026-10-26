@@ -2,7 +2,7 @@ import Image from "next/image";
 
 import type { AboutContent } from "@/types/sectionContent";
 import type { MediaAsset } from "@/types/media";
-import { getMediaUrl } from "@/lib/mediaUrl";
+import { getMediaUrl } from "@/lib/ui/mediaUrl";
 import Reveal from "@/components/portfolio/Reveal";
 
 const fallbackImage = "/images/about.jpg";

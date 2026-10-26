@@ -1,5 +1,5 @@
 import { Building2 } from "lucide-react";
-import { IconByName } from "@/lib/icons";
+import { IconByName } from "@/lib/ui/icons";
 import type { ClientsContent } from "@/types/sectionContent";
 import Reveal from "@/components/portfolio/Reveal";
 

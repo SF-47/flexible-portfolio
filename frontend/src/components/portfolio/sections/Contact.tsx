@@ -3,7 +3,7 @@
 import { useState, type FormEvent } from "react";
 import { Mail, MapPin, Phone, Send } from "lucide-react";
 import type { ContactContent } from "@/types/sectionContent";
-import { sendContactMessage } from "@/lib/ContactMessages";
+import { sendContactMessage } from "@/lib/api/contactMessages";
 import Reveal from "@/components/portfolio/Reveal";
 
 type ContactInfo = {

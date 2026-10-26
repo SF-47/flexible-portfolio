@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 
 import ProjectsManager from "@/components/admin/catalog/ProjectsManager";
-import { getMedia } from "@/lib/media";
-import { getAdminProjects } from "@/lib/projects";
+import { getMedia } from "@/lib/api/media";
+import { getAdminProjects } from "@/lib/api/projects";
 
 export const metadata: Metadata = { title: "Project Cards" };
 export const dynamic = "force-dynamic";

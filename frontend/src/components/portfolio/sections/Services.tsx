@@ -1,9 +1,9 @@
 import Image from "next/image";
 import type { MediaAsset } from "@/types/media";
-import { getMediaUrl } from "@/lib/mediaUrl";
+import { getMediaUrl } from "@/lib/ui/mediaUrl";
 import type { CompanyService } from "@/types/companyService";
 import { HardHat } from "lucide-react";
-import { IconByName } from "@/lib/icons";
+import { IconByName } from "@/lib/ui/icons";
 
 import type { ServicesContent } from "@/types/sectionContent";
 import Reveal from "@/components/portfolio/Reveal";

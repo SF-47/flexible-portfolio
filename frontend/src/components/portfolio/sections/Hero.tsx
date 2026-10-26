@@ -1,6 +1,6 @@
 import type { HeroContent } from "@/types/sectionContent";
 import type { MediaAsset } from "@/types/media";
-import { getMediaUrl } from "@/lib/mediaUrl";
+import { getMediaUrl } from "@/lib/ui/mediaUrl";
 import HeroFrame from "./HeroFrame";
 import Reveal from "@/components/portfolio/Reveal";
 

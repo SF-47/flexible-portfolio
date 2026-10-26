@@ -1,6 +1,6 @@
 import "server-only";
 
-import { axiosClient } from "@/lib/axios";
+import { axiosClient } from "@/lib/api/client";
 import type { AdminSocialLink, SocialLink } from "@/types/socialLink";
 
 export async function getSocialLinks(): Promise<SocialLink[]> {

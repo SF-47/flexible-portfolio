@@ -1,5 +1,5 @@
 import { ClipboardList } from "lucide-react";
-import { IconByName } from "@/lib/icons";
+import { IconByName } from "@/lib/ui/icons";
 import type { ProcessContent } from "@/types/sectionContent";
 import Reveal from "@/components/portfolio/Reveal";
 

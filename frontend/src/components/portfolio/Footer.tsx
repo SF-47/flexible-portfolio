@@ -2,8 +2,8 @@ import { ArrowUpRight, Globe } from "lucide-react";
 import type { SocialLink } from "@/types/socialLink";
 import type { SiteSettings } from "@/types/siteSettings";
 import type { NavigationItem } from "@/types/navigation";
-import { getNavigationHref } from "@/lib/navigationLinks";
-import { platformIcon } from "@/lib/socialPlatforms";
+import { getNavigationHref } from "@/lib/site/navigationLinks";
+import { platformIcon } from "@/lib/site/socialPlatforms";
 
 type FooterProps = {
   siteSettings: SiteSettings;

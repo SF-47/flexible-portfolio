@@ -5,7 +5,7 @@ import { AlertTriangle, ExternalLink, Menu } from "lucide-react";
 import Combobox from "@/components/admin/Combobox";
 
 import ListRow from "@/components/admin/navigation/ListRow";
-import { navLabels, sectionAnchors } from "@/lib/sectionAnchors";
+import { navLabels, sectionAnchors } from "@/lib/site/sectionAnchors";
 import type { ApiSection } from "@/types/apiSections";
 import type { AdminNavigationItem } from "@/types/navigation";
 

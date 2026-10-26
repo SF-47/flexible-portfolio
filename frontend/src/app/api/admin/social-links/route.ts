@@ -1,4 +1,4 @@
-import { proxyAdminPut } from "@/lib/adminProxy";
+import { proxyAdminPut } from "@/lib/api/admin/proxy";
 import { UpdateSocialLinksSchema } from "@/schemas/navigationSchemas";
 
 export async function PUT(request: Request) {

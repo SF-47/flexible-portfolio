@@ -1,6 +1,6 @@
 import "server-only";
 
-import { axiosClient } from "@/lib/axios";
+import { axiosClient } from "@/lib/api/client";
 import type { DashboardStats } from "@/types/dashboardStats";
 
 export async function getDashboardStats(): Promise<DashboardStats> {

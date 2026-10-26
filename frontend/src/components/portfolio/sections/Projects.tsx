@@ -4,7 +4,7 @@ import { ArrowUpRight } from "lucide-react";
 import type { ProjectsContent } from "@/types/sectionContent";
 import type { Project } from "@/types/project";
 import type { MediaAsset } from "@/types/media";
-import { getMediaUrl } from "@/lib/mediaUrl";
+import { getMediaUrl } from "@/lib/ui/mediaUrl";
 import Reveal from "@/components/portfolio/Reveal";
 
 // Display these images only when no media asset is selected.

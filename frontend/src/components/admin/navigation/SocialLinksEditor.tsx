@@ -11,7 +11,7 @@ import {
   knownPlatform,
   platformIcon,
   socialPlatforms,
-} from "@/lib/socialPlatforms";
+} from "@/lib/site/socialPlatforms";
 
 export type SocialRow = {
   key: string;

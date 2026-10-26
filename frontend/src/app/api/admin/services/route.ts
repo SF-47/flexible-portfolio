@@ -1,4 +1,4 @@
-import { proxyAdminGet, proxyAdminPut } from "@/lib/adminProxy";
+import { proxyAdminGet, proxyAdminPut } from "@/lib/api/admin/proxy";
 import { UpdateServicesSchema } from "@/schemas/catalogSchemas";
 
 export function GET() {

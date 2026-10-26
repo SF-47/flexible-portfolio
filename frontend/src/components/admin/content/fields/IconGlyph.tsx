@@ -1,7 +1,7 @@
 import { createElement } from "react";
 import { Shapes } from "lucide-react";
 
-import { resolveIcon } from "@/lib/icons";
+import { resolveIcon } from "@/lib/ui/icons";
 
 // Shows the Lucide icon for a stored name. It pulls in the whole icon library, so
 // it is only ever loaded lazily by IconField.

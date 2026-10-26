@@ -8,7 +8,7 @@ import MediaDetailsDialog from "@/components/admin/media/MediaDetailsDialog";
 import MediaUploadForm from "@/components/admin/media/MediaUploadForm";
 import Modal from "@/components/admin/media/Modal";
 import { formatBytes, formatName } from "@/components/admin/media/mediaFormat";
-import { getMediaUrl } from "@/lib/mediaUrl";
+import { getMediaUrl } from "@/lib/ui/mediaUrl";
 import type { AdminMediaAsset } from "@/types/media";
 
 export default function MediaLibrary({

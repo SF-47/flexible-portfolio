@@ -1,5 +1,5 @@
 import { BadgeCheck } from "lucide-react";
-import { IconByName } from "@/lib/icons";
+import { IconByName } from "@/lib/ui/icons";
 import type { CertificationsContent } from "@/types/sectionContent";
 import Reveal from "@/components/portfolio/Reveal";
 

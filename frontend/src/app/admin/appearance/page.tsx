@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { getThemes, getActiveTheme } from "@/lib/themes";
+import { getThemes, getActiveTheme } from "@/lib/api/themes";
 import AppearanceEditor from "../AppearanceEditor";
 
 export const metadata: Metadata = { title: "Appearance" };

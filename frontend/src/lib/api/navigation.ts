@@ -1,6 +1,6 @@
 import "server-only";
 
-import { axiosClient } from "@/lib/axios";
+import { axiosClient } from "@/lib/api/client";
 import type { AdminNavigationItem, NavigationItem } from "@/types/navigation";
 
 export async function getNavigation(): Promise<NavigationItem[]> {

@@ -5,16 +5,16 @@ import ScrollReset from "@/components/portfolio/ScrollReset";
 import SiteTheme from "@/components/SiteTheme";
 import SectionRenderer from "@/components/portfolio/sections/SectionRenderer";
 import type { Metadata } from "next";
-import { getMediaUrl } from "@/lib/mediaUrl";
+import { getMediaUrl } from "@/lib/ui/mediaUrl";
 
-import { getSections } from "@/lib/sections";
-import { getCompanyServices } from "@/lib/companyServices";
-import { getProjects } from "@/lib/projects";
-import { getSiteSettings } from "@/lib/siteSettings";
-import { getNavigation } from "@/lib/navigation";
-import { getSocialLinks } from "@/lib/socialLinks";
-import { getActiveTheme } from "@/lib/themes";
-import { getMedia } from "@/lib/media";
+import { getSections } from "@/lib/api/sections";
+import { getCompanyServices } from "@/lib/api/companyServices";
+import { getProjects } from "@/lib/api/projects";
+import { getSiteSettings } from "@/lib/api/siteSettings";
+import { getNavigation } from "@/lib/api/navigation";
+import { getSocialLinks } from "@/lib/api/socialLinks";
+import { getActiveTheme } from "@/lib/api/themes";
+import { getMedia } from "@/lib/api/media";
 
 export async function generateMetadata(): Promise<Metadata> {
   const [siteSettings, media] = await Promise.all([

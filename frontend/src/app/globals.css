@@ -4,7 +4,7 @@ html {
   scroll-behavior: smooth;
 }
 
-/* Admin panel tokens; the public site keeps using the dynamic site theme. */
+/* Admin panel defaults, used when the active theme cannot be loaded. */
 :root {
   --admin-bg: #f1f5f9;
   --admin-surface: #ffffff;
@@ -14,10 +14,66 @@ html {
   --admin-muted: #64748b;
   --admin-faint: #94a3b8;
   --admin-accent: #b45309;
+  --admin-sidebar: #020617;
+  --admin-sidebar-text: #ffffff;
+  --admin-sidebar-muted: #cbd5e1;
+  --admin-sidebar-border: #1e293b;
+  --admin-sidebar-hover: #1e293b;
+  --admin-sidebar-active: #fbbf24;
+  --admin-sidebar-active-text: #020617;
 }
 
+/* Inside the admin the tokens follow the active site theme (set by SiteTheme). */
 .admin-shell {
-  color-scheme: light;
+  --admin-bg: color-mix(
+    in srgb,
+    var(--color-text, #0f172a) 6%,
+    var(--color-background, #ffffff)
+  );
+  --admin-surface: var(--color-background, #ffffff);
+  --admin-subtle: color-mix(
+    in srgb,
+    var(--color-text, #0f172a) 3%,
+    var(--color-background, #ffffff)
+  );
+  --admin-border: color-mix(
+    in srgb,
+    var(--color-text, #0f172a) 15%,
+    var(--color-background, #ffffff)
+  );
+  --admin-text: var(--color-text, #0f172a);
+  --admin-muted: color-mix(
+    in srgb,
+    var(--color-text, #0f172a) 62%,
+    var(--color-background, #ffffff)
+  );
+  --admin-faint: color-mix(
+    in srgb,
+    var(--color-text, #0f172a) 42%,
+    var(--color-background, #ffffff)
+  );
+  --admin-accent: var(--color-accent, #b45309);
+
+  /* The sidebar uses the theme's primary color and its readable "on primary" color. */
+  --admin-sidebar: var(--color-primary, #020617);
+  --admin-sidebar-text: var(--color-on-primary, #ffffff);
+  --admin-sidebar-muted: color-mix(
+    in srgb,
+    var(--color-on-primary, #ffffff) 75%,
+    var(--color-primary, #020617)
+  );
+  --admin-sidebar-border: color-mix(
+    in srgb,
+    var(--color-on-primary, #ffffff) 18%,
+    var(--color-primary, #020617)
+  );
+  --admin-sidebar-hover: color-mix(
+    in srgb,
+    var(--color-on-primary, #ffffff) 12%,
+    var(--color-primary, #020617)
+  );
+  --admin-sidebar-active: var(--color-accent, #fbbf24);
+  --admin-sidebar-active-text: var(--color-on-accent, #020617);
 }
 
 @layer base {
@@ -38,6 +94,13 @@ html {
   --color-admin-muted: var(--admin-muted);
   --color-admin-faint: var(--admin-faint);
   --color-admin-accent: var(--admin-accent);
+  --color-admin-sidebar: var(--admin-sidebar);
+  --color-admin-sidebar-text: var(--admin-sidebar-text);
+  --color-admin-sidebar-muted: var(--admin-sidebar-muted);
+  --color-admin-sidebar-border: var(--admin-sidebar-border);
+  --color-admin-sidebar-hover: var(--admin-sidebar-hover);
+  --color-admin-sidebar-active: var(--admin-sidebar-active);
+  --color-admin-sidebar-active-text: var(--admin-sidebar-active-text);
   --color-brand-muted: color-mix(
     in srgb,
     var(--color-text) 70%,

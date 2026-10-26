@@ -1,6 +1,6 @@
 import "server-only";
 
-import { axiosClient } from "@/lib/axios";
+import { axiosClient } from "@/lib/api/client";
 import type { Theme, ThemeConfig } from "@/types/theme";
 
 export async function getThemes(): Promise<Theme[]> {

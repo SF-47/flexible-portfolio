@@ -1,9 +1,9 @@
 import Image from "next/image";
 import { Images } from "lucide-react";
-import { IconByName } from "@/lib/icons";
+import { IconByName } from "@/lib/ui/icons";
 import type { GalleryContent } from "@/types/sectionContent";
 import type { MediaAsset } from "@/types/media";
-import { getMediaUrl } from "@/lib/mediaUrl";
+import { getMediaUrl } from "@/lib/ui/mediaUrl";
 import Reveal from "@/components/portfolio/Reveal";
 
 // Images shown when a gallery item has no configured media asset.

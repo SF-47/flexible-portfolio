@@ -7,8 +7,8 @@ import { Menu, X } from "lucide-react";
 import type { MediaAsset } from "@/types/media";
 import type { SiteSettings } from "@/types/siteSettings";
 import type { NavigationItem } from "@/types/navigation";
-import { getMediaUrl } from "@/lib/mediaUrl";
-import { getNavigationHref } from "@/lib/navigationLinks";
+import { getMediaUrl } from "@/lib/ui/mediaUrl";
+import { getNavigationHref } from "@/lib/site/navigationLinks";
 
 type NavbarProps = {
   siteSettings: SiteSettings;

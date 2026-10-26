@@ -6,7 +6,7 @@ import dynamic from "next/dynamic";
 import { ImagePlus } from "lucide-react";
 
 import { MediaContext } from "@/components/admin/content/MediaContext";
-import { getMediaUrl } from "@/lib/mediaUrl";
+import { getMediaUrl } from "@/lib/ui/mediaUrl";
 
 // The icon library is large, so the glyph loads on demand (same as the icon picker).
 const IconGlyph = dynamic(

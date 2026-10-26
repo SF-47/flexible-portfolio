@@ -1,6 +1,6 @@
 import "server-only";
 
-import { axiosClient } from "@/lib/axios";
+import { axiosClient } from "@/lib/api/client";
 import type { AdminProject, Project, ProjectDetail } from "@/types/project";
 
 export async function getProjects(): Promise<Project[]> {

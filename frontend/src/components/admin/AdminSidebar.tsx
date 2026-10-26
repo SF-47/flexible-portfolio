@@ -61,7 +61,7 @@ export default function AdminSidebar({
 
       <aside
         id="admin-sidebar"
-        className={`fixed inset-y-0 left-0 z-40 w-68 shrink-0 border-r border-slate-800 bg-slate-950 text-white transition-[transform,width] duration-300 lg:static lg:z-auto lg:translate-x-0 ${
+        className={`fixed inset-y-0 left-0 z-40 w-68 shrink-0 border-r border-admin-sidebar-border bg-admin-sidebar text-admin-sidebar-text transition-[transform,width] duration-300 lg:static lg:z-auto lg:translate-x-0 ${
           mobileOpen ? "translate-x-0" : "-translate-x-full"
         } ${collapsed ? "lg:w-20" : "lg:w-68"}`}
       >
@@ -75,14 +75,14 @@ export default function AdminSidebar({
               <h1 className="truncate text-xl font-bold tracking-wider">
                 Admin
               </h1>
-              <p className="text-[13px] text-slate-400">Portfolio Manager</p>
+              <p className="text-[13px] text-admin-sidebar-muted">Portfolio Manager</p>
             </div>
 
             <button
               type="button"
               onClick={onClose}
               aria-label="Close menu"
-              className="rounded-lg p-2 text-slate-300 transition hover:bg-slate-800 hover:text-white lg:hidden"
+              className="rounded-lg p-2 text-admin-sidebar-muted transition hover:bg-admin-sidebar-hover hover:text-admin-sidebar-text lg:hidden"
             >
               <X size={21} />
             </button>
@@ -93,7 +93,7 @@ export default function AdminSidebar({
               aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
               aria-expanded={!collapsed}
               title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
-              className="hidden rounded-lg p-2 text-slate-300 transition hover:bg-slate-800 hover:text-white lg:block"
+              className="hidden rounded-lg p-2 text-admin-sidebar-muted transition hover:bg-admin-sidebar-hover hover:text-admin-sidebar-text lg:block"
             >
               {collapsed ? (
                 <PanelLeftOpen size={21} />
@@ -118,8 +118,8 @@ export default function AdminSidebar({
                   aria-current={active ? "page" : undefined}
                   className={`flex h-13 items-center rounded-lg transition ${centerWhenCollapsed} ${
                     active
-                      ? "bg-amber-400 font-semibold text-slate-950"
-                      : "text-slate-300 hover:bg-slate-800 hover:text-white"
+                      ? "bg-admin-sidebar-active font-semibold text-admin-sidebar-active-text"
+                      : "text-admin-sidebar-muted hover:bg-admin-sidebar-hover hover:text-admin-sidebar-text"
                   }`}
                 >
                   <Icon size={21} className="shrink-0" />
@@ -133,13 +133,13 @@ export default function AdminSidebar({
             })}
           </nav>
 
-          <div className="mt-auto border-t border-slate-800 pt-5">
+          <div className="mt-auto border-t border-admin-sidebar-border pt-5">
             <Link
               href="/"
               target="_blank"
               rel="noopener noreferrer"
               title={collapsed ? "View Website" : undefined}
-              className={`flex h-13 items-center rounded-lg text-slate-300 transition hover:bg-slate-800 hover:text-white ${centerWhenCollapsed}`}
+              className={`flex h-13 items-center rounded-lg text-admin-sidebar-muted transition hover:bg-admin-sidebar-hover hover:text-admin-sidebar-text ${centerWhenCollapsed}`}
             >
               <ExternalLink size={21} className="shrink-0" />
               <span

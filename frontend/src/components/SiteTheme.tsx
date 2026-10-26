@@ -1,7 +1,7 @@
 import type { CSSProperties, ReactNode } from "react";
 import type { Theme } from "@/types/theme";
 
-import { fontFamilies, fontVariableClasses } from "@/lib/portfolioFonts";
+import { fontFamilies, fontVariableClasses } from "@/lib/ui/portfolioFonts";
 
 type SiteThemeProps = {
   children: ReactNode;

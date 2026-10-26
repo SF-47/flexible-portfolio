@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Shapes, X } from "lucide-react";
 
-import { canonicalIconName, iconNames, resolveIcon } from "@/lib/icons";
+import { canonicalIconName, iconNames, resolveIcon } from "@/lib/ui/icons";
 
 const PAGE_SIZE = 120;
 

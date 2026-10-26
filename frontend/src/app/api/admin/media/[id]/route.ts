@@ -2,7 +2,7 @@ import { isAxiosError } from "axios";
 import { revalidatePath } from "next/cache";
 import { NextResponse } from "next/server";
 
-import { axiosClient } from "@/lib/axios";
+import { axiosClient } from "@/lib/api/client";
 import { UpdateMediaSchema } from "@/schemas/mediaSchemas";
 
 type Params = { params: Promise<{ id: string }> };

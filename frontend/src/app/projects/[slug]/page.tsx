@@ -5,11 +5,11 @@ import type { Metadata } from "next";
 import { ArrowLeft, Calendar, MapPin } from "lucide-react";
 
 import SiteTheme from "@/components/SiteTheme";
-import { getMedia } from "@/lib/media";
-import { getMediaUrl } from "@/lib/mediaUrl";
-import { getProjectBySlug } from "@/lib/projects";
-import { getSiteSettings } from "@/lib/siteSettings";
-import { getActiveTheme } from "@/lib/themes";
+import { getMedia } from "@/lib/api/media";
+import { getMediaUrl } from "@/lib/ui/mediaUrl";
+import { getProjectBySlug } from "@/lib/api/projects";
+import { getSiteSettings } from "@/lib/api/siteSettings";
+import { getActiveTheme } from "@/lib/api/themes";
 
 type Props = { params: Promise<{ slug: string }> };
 

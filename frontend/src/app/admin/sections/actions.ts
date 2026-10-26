@@ -3,7 +3,7 @@
 import { isAxiosError } from "axios";
 import { revalidatePath } from "next/cache";
 
-import { saveSectionsLayout } from "@/lib/sections";
+import { saveSectionsLayout } from "@/lib/api/sections";
 
 export type SaveSectionsResult = { ok: true } | { ok: false; message: string };
 

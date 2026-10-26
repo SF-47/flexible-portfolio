@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import SectionsList from "@/components/admin/SectionsList";
-import { getAdminSections } from "@/lib/adminSections";
+import { getAdminSections } from "@/lib/api/admin/sections";
 
 export const metadata: Metadata = { title: "Sections" };
 

@@ -12,7 +12,7 @@ import StickyActionBar from "@/components/admin/StickyActionBar";
 
 import { saveSections } from "@/app/admin/sections/actions";
 import SectionPreviewPanel from "@/components/admin/preview/SectionPreviewPanel";
-import { sectionDescriptions } from "@/lib/sectionDescriptions";
+import { sectionDescriptions } from "@/lib/site/sectionDescriptions";
 import type { ApiSection } from "@/types/apiSections";
 
 type Filter = "all" | "visible" | "hidden";

@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
 
 import SiteTheme from "@/components/SiteTheme";
-import { getAdminSections } from "@/lib/adminSections";
-import { getCompanyServices } from "@/lib/companyServices";
-import { getMedia } from "@/lib/media";
-import { getProjects } from "@/lib/projects";
-import { getSiteSettings } from "@/lib/siteSettings";
-import { getActiveTheme } from "@/lib/themes";
+import { getAdminSections } from "@/lib/api/admin/sections";
+import { getCompanyServices } from "@/lib/api/companyServices";
+import { getMedia } from "@/lib/api/media";
+import { getProjects } from "@/lib/api/projects";
+import { getSiteSettings } from "@/lib/api/siteSettings";
+import { getActiveTheme } from "@/lib/api/themes";
 import LiveSectionPreview from "@/components/admin/preview/LiveSectionPreview";
 
 export const metadata: Metadata = {

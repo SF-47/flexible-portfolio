@@ -5,7 +5,7 @@ import { revalidatePath } from "next/cache";
 import { NextResponse } from "next/server";
 import type { z } from "zod";
 
-import { axiosClient } from "@/lib/axios";
+import { axiosClient } from "@/lib/api/client";
 
 function fail(status: number, message: string) {
   return NextResponse.json({ message }, { status });

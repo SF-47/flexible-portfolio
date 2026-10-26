@@ -6,7 +6,7 @@ import { X } from "lucide-react";
 
 import MediaUploadForm from "@/components/admin/media/MediaUploadForm";
 import { MediaContext } from "@/components/admin/content/MediaContext";
-import { getMediaUrl } from "@/lib/mediaUrl";
+import { getMediaUrl } from "@/lib/ui/mediaUrl";
 
 // A modal list of the Media Library images, with an upload form. It uses the native
 // <dialog> element, so Esc, focus trapping and the backdrop work out of the box.

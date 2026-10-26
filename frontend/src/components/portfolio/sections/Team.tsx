@@ -1,6 +1,6 @@
 import Image from "next/image";
 import type { MediaAsset } from "@/types/media";
-import { getMediaUrl } from "@/lib/mediaUrl";
+import { getMediaUrl } from "@/lib/ui/mediaUrl";
 import { Mail, UserRound } from "lucide-react";
 import { FaLinkedin } from "react-icons/fa";
 import type { TeamContent } from "@/types/sectionContent";

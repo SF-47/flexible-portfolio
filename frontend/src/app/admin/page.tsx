@@ -7,7 +7,7 @@ import {
   ArrowUpRight,
 } from "lucide-react";
 
-import { getDashboardStats } from "@/lib/adminDashboard";
+import { getDashboardStats } from "@/lib/api/admin/dashboard";
 
 export default async function AdminPage() {
   const statsData = await getDashboardStats();

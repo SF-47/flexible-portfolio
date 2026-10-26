@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 
 import ServicesManager from "@/components/admin/catalog/ServicesManager";
-import { getAdminCompanyServices } from "@/lib/companyServices";
-import { getMedia } from "@/lib/media";
+import { getAdminCompanyServices } from "@/lib/api/companyServices";
+import { getMedia } from "@/lib/api/media";
 
 export const metadata: Metadata = { title: "Service Cards" };
 export const dynamic = "force-dynamic";

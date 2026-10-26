@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 import ContentEditor from "@/components/admin/ContentEditor";
-import { getAdminSections } from "@/lib/adminSections";
-import { getAdminCompanyServices } from "@/lib/companyServices";
-import { getMedia } from "@/lib/media";
-import { getAdminProjects } from "@/lib/projects";
+import { getAdminSections } from "@/lib/api/admin/sections";
+import { getAdminCompanyServices } from "@/lib/api/companyServices";
+import { getMedia } from "@/lib/api/media";
+import { getAdminProjects } from "@/lib/api/projects";
 
 export const metadata: Metadata = { title: "Content Editor" };
 // It reads the admin endpoints, so it is rendered per request, not at build time.

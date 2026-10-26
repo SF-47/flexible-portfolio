@@ -19,7 +19,7 @@ import {
   fontFamilies,
   fontNames as fonts,
   fontVariableClasses,
-} from "@/lib/portfolioFonts";
+} from "@/lib/ui/portfolioFonts";
 import type { Theme, ThemeConfig } from "@/types/theme";
 
 // Number of presets shown (besides the Custom Theme) before the admin presses "Show all".

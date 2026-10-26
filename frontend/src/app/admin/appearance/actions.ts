@@ -3,7 +3,7 @@
 import { isAxiosError } from "axios";
 import { revalidatePath } from "next/cache";
 
-import { activateTheme, updateTheme } from "@/lib/themes";
+import { activateTheme, updateTheme } from "@/lib/api/themes";
 import type { ThemeConfig } from "@/types/theme";
 
 export type SaveThemeResult =

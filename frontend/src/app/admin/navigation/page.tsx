@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
 import NavigationEditor from "@/components/admin/navigation/NavigationEditor";
-import { getAdminSections } from "@/lib/adminSections";
-import { getMedia } from "@/lib/media";
-import { getAdminNavigation } from "@/lib/navigation";
-import { getSiteSettings } from "@/lib/siteSettings";
-import { getAdminSocialLinks } from "@/lib/socialLinks";
+import { getAdminSections } from "@/lib/api/admin/sections";
+import { getMedia } from "@/lib/api/media";
+import { getAdminNavigation } from "@/lib/api/navigation";
+import { getSiteSettings } from "@/lib/api/siteSettings";
+import { getAdminSocialLinks } from "@/lib/api/socialLinks";
 
 export const metadata: Metadata = { title: "Navigation & Footer" };
 

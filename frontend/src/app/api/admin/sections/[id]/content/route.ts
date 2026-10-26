@@ -2,8 +2,8 @@ import { isAxiosError } from "axios";
 import { revalidatePath } from "next/cache";
 import { NextResponse } from "next/server";
 
-import { getAdminSections } from "@/lib/adminSections";
-import { axiosClient } from "@/lib/axios";
+import { getAdminSections } from "@/lib/api/admin/sections";
+import { axiosClient } from "@/lib/api/client";
 import { sectionSchemas } from "@/schemas/sectionSchemas";
 
 type SavedContent = {
