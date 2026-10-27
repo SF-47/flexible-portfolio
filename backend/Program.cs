@@ -19,7 +19,10 @@ using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddControllers();
+builder.Services.AddControllers(options =>
+{
+    options.Conventions.Add(new AdminRouteAuthorizationConvention());
+});
 builder.Services.AddOpenApi();
 
 var connectionString =
@@ -43,6 +46,8 @@ builder.Services.AddScoped<IContactMessageService, ContactMessageService>();
 builder.Services.AddScoped<IDashboardService, DashboardService>();
 
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddSingleton(TimeProvider.System);
+builder.Services.AddSingleton<LoginAttemptTracker>();
 
 builder.Services.AddScoped<IPasswordHasher<AdminUser>, PasswordHasher<AdminUser>>();
 
@@ -53,12 +58,18 @@ builder
         options.Cookie.Name = "portfolio_admin";
         options.Cookie.HttpOnly = true;
         options.Cookie.SameSite = SameSiteMode.Lax;
-        options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+        // Secure over HTTPS in development; always Secure elsewhere, even behind a TLS proxy.
+        options.Cookie.SecurePolicy = builder.Environment.IsDevelopment()
+            ? CookieSecurePolicy.SameAsRequest
+            : CookieSecurePolicy.Always;
 
         options.ExpireTimeSpan = TimeSpan.FromHours(8);
         options.SlidingExpiration = false;
 
         options.LoginPath = "/api/auth/login";
+
+        // A disabled or deleted administrator loses the session on the next request.
+        options.Events.OnValidatePrincipal = AdminSessionValidator.ValidateAsync;
 
         options.Events.OnRedirectToLogin = context =>
         {
@@ -73,7 +84,18 @@ builder
         };
     });
 
-builder.Services.AddAuthorization();
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy(
+        AdminAuthorization.Policy,
+        policy => policy.RequireAuthenticatedUser().RequireRole(AdminAuthorization.Role)
+    );
+});
+
+// Origins of the Next.js site. The same list limits CORS and cross-origin admin writes.
+var allowedOrigins =
+    builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>()
+    ?? ["http://localhost:3000"];
 
 builder.Services.AddRateLimiter(options =>
 {
@@ -100,7 +122,7 @@ builder.Services.AddCors(options =>
         "AllowFrontend",
         policy =>
         {
-            policy.WithOrigins("http://localhost:3000").AllowAnyHeader().AllowAnyMethod();
+            policy.WithOrigins(allowedOrigins).AllowAnyHeader().AllowAnyMethod();
         }
     );
 });
@@ -253,31 +275,54 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
 }
 
-if (!app.Environment.IsDevelopment())
-{
-    app.Use(
-        async (context, next) =>
-        {
-            if (context.Request.Path.StartsWithSegments("/api/admin"))
-            {
-                context.Response.StatusCode = StatusCodes.Status404NotFound;
-                return;
-            }
-
-            await next();
-        }
-    );
-}
-
 app.UseHttpsRedirection();
 app.UseCors("AllowFrontend");
 app.UseRateLimiter();
+
+// Defence in depth against cross-site writes: a browser always sends Origin on POST, PUT,
+// PATCH and DELETE, so one from an unknown site is refused. The Next.js server sends none.
+app.UseWhen(
+    context =>
+        (
+            HttpMethods.IsPost(context.Request.Method)
+            || HttpMethods.IsPut(context.Request.Method)
+            || HttpMethods.IsPatch(context.Request.Method)
+            || HttpMethods.IsDelete(context.Request.Method)
+        )
+        && (
+            context.Request.Path.StartsWithSegments("/api/admin")
+            || context.Request.Path.StartsWithSegments("/api/auth")
+        ),
+    branch =>
+        branch.Use(
+            async (context, next) =>
+            {
+                var origin = context.Request.Headers.Origin.ToString();
+
+                if (
+                    origin.Length > 0
+                    && !allowedOrigins.Contains(origin, StringComparer.OrdinalIgnoreCase)
+                )
+                {
+                    context.Response.StatusCode = StatusCodes.Status403Forbidden;
+                    return;
+                }
+
+                await next();
+            }
+        )
+);
 
 app.UseAuthentication();
 app.UseAuthorization();
 
 app.UseStaticFiles();
 app.MapControllers();
+
+// Refuse to start if an /api/admin endpoint is missing the AdminOnly policy.
+AdminEndpointAudit.Verify(
+    ((IEndpointRouteBuilder)app).DataSources.SelectMany(source => source.Endpoints)
+);
 
 if (app.Environment.IsDevelopment())
 {

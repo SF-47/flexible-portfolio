@@ -1,19 +1,19 @@
 import "server-only";
 
-import { isAxiosError } from "axios";
 import { revalidatePath } from "next/cache";
-import { NextResponse } from "next/server";
 import type { z } from "zod";
 
-import { axiosClient } from "@/lib/api/client";
+import { adminClient } from "@/lib/api/admin/client";
+import {
+  adminErrorResponse,
+  adminFail,
+  adminJson,
+  guardAdminRoute,
+} from "@/lib/api/admin/http";
 
-function fail(status: number, message: string) {
-  return NextResponse.json({ message }, { status });
-}
-
-// The shared body of the admin PUT Route Handlers: development only, validate the
-// body, forward it to ASP.NET Core and pass useful errors back. The API repeats the
-// validation and is the authority.
+// The shared body of the admin PUT Route Handlers: check the session and origin, validate
+// the body, forward it to ASP.NET Core with the administrator's cookie and pass useful
+// errors back. The API repeats the validation and is the authority.
 export async function proxyAdminPut(
   request: Request,
   backendPath: string,
@@ -21,80 +21,65 @@ export async function proxyAdminPut(
   // Extra pages to refresh after a successful save (the public layout is always refreshed).
   revalidate: string[] = [],
 ) {
-  // Development only: there is no admin authentication yet.
-  if (process.env.NODE_ENV !== "development") {
-    return new NextResponse(null, { status: 404 });
-  }
+  const denied = await guardAdminRoute(request);
+  if (denied) return denied;
 
   let body: unknown;
   try {
     body = await request.json();
   } catch {
-    return fail(400, "The request body must be JSON.");
+    return adminFail(400, "The request body must be JSON.");
   }
 
   const parsed = schema.safeParse(body);
   if (!parsed.success) {
     const issue = parsed.error.issues[0];
 
-    return fail(400, `${issue.path.join(" › ")} ${issue.message}`.trim());
+    return adminFail(400, `${issue.path.join(" › ")} ${issue.message}`.trim());
   }
 
   try {
-    const response = await axiosClient.put(backendPath, parsed.data, {
+    const response = await adminClient.put(backendPath, parsed.data, {
       validateStatus: () => true,
     });
 
     if (response.status !== 200) {
       const known = [400, 404, 409].includes(response.status);
       const message =
-        known && typeof response.data?.message === "string"
-          ? response.data.message
+        known &&
+        typeof (response.data as { message?: unknown })?.message === "string"
+          ? (response.data as { message: string }).message
           : "Could not save the changes.";
 
-      return fail(known ? response.status : 500, message);
+      return adminFail(known ? response.status : 500, message);
     }
 
     // The navbar and footer are on every public page.
     revalidatePath("/", "layout");
     for (const path of revalidate) revalidatePath(path, "layout");
 
-    return NextResponse.json(response.data);
+    return adminJson(response.data);
   } catch (error) {
-    if (isAxiosError(error) && !error.response) {
-      return fail(
-        502,
-        "Could not reach the API server. Is the backend running?",
-      );
-    }
-
-    return fail(500, "Could not save the changes.");
+    return adminErrorResponse(error, "Could not save the changes.");
   }
 }
 
-// The shared body of the admin GET Route Handlers: development only, forward and pass on.
+// The shared body of the admin GET Route Handlers: check the session, forward and pass on.
 export async function proxyAdminGet(backendPath: string) {
-  // Development only: there is no admin authentication yet.
-  if (process.env.NODE_ENV !== "development") {
-    return new NextResponse(null, { status: 404 });
-  }
+  const denied = await guardAdminRoute();
+  if (denied) return denied;
 
   try {
-    const response = await axiosClient.get(backendPath, {
+    const response = await adminClient.get(backendPath, {
       validateStatus: () => true,
     });
 
-    if (response.status !== 200) return fail(500, "Could not load the data.");
-
-    return NextResponse.json(response.data);
-  } catch (error) {
-    if (isAxiosError(error) && !error.response) {
-      return fail(
-        502,
-        "Could not reach the API server. Is the backend running?",
-      );
+    if (response.status !== 200) {
+      return adminFail(500, "Could not load the data.");
     }
 
-    return fail(500, "Could not load the data.");
+    return adminJson(response.data);
+  } catch (error) {
+    return adminErrorResponse(error, "Could not load the data.");
   }
 }

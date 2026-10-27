@@ -1,58 +1,38 @@
-import { NextRequest, NextResponse } from "next/server";
-import { axiosClient } from "@/lib/api/client";
+import { NextRequest } from "next/server";
+
+import {
+  ADMIN_COOKIE,
+  adminClient,
+  AdminAuthError,
+} from "@/lib/api/admin/client";
+import {
+  adminErrorResponse,
+  adminFail,
+  adminJson,
+  rejectCrossOrigin,
+} from "@/lib/api/admin/http";
 
 export async function POST(request: NextRequest) {
-  const origin = request.headers.get("origin");
-  const expectedOrigin = request.nextUrl.origin;
-
   // Browser-initiated logout must come from our own website.
-  if (origin !== expectedOrigin) {
-    return NextResponse.json(
-      { message: "Invalid request origin." },
-      { status: 403 },
-    );
-  }
-
-  const session = request.cookies.get("portfolio_admin");
-
-  if (!session) {
-    return NextResponse.json(
-      { message: "Not authenticated." },
-      { status: 401 },
-    );
-  }
+  const crossOrigin = rejectCrossOrigin(request);
+  if (crossOrigin) return crossOrigin;
 
   try {
-    const backend = await axiosClient.post(
-      "/api/auth/logout",
-      null,
-      {
-        headers: {
-          Cookie: `portfolio_admin=${session.value}`,
-        },
-        validateStatus: () => true,
-      },
-    );
+    const backend = await adminClient.post("/api/auth/logout", null, {
+      validateStatus: () => true,
+    });
 
-    if (backend.status !== 204) {
-      return NextResponse.json(
-        { message: "Could not log out." },
-        { status: backend.status === 401 ? 401 : 502 },
-      );
+    if (backend.status !== 204) return adminFail(502, "Could not log out.");
+  } catch (error) {
+    // A session the API already rejects is as good as logged out: still clear the cookie.
+    if (!(error instanceof AdminAuthError)) {
+      return adminErrorResponse(error, "Could not log out.");
     }
-
-    const response = NextResponse.json(
-      { message: "Logged out successfully." },
-      { headers: { "Cache-Control": "no-store" } },
-    );
-
-    response.cookies.delete("portfolio_admin");
-
-    return response;
-  } catch {
-    return NextResponse.json(
-      { message: "Authentication server unavailable." },
-      { status: 502 },
-    );
   }
+
+  const response = adminJson({ message: "Logged out successfully." });
+
+  response.cookies.delete(ADMIN_COOKIE);
+
+  return response;
 }

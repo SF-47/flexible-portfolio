@@ -3,12 +3,17 @@
 import { isAxiosError } from "axios";
 import { revalidatePath } from "next/cache";
 
+import { AdminAuthError, getAdminSession } from "@/lib/api/admin/client";
 import { activateTheme, updateTheme } from "@/lib/api/themes";
 import type { ThemeConfig } from "@/types/theme";
 
 export type SaveThemeResult =
   | { ok: true }
-  | { ok: false; stage: "guard" | "update" | "activate"; message: string };
+  | {
+      ok: false;
+      stage: "auth" | "guard" | "update" | "activate";
+      message: string;
+    };
 
 const hexColor = /^#[0-9a-fA-F]{6}$/;
 
@@ -21,13 +26,30 @@ const colorKeys = [
   "onAccentColor",
 ] as const;
 
-// The admin API has no authentication yet. Server actions are public POST
-// endpoints, so they only run in local development until admin auth exists.
-function writesAllowed() {
-  return process.env.NODE_ENV === "development";
+// Server actions are public POST endpoints (Next.js already rejects a foreign Origin), so
+// each one asks the API who is calling. The API checks the session again on every write.
+async function authFailure(): Promise<SaveThemeResult | null> {
+  const session = await getAdminSession();
+
+  if (session.status === "authenticated") return null;
+
+  return {
+    ok: false,
+    stage: "auth",
+    message:
+      session.status === "unavailable"
+        ? "Could not reach the API server. Is the backend running?"
+        : "Your session has expired. Please sign in again.",
+  };
 }
 
 function errorMessage(error: unknown) {
+  if (error instanceof AdminAuthError) {
+    return error.status === 401
+      ? "Your session has expired. Please sign in again."
+      : "You do not have access to this action.";
+  }
+
   if (isAxiosError(error)) {
     const message = error.response?.data?.message;
 
@@ -47,13 +69,8 @@ export async function saveTheme(
   id: number,
   config: ThemeConfig | null,
 ): Promise<SaveThemeResult> {
-  if (!writesAllowed()) {
-    return {
-      ok: false,
-      stage: "guard",
-      message: "Saving is only available in local development for now.",
-    };
-  }
+  const denied = await authFailure();
+  if (denied) return denied;
 
   if (config) {
     if (colorKeys.some((key) => !hexColor.test(config[key]))) {

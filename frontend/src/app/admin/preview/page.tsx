@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
+import { unstable_rethrow } from "next/navigation";
 
 import SiteTheme from "@/components/SiteTheme";
+import { requireAdminSession } from "@/lib/api/admin/client";
 import { getAdminSections } from "@/lib/api/admin/sections";
 import { getCompanyServices } from "@/lib/api/companyServices";
 import { getMedia } from "@/lib/api/media";
@@ -28,6 +30,9 @@ async function loadPreviewData() {
 
     return { sections, services, projects, siteSettings, activeTheme, media };
   } catch (error) {
+    // A lost session redirects to the login instead of showing this message.
+    unstable_rethrow(error);
+
     console.error("Unable to load section preview data", error);
 
     return null;
@@ -45,6 +50,9 @@ function Message({ children }: { children: string }) {
 export default async function SectionPreviewPage({
   searchParams,
 }: PageProps<"/admin/preview">) {
+  // The preview is outside the dashboard layout, so it checks the session itself.
+  await requireAdminSession();
+
   const { section: sectionParam } = await searchParams;
   const type = Array.isArray(sectionParam) ? sectionParam[0] : sectionParam;
 

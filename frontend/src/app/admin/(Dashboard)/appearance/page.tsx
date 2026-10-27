@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { getThemes, getActiveTheme } from "@/lib/api/themes";
 import AppearanceEditor from "../AppearanceEditor";
+import { requireAdminSession } from "@/lib/api/admin/client";
 
 export const metadata: Metadata = { title: "Appearance" };
 
@@ -8,6 +9,8 @@ export const metadata: Metadata = { title: "Appearance" };
 export const dynamic = "force-dynamic";
 
 export default async function AppearancePage() {
+  await requireAdminSession();
+
   const [themes, activeTheme] = await Promise.all([
     getThemes(),
     getActiveTheme(),

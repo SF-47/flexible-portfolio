@@ -1,9 +1,13 @@
-import { isAxiosError } from "axios";
 import { revalidatePath } from "next/cache";
-import { NextResponse } from "next/server";
 
-import { getAdminSections } from "@/lib/api/admin/sections";
-import { axiosClient } from "@/lib/api/client";
+import { adminClient } from "@/lib/api/admin/client";
+import {
+  adminErrorResponse,
+  adminFail,
+  adminJson,
+  guardAdminRoute,
+} from "@/lib/api/admin/http";
+import { fetchAdminSections } from "@/lib/api/admin/sections";
 import { sectionSchemas } from "@/schemas/sectionSchemas";
 
 type SavedContent = {
@@ -12,18 +16,12 @@ type SavedContent = {
   message?: string;
 };
 
-function fail(status: number, message: string) {
-  return NextResponse.json({ message }, { status });
-}
-
 export async function PUT(
   request: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
-  // Development only: there is no admin authentication yet.
-  if (process.env.NODE_ENV !== "development") {
-    return new NextResponse(null, { status: 404 });
-  }
+  const denied = await guardAdminRoute(request);
+  if (denied) return denied;
 
   const { id } = await params;
 
@@ -31,14 +29,14 @@ export async function PUT(
   if (
     !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)
   ) {
-    return fail(404, "Section not found.");
+    return adminFail(404, "Section not found.");
   }
 
   let body: unknown;
   try {
     body = await request.json();
   } catch {
-    return fail(400, "The request body must be JSON.");
+    return adminFail(400, "The request body must be JSON.");
   }
 
   const { contentJson, expectedUpdatedAt } = (body ?? {}) as Record<
@@ -50,43 +48,43 @@ export async function PUT(
     typeof contentJson !== "string" ||
     typeof expectedUpdatedAt !== "string"
   ) {
-    return fail(400, "contentJson and expectedUpdatedAt are required.");
+    return adminFail(400, "contentJson and expectedUpdatedAt are required.");
   }
 
   if (Number.isNaN(Date.parse(expectedUpdatedAt))) {
-    return fail(400, "expectedUpdatedAt must be a valid date.");
+    return adminFail(400, "expectedUpdatedAt must be a valid date.");
   }
 
   let content: unknown;
   try {
     content = JSON.parse(contentJson);
   } catch {
-    return fail(400, "contentJson is not valid JSON.");
+    return adminFail(400, "contentJson is not valid JSON.");
   }
 
   // The schema comes from the section's real type in the database, never from the client.
   let type: keyof typeof sectionSchemas | undefined;
   try {
-    const sections = await getAdminSections();
+    const sections = await fetchAdminSections();
     type = sections.find((section) => section.id === id)?.type;
-  } catch {
-    return fail(502, "Could not reach the API server. Is the backend running?");
+  } catch (error) {
+    return adminErrorResponse(error, "Could not load the section.");
   }
 
-  if (!type) return fail(404, "Section not found.");
+  if (!type) return adminFail(404, "Section not found.");
 
   // Validate only; the original string is forwarded so unknown fields are kept.
   const parsed = sectionSchemas[type].safeParse(content);
   if (!parsed.success) {
     const issue = parsed.error.issues[0];
-    return fail(
+    return adminFail(
       400,
       `Invalid ${type} content: ${issue.path.join(".")} ${issue.message}`,
     );
   }
 
   try {
-    const response = await axiosClient.put<SavedContent>(
+    const response = await adminClient.put<SavedContent>(
       `/api/admin/sections/${id}/content`,
       { contentJson, expectedUpdatedAt },
       { validateStatus: () => true },
@@ -100,21 +98,15 @@ export async function PUT(
           ? response.data.message
           : "Could not save the content.";
 
-      return fail(known ? response.status : 500, message);
+      return adminFail(known ? response.status : 500, message);
     }
 
     revalidatePath("/");
     revalidatePath("/admin/content");
     revalidatePath("/admin/preview");
 
-    return NextResponse.json(response.data);
+    return adminJson(response.data);
   } catch (error) {
-    if (isAxiosError(error) && !error.response) {
-      return fail(
-        502,
-        "Could not reach the API server. Is the backend running?",
-      );
-    }
-    return fail(500, "Could not save the content.");
+    return adminErrorResponse(error, "Could not save the content.");
   }
 }

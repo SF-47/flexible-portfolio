@@ -1,5 +1,6 @@
 import "server-only";
 
+import { adminClient, adminRead } from "@/lib/api/admin/client";
 import { axiosClient } from "@/lib/api/client";
 import type { AdminProject, Project, ProjectDetail } from "@/types/project";
 
@@ -10,9 +11,13 @@ export async function getProjects(): Promise<Project[]> {
 }
 
 export async function getAdminProjects(): Promise<AdminProject[]> {
-  const response = await axiosClient.get<AdminProject[]>("/api/admin/projects");
+  return adminRead(async () => {
+    const response = await adminClient.get<AdminProject[]>(
+      "/api/admin/projects",
+    );
 
-  return response.data;
+    return response.data;
+  });
 }
 
 // The public project page; null when the slug is unknown.

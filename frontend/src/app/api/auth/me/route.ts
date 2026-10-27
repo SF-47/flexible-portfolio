@@ -1,40 +1,15 @@
-import { NextRequest, NextResponse } from "next/server";
-import { axiosClient } from "@/lib/api/client";
+import { adminFail, adminJson } from "@/lib/api/admin/http";
+import { getAdminSession } from "@/lib/api/admin/client";
 
-export async function GET(request: NextRequest) {
-  const session = request.cookies.get("portfolio_admin");
+// Who the current session cookie belongs to, as answered by ASP.NET Core.
+export async function GET() {
+  const session = await getAdminSession();
 
-  if (!session) {
-    return NextResponse.json(
-      { message: "Not authenticated." },
-      { status: 401 },
-    );
+  if (session.status === "authenticated") return adminJson(session.admin);
+
+  if (session.status === "unavailable") {
+    return adminFail(502, "Authentication server unavailable.");
   }
 
-  try {
-    const backend = await axiosClient.get("/api/auth/me", {
-      headers: {
-        Cookie: `portfolio_admin=${session.value}`,
-      },
-      validateStatus: () => true,
-    });
-
-    if (backend.status !== 200) {
-      return NextResponse.json(
-        { message: "Session is invalid or expired." },
-        { status: 401 },
-      );
-    }
-
-    return NextResponse.json(backend.data, {
-      headers: {
-        "Cache-Control": "no-store",
-      },
-    });
-  } catch {
-    return NextResponse.json(
-      { message: "Authentication server unavailable." },
-      { status: 502 },
-    );
-  }
+  return adminFail(401, "Not authenticated.");
 }

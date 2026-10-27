@@ -3,19 +3,25 @@
 import { isAxiosError } from "axios";
 import { revalidatePath } from "next/cache";
 
+import { AdminAuthError, getAdminSession } from "@/lib/api/admin/client";
 import { saveSectionsLayout } from "@/lib/api/sections";
 
 export type SaveSectionsResult = { ok: true } | { ok: false; message: string };
 
-// The admin API has no authentication yet. Server actions are public POST
-// endpoints, so they only run in local development until admin auth exists.
+// Server actions are public POST endpoints (Next.js already rejects a foreign Origin), so
+// this one asks the API who is calling. The API checks the session again on the write.
 export async function saveSections(
   sections: { id: string; isVisible: boolean }[],
 ): Promise<SaveSectionsResult> {
-  if (process.env.NODE_ENV !== "development") {
+  const session = await getAdminSession();
+
+  if (session.status !== "authenticated") {
     return {
       ok: false,
-      message: "Saving is only available in local development for now.",
+      message:
+        session.status === "unavailable"
+          ? "Could not reach the API server. Is the backend running?"
+          : "Your session has expired. Please sign in again.",
     };
   }
 
@@ -33,6 +39,16 @@ export async function saveSections(
   try {
     await saveSectionsLayout(sections);
   } catch (error) {
+    if (error instanceof AdminAuthError) {
+      return {
+        ok: false,
+        message:
+          error.status === 401
+            ? "Your session has expired. Please sign in again."
+            : "You do not have access to this action.",
+      };
+    }
+
     const message = isAxiosError(error)
       ? error.response?.data?.message
       : undefined;

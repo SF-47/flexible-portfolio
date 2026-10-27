@@ -1,8 +1,10 @@
 import type { ReactNode } from "react";
 import type { Metadata } from "next";
+import { redirect } from "next/navigation";
 
 import AdminShell from "@/components/admin/AdminShell";
 import SiteTheme from "@/components/SiteTheme";
+import { getAdminSession, LOGIN_PATH } from "@/lib/api/admin/client";
 import { getMedia } from "@/lib/api/media";
 import { getMediaUrl } from "@/lib/ui/mediaUrl";
 import { getSiteSettings } from "@/lib/api/siteSettings";
@@ -43,6 +45,27 @@ export default async function AdminLayout({
 }: {
   children: ReactNode;
 }) {
+  // Checked on the server before any admin UI is rendered. An unreachable API is not a
+  // logout: the administrator keeps the session and sees why nothing loads.
+  const session = await getAdminSession();
+
+  if (session.status === "unauthenticated") redirect(LOGIN_PATH);
+
+  if (session.status === "unavailable") {
+    return (
+      <main className="flex min-h-screen items-center justify-center bg-slate-100 p-8 text-center">
+        <div className="max-w-md rounded-xl border border-slate-200 bg-white p-8 shadow-sm">
+          <h1 className="text-lg font-semibold text-slate-900">
+            The API server is unavailable
+          </h1>
+          <p className="mt-2 text-sm text-slate-600">
+            Your session is still valid. Start the backend and reload this page.
+          </p>
+        </div>
+      </main>
+    );
+  }
+
   let theme: Theme | null = null;
 
   try {

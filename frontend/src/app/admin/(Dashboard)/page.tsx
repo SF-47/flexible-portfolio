@@ -8,8 +8,11 @@ import {
 } from "lucide-react";
 
 import { getDashboardStats } from "@/lib/api/admin/dashboard";
+import { requireAdminSession } from "@/lib/api/admin/client";
 
 export default async function AdminPage() {
+  await requireAdminSession();
+
   const statsData = await getDashboardStats();
 
   const stats = [

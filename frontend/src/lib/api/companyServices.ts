@@ -1,5 +1,6 @@
 import "server-only";
 
+import { adminClient, adminRead } from "@/lib/api/admin/client";
 import { axiosClient } from "@/lib/api/client";
 import type {
   AdminCompanyService,
@@ -17,9 +18,11 @@ export async function getCompanyServices(): Promise<CompanyService[]> {
 export async function getAdminCompanyServices(): Promise<
   AdminCompanyService[]
 > {
-  const response = await axiosClient.get<AdminCompanyService[]>(
-    "/api/admin/services",
-  );
+  return adminRead(async () => {
+    const response = await adminClient.get<AdminCompanyService[]>(
+      "/api/admin/services",
+    );
 
-  return response.data;
+    return response.data;
+  });
 }

@@ -1,7 +1,12 @@
 import { NextResponse } from "next/server";
+import { adminFail, rejectCrossOrigin } from "@/lib/api/admin/http";
 import { axiosClient } from "@/lib/api/client";
 
 export async function POST(request: Request) {
+  // Refuse a login form posted from another site (login CSRF).
+  const crossOrigin = rejectCrossOrigin(request);
+  if (crossOrigin) return crossOrigin;
+
   let credentials: unknown;
 
   try {
@@ -39,19 +44,31 @@ export async function POST(request: Request) {
       },
     );
 
+    if (backend.status === 429) {
+      const retryAfter = backend.headers["retry-after"];
+      const response = adminFail(
+        429,
+        "Too many failed attempts. Please try again later.",
+      );
+      if (typeof retryAfter === "string") {
+        response.headers.set("Retry-After", retryAfter);
+      }
+
+      return response;
+    }
+
     if (backend.status !== 200) {
-      return NextResponse.json(
-        {
-          message:
-            backend.status === 401
-              ? "Invalid email or password."
-              : "Unable to sign in.",
-        },
-        { status: backend.status === 401 ? 401 : 502 },
+      return adminFail(
+        backend.status === 401 ? 401 : 502,
+        backend.status === 401
+          ? "Invalid email or password."
+          : "Unable to sign in.",
       );
     }
 
-    const response = NextResponse.json(backend.data);
+    const response = NextResponse.json(backend.data, {
+      headers: { "Cache-Control": "no-store" },
+    });
 
     // The ASP.NET server issues the authentication cookie.
     // Relay only the expected cookie to the browser.

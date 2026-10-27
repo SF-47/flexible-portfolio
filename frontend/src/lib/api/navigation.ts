@@ -1,5 +1,6 @@
 import "server-only";
 
+import { adminClient, adminRead } from "@/lib/api/admin/client";
 import { axiosClient } from "@/lib/api/client";
 import type { AdminNavigationItem, NavigationItem } from "@/types/navigation";
 
@@ -10,9 +11,11 @@ export async function getNavigation(): Promise<NavigationItem[]> {
 }
 
 export async function getAdminNavigation(): Promise<AdminNavigationItem[]> {
-  const response = await axiosClient.get<AdminNavigationItem[]>(
-    "/api/admin/navigation",
-  );
+  return adminRead(async () => {
+    const response = await adminClient.get<AdminNavigationItem[]>(
+      "/api/admin/navigation",
+    );
 
-  return response.data;
+    return response.data;
+  });
 }

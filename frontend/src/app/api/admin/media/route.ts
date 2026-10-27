@@ -1,8 +1,12 @@
-import { isAxiosError } from "axios";
 import { revalidatePath } from "next/cache";
-import { NextResponse } from "next/server";
 
-import { axiosClient } from "@/lib/api/client";
+import { adminClient } from "@/lib/api/admin/client";
+import {
+  adminErrorResponse,
+  adminFail,
+  adminJson,
+  guardAdminRoute,
+} from "@/lib/api/admin/http";
 import type { AdminMediaAsset, MediaAsset } from "@/types/media";
 
 const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
@@ -15,66 +19,51 @@ function revalidateMediaPages() {
   revalidatePath("/admin/navigation");
 }
 
-function fail(status: number, message: string) {
-  return NextResponse.json({ message }, { status });
-}
-
 // Admin read: every image with its usage (the Media Library page loads this on the server).
 export async function GET() {
-  // Development only: there is no admin authentication yet.
-  if (process.env.NODE_ENV !== "development") {
-    return new NextResponse(null, { status: 404 });
-  }
+  const denied = await guardAdminRoute();
+  if (denied) return denied;
 
   try {
-    const response = await axiosClient.get<AdminMediaAsset[]>(
+    const response = await adminClient.get<AdminMediaAsset[]>(
       "/api/admin/media",
       { validateStatus: () => true },
     );
 
     if (response.status !== 200) {
-      return fail(500, "Could not load the images.");
+      return adminFail(500, "Could not load the images.");
     }
 
-    return NextResponse.json(response.data);
+    return adminJson(response.data);
   } catch (error) {
-    if (isAxiosError(error) && !error.response) {
-      return fail(
-        502,
-        "Could not reach the API server. Is the backend running?",
-      );
-    }
-
-    return fail(500, "Could not load the images.");
+    return adminErrorResponse(error, "Could not load the images.");
   }
 }
 
 export async function POST(request: Request) {
-  // Development only: there is no admin authentication yet.
-  if (process.env.NODE_ENV !== "development") {
-    return new NextResponse(null, { status: 404 });
-  }
+  const denied = await guardAdminRoute(request);
+  if (denied) return denied;
 
   let form: FormData;
   try {
     form = await request.formData();
   } catch {
-    return fail(400, "The request must be a form upload.");
+    return adminFail(400, "The request must be a form upload.");
   }
 
   const file = form.get("file");
   const altText = form.get("altText");
 
   if (!(file instanceof File) || file.size === 0) {
-    return fail(400, "Please choose an image.");
+    return adminFail(400, "Please choose an image.");
   }
 
   if (file.size > MAX_IMAGE_BYTES) {
-    return fail(400, "Image must not exceed 5 MB.");
+    return adminFail(400, "Image must not exceed 5 MB.");
   }
 
   if (!IMAGE_TYPES.includes(file.type)) {
-    return fail(400, "Use a JPG, PNG or WebP image.");
+    return adminFail(400, "Use a JPG, PNG or WebP image.");
   }
 
   const body = new FormData();
@@ -85,7 +74,7 @@ export async function POST(request: Request) {
   );
 
   try {
-    const response = await axiosClient.post<MediaAsset & { message?: string }>(
+    const response = await adminClient.post<MediaAsset & { message?: string }>(
       "/api/admin/media",
       body,
       {
@@ -99,19 +88,13 @@ export async function POST(request: Request) {
           ? response.data.message
           : "Could not upload the image.";
 
-      return fail(response.status === 400 ? 400 : 500, message);
+      return adminFail(response.status === 400 ? 400 : 500, message);
     }
 
     revalidateMediaPages();
 
-    return NextResponse.json(response.data);
+    return adminJson(response.data);
   } catch (error) {
-    if (isAxiosError(error) && !error.response) {
-      return fail(
-        502,
-        "Could not reach the API server. Is the backend running?",
-      );
-    }
-    return fail(500, "Could not upload the image.");
+    return adminErrorResponse(error, "Could not upload the image.");
   }
 }

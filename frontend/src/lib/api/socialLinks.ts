@@ -1,5 +1,6 @@
 import "server-only";
 
+import { adminClient, adminRead } from "@/lib/api/admin/client";
 import { axiosClient } from "@/lib/api/client";
 import type { AdminSocialLink, SocialLink } from "@/types/socialLink";
 
@@ -10,9 +11,11 @@ export async function getSocialLinks(): Promise<SocialLink[]> {
 }
 
 export async function getAdminSocialLinks(): Promise<AdminSocialLink[]> {
-  const response = await axiosClient.get<AdminSocialLink[]>(
-    "/api/admin/social-links",
-  );
+  return adminRead(async () => {
+    const response = await adminClient.get<AdminSocialLink[]>(
+      "/api/admin/social-links",
+    );
 
-  return response.data;
+    return response.data;
+  });
 }

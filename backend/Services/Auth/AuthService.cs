@@ -7,6 +7,13 @@ namespace backend.Services.Auth;
 
 public class AuthService : IAuthService
 {
+    // Verified when the e-mail is unknown, so a missing account takes as long as a wrong password.
+    private static readonly AdminUser TimingUser = new();
+    private static readonly string TimingHash = new PasswordHasher<AdminUser>().HashPassword(
+        TimingUser,
+        Guid.NewGuid().ToString("N")
+    );
+
     private readonly AppDbContext _db;
     private readonly IPasswordHasher<AdminUser> _hasher;
 
@@ -25,7 +32,10 @@ public class AuthService : IAuthService
         );
 
         if (admin is null)
+        {
+            _hasher.VerifyHashedPassword(TimingUser, TimingHash, password);
             return null;
+        }
 
         var result = _hasher.VerifyHashedPassword(admin, admin.PasswordHash, password);
 

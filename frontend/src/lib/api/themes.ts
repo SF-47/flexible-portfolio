@@ -1,5 +1,6 @@
 import "server-only";
 
+import { adminClient } from "@/lib/api/admin/client";
 import { axiosClient } from "@/lib/api/client";
 import type { Theme, ThemeConfig } from "@/types/theme";
 
@@ -13,13 +14,13 @@ export async function getActiveTheme(): Promise<Theme> {
   return response.data;
 }
 
-// Admin writes. The API has no authentication yet, so these are only called from
-// the guarded server actions in app/admin/appearance/actions.ts.
+// Admin writes: sent with the administrator's session cookie, only called from the
+// server actions in app/admin/(Dashboard)/appearance/actions.ts.
 export async function updateTheme(
   id: number,
   config: ThemeConfig,
 ): Promise<Theme> {
-  const response = await axiosClient.put<Theme>(
+  const response = await adminClient.put<Theme>(
     `/api/admin/themes/${id}`,
     config,
   );
@@ -27,7 +28,7 @@ export async function updateTheme(
 }
 
 export async function activateTheme(id: number): Promise<Theme> {
-  const response = await axiosClient.put<Theme>(
+  const response = await adminClient.put<Theme>(
     `/api/admin/themes/${id}/activate`,
   );
   return response.data;

@@ -1,5 +1,6 @@
 import "server-only";
 
+import { adminClient, adminRead } from "@/lib/api/admin/client";
 import { axiosClient } from "@/lib/api/client";
 import type { AdminMediaAsset, MediaAsset } from "@/types/media";
 
@@ -11,7 +12,10 @@ export async function getMedia(): Promise<MediaAsset[]> {
 
 // Admin read: every image with the places that use it.
 export async function getAdminMedia(): Promise<AdminMediaAsset[]> {
-  const response = await axiosClient.get<AdminMediaAsset[]>("/api/admin/media");
+  return adminRead(async () => {
+    const response =
+      await adminClient.get<AdminMediaAsset[]>("/api/admin/media");
 
-  return response.data;
+    return response.data;
+  });
 }
