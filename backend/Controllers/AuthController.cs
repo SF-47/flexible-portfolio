@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace backend.Controllers;
 
@@ -13,41 +14,24 @@ namespace backend.Controllers;
 public class AuthController : ControllerBase
 {
     private readonly IAuthService _authService;
-    private readonly LoginAttemptTracker _attempts;
 
-    public AuthController(IAuthService authService, LoginAttemptTracker attempts)
+    public AuthController(IAuthService authService)
     {
         _authService = authService;
-        _attempts = attempts;
     }
 
     [AllowAnonymous]
     [HttpPost("login")]
+    [EnableRateLimiting("Login")]
     public async Task<IActionResult> Login(LoginRequest request)
     {
-        var ip = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
-
-        if (_attempts.GetRetryAfter(request.Email, ip) is { } retryAfter)
-        {
-            Response.Headers.RetryAfter = Math.Ceiling(retryAfter.TotalSeconds).ToString("0");
-
-            return StatusCode(
-                StatusCodes.Status429TooManyRequests,
-                new { message = "Too many failed attempts. Please try again later." }
-            );
-        }
-
         var admin = await _authService.ValidateCredentialsAsync(request.Email, request.Password);
 
         // The same answer for an unknown e-mail, a wrong password and a disabled account.
         if (admin is null)
         {
-            _attempts.RegisterFailure(request.Email, ip);
-
             return Unauthorized(new { message = "Invalid email or password." });
         }
-
-        _attempts.RegisterSuccess(request.Email);
 
         var claims = new List<Claim>
         {

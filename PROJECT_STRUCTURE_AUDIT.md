@@ -20,7 +20,7 @@ Browser ──► Next.js (BFF) ──► ASP.NET Core ──► MySQL
 2. The handler rejects a foreign `Origin`, forwards the credentials to
    `POST /api/auth/login` on the API and relays **only** the `portfolio_admin` `Set-Cookie`.
 3. The API answers one generic `401` for an unknown e-mail, a wrong password and a disabled
-   account, and `429` (with `Retry-After`) after repeated failures.
+   account, and `429` once the built-in `Login` rate-limit policy (10 requests / 15 min per client IP) is exceeded.
 4. Logout (`POST /api/auth/logout`) checks the origin, signs out on the API and clears the
    cookie. A session the API already rejects is still cleared locally.
 5. `GET /api/auth/me` returns the profile of the current session (`401` otherwise).
@@ -85,11 +85,12 @@ Origin allow-list for admin and auth writes, (4) JSON bodies and a non-simple `C
 - **HTTPS** is required outside Development: the cookie is `Secure` there.
 - **Persistent Data Protection keys.** Without a shared key ring (`PersistKeysTo...`), cookies
   stop working after a restart or on a second instance.
-- **Trusted proxy / forwarded headers.** The API sees the Next.js server as the client IP, so
-  the per-IP login limit (30 failures / 15 min) is shared by all users. Forward the real client
-  IP and configure `ForwardedHeaders` with known proxies before deploying.
-- Login throttling is in memory (per process) and per e-mail (5 failures / 15 min), so an
-  attacker can lock an administrator out for 15 minutes. Use a shared store at scale.
+- **Trusted proxy / forwarded headers.** The login route forwards the first `X-Forwarded-For`
+  address it received to the API, which honours it only from a trusted proxy (loopback by
+  default, see `UseForwardedHeaders` in `Program.cs`). Configure the real proxies before
+  deploying, and make the reverse proxy in front of Next.js overwrite `X-Forwarded-For`,
+  otherwise a client can choose its own rate-limit bucket.
+- The login limiter is a temporary built-in fixed window (in memory, per process).
 - A stolen cookie works until it expires (8 hours) or the account is disabled; there is no
   session list or "log out everywhere".
 - A single `Admin` role and no password reset or change flow yet.

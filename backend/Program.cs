@@ -1,6 +1,7 @@
 using System.Threading.RateLimiting;
 using backend.Data;
 using backend.Data.Seeders;
+using backend.Middleware;
 using backend.Models;
 using backend.Services.Admin;
 using backend.Services.Auth;
@@ -14,6 +15,7 @@ using backend.Services.SiteSettings;
 using backend.Services.SocialLinks;
 using backend.Services.Themes;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -44,10 +46,10 @@ builder.Services.AddScoped<INavigationService, NavigationService>();
 builder.Services.AddScoped<ISocialLinkService, SocialLinkService>();
 builder.Services.AddScoped<IContactMessageService, ContactMessageService>();
 builder.Services.AddScoped<IDashboardService, DashboardService>();
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+builder.Services.AddProblemDetails();
 
 builder.Services.AddScoped<IAuthService, AuthService>();
-builder.Services.AddSingleton(TimeProvider.System);
-builder.Services.AddSingleton<LoginAttemptTracker>();
 
 builder.Services.AddScoped<IPasswordHasher<AdminUser>, PasswordHasher<AdminUser>>();
 
@@ -101,6 +103,24 @@ builder.Services.AddRateLimiter(options =>
 {
     options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
 
+    // Temporary login limiter (built-in fixed window), to be replaced by your own design.
+    // Partitioned by client IP only, so the answer never depends on the e-mail and cannot
+    // reveal whether an account exists. The IP is the real client's when the Next.js server
+    // forwards it (see UseForwardedHeaders below); otherwise it is the Next.js server's.
+    options.AddPolicy(
+        "Login",
+        httpContext =>
+            RateLimitPartition.GetFixedWindowLimiter(
+                httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+                _ => new FixedWindowRateLimiterOptions
+                {
+                    PermitLimit = 10,
+                    Window = TimeSpan.FromMinutes(15),
+                    QueueLimit = 0,
+                }
+            )
+    );
+
     options.AddPolicy(
         "ContactSubmission",
         httpContext =>
@@ -128,6 +148,8 @@ builder.Services.AddCors(options =>
 });
 
 var app = builder.Build();
+
+app.UseExceptionHandler();
 
 if (args.Contains("--seed-media"))
 {
@@ -274,6 +296,13 @@ if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
 }
+
+// Replaces the connection IP with X-Forwarded-For, but only when the request comes from a
+// trusted proxy (by default loopback, i.e. the Next.js server on the same machine). Configure
+// KnownProxies/KnownNetworks for the real deployment.
+app.UseForwardedHeaders(
+    new ForwardedHeadersOptions { ForwardedHeaders = ForwardedHeaders.XForwardedFor }
+);
 
 app.UseHttpsRedirection();
 app.UseCors("AllowFrontend");

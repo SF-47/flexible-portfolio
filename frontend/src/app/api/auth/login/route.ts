@@ -2,6 +2,13 @@ import { NextResponse } from "next/server";
 import { adminFail, rejectCrossOrigin } from "@/lib/api/admin/http";
 import { axiosClient } from "@/lib/api/client";
 
+// The visitor's address as set by the reverse proxy in front of Next.js (none in development).
+function clientIpHeader(request: Request) {
+  const ip = request.headers.get("x-forwarded-for")?.split(",")[0].trim();
+
+  return ip ? { "X-Forwarded-For": ip } : {};
+}
+
 export async function POST(request: Request) {
   // Refuse a login form posted from another site (login CSRF).
   const crossOrigin = rejectCrossOrigin(request);
@@ -41,6 +48,9 @@ export async function POST(request: Request) {
       },
       {
         validateStatus: () => true,
+        // Lets the API rate-limit per visitor instead of per Next.js server. Only the
+        // first (client) address is sent, and the API trusts it from loopback only.
+        headers: clientIpHeader(request),
       },
     );
 

@@ -23,13 +23,11 @@ public class AdminThemesController : ControllerBase
             var theme = await _themeService.UpdateAsync(id, request);
 
             if (theme is null)
+            {
                 return NotFound(new { message = "Theme not found." });
+            }
 
             return Ok(theme);
-        }
-        catch (ArgumentException exception)
-        {
-            return BadRequest(new { message = exception.Message });
         }
         catch (InvalidOperationException exception)
         {
@@ -43,7 +41,9 @@ public class AdminThemesController : ControllerBase
         var theme = await _themeService.ActivateAsync(id);
 
         if (theme is null)
+        {
             return NotFound(new { message = "Theme not found." });
+        }
 
         return Ok(theme);
     }

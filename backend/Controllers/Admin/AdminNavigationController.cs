@@ -8,8 +8,6 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace backend.Controllers;
 
-// Admin writes for the navbar, the footer and the brand. /api/admin is closed outside
-// Development (see Program.cs) because there is no authentication yet.
 [ApiController]
 [Route("api/admin")]
 public class AdminNavigationController : ControllerBase
@@ -30,44 +28,43 @@ public class AdminNavigationController : ControllerBase
     }
 
     [HttpGet("navigation")]
-    public async Task<IActionResult> GetNavigation() => Ok(await _navigation.GetAllAsync());
+    public async Task<IActionResult> GetNavigation()
+    {
+        var navigation = await _navigation.GetAllAsync();
+        return Ok(navigation);
+    }
 
     [HttpPut("navigation")]
-    public Task<IActionResult> UpdateNavigation([FromBody] UpdateNavigationRequest request) =>
-        Run(async () => Ok(await _navigation.ReplaceAsync(request)));
+    public async Task<IActionResult> UpdateNavigation([FromBody] UpdateNavigationRequest request)
+    {
+        var navigation = await _navigation.ReplaceAsync(request);
+        return Ok(navigation);
+    }
 
     [HttpGet("social-links")]
-    public async Task<IActionResult> GetSocialLinks() => Ok(await _socialLinks.GetAllAsync());
+    public async Task<IActionResult> GetSocialLinks()
+    {
+        var socialLinks = await _socialLinks.GetAllAsync();
+        return Ok(socialLinks);
+    }
 
     [HttpPut("social-links")]
-    public Task<IActionResult> UpdateSocialLinks([FromBody] UpdateSocialLinksRequest request) =>
-        Run(async () => Ok(await _socialLinks.ReplaceAsync(request)));
+    public async Task<IActionResult> UpdateSocialLinks([FromBody] UpdateSocialLinksRequest request)
+    {
+        var socialLinks = await _socialLinks.ReplaceAsync(request);
+        return Ok(socialLinks);
+    }
 
     [HttpPut("site-settings")]
-    public Task<IActionResult> UpdateBrand([FromBody] UpdateBrandRequest request) =>
-        Run(async () =>
-        {
-            var settings = await _siteSettings.UpdateBrandAsync(request);
-
-            return settings is null
-                ? NotFound(new { message = "Site settings have not been configured." })
-                : Ok(settings);
-        });
-
-    // Validation problems are ArgumentExceptions (400); anything else is a 500.
-    private async Task<IActionResult> Run(Func<Task<IActionResult>> action)
+    public async Task<IActionResult> UpdateBrand([FromBody] UpdateBrandRequest request)
     {
-        try
+        var settings = await _siteSettings.UpdateBrandAsync(request);
+
+        if (settings is null)
         {
-            return await action();
+            return NotFound(new { message = "Site settings have not been configured." });
         }
-        catch (ArgumentException exception)
-        {
-            return BadRequest(new { message = exception.Message });
-        }
-        catch (Exception)
-        {
-            return StatusCode(500, new { message = "Could not save the changes." });
-        }
+
+        return Ok(settings);
     }
 }

@@ -1,14 +1,11 @@
 using backend.DTOs.CompanyServices;
 using backend.DTOs.Projects;
-using backend.Services.Common;
 using backend.Services.CompanyServices;
 using backend.Services.Projects;
 using Microsoft.AspNetCore.Mvc;
 
 namespace backend.Controllers;
 
-// Admin writes for the service cards and the project cards. /api/admin is closed outside
-// Development (see Program.cs) because there is no authentication yet.
 [ApiController]
 [Route("api/admin")]
 public class AdminCatalogController : ControllerBase
@@ -23,37 +20,30 @@ public class AdminCatalogController : ControllerBase
     }
 
     [HttpGet("services")]
-    public async Task<IActionResult> GetServices() => Ok(await _services.GetAllAsync());
+    public async Task<IActionResult> GetServices()
+    {
+        var services = await _services.GetAllAsync();
+        return Ok(services);
+    }
 
     [HttpPut("services")]
-    public Task<IActionResult> SaveServices([FromBody] UpdateServicesRequest request) =>
-        Run(async () => Ok(await _services.SaveAsync(request)));
+    public async Task<IActionResult> SaveServices([FromBody] UpdateServicesRequest request)
+    {
+        var services = await _services.SaveAsync(request);
+        return Ok(services);
+    }
 
     [HttpGet("projects")]
-    public async Task<IActionResult> GetProjects() => Ok(await _projects.GetAllAdminAsync());
+    public async Task<IActionResult> GetProjects()
+    {
+        var projects = await _projects.GetAllAdminAsync();
+        return Ok(projects);
+    }
 
     [HttpPut("projects")]
-    public Task<IActionResult> SaveProjects([FromBody] UpdateProjectsRequest request) =>
-        Run(async () => Ok(await _projects.SaveAsync(request)));
-
-    // ArgumentException → 400, ConflictException → 409, anything else → 500.
-    private async Task<IActionResult> Run(Func<Task<IActionResult>> action)
+    public async Task<IActionResult> SaveProjects([FromBody] UpdateProjectsRequest request)
     {
-        try
-        {
-            return await action();
-        }
-        catch (ArgumentException exception)
-        {
-            return BadRequest(new { message = exception.Message });
-        }
-        catch (ConflictException exception)
-        {
-            return Conflict(new { message = exception.Message });
-        }
-        catch (Exception)
-        {
-            return StatusCode(500, new { message = "Could not save the changes." });
-        }
+        var projects = await _projects.SaveAsync(request);
+        return Ok(projects);
     }
 }

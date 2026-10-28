@@ -19,48 +19,45 @@ public class AdminMediaController : ControllerBase
     [RequestSizeLimit(6 * 1024 * 1024)]
     public async Task<IActionResult> Upload(IFormFile file, [FromForm] string? altText)
     {
-        try
-        {
-            var media = await _mediaService.UploadAsync(file, altText);
-
-            return Ok(media);
-        }
-        catch (ArgumentException exception)
-        {
-            return BadRequest(new { message = exception.Message });
-        }
+        var media = await _mediaService.UploadAsync(file, altText);
+        return Ok(media);
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetAll() => Ok(await _mediaService.GetAllWithUsageAsync());
+    public async Task<IActionResult> GetAll()
+    {
+        var media = await _mediaService.GetAllWithUsageAsync();
+        return Ok(media);
+    }
 
     [HttpPut("{id:int}")]
     public async Task<IActionResult> UpdateAltText(int id, [FromBody] UpdateMediaRequest request)
     {
-        try
-        {
-            var media = await _mediaService.UpdateAltTextAsync(id, request.AltText);
+        var media = await _mediaService.UpdateAltTextAsync(id, request.AltText);
 
-            return media is null ? NotFound(new { message = "Media asset not found." }) : Ok(media);
-        }
-        catch (ArgumentException exception)
+        if (media is null)
         {
-            return BadRequest(new { message = exception.Message });
+            return NotFound(new { message = "Media asset not found." });
         }
+
+        return Ok(media);
     }
 
     [HttpDelete("{id:int}")]
     public async Task<IActionResult> Delete(int id)
     {
-        try
-        {
-            var result = await _mediaService.DeleteAsync(id);
+        var result = await _mediaService.DeleteAsync(id);
 
-            return result.Status switch
-            {
-                DeleteMediaStatus.Deleted => NoContent(),
-                DeleteMediaStatus.NotFound => NotFound(new { message = "Media asset not found." }),
-                _ => Conflict(
+        switch (result.Status)
+        {
+            case DeleteMediaStatus.Deleted:
+                return NoContent();
+
+            case DeleteMediaStatus.NotFound:
+                return NotFound(new { message = "Media asset not found." });
+
+            default:
+                return Conflict(
                     new
                     {
                         message = "Cannot delete this image because it is used in "
@@ -68,17 +65,17 @@ public class AdminMediaController : ControllerBase
                             + ".",
                         usedIn = result.UsedIn,
                     }
-                ),
-            };
-        }
-        catch (Exception)
-        {
-            return StatusCode(500, new { message = "Could not delete the image." });
+                );
         }
     }
 
-    private static string JoinPlaces(List<string> places) =>
-        places.Count <= 1
-            ? string.Join("", places)
-            : string.Join(", ", places.Take(places.Count - 1)) + " and " + places[^1];
+    private static string JoinPlaces(List<string> places)
+    {
+        if (places.Count <= 1)
+        {
+            return string.Join("", places);
+        }
+
+        return string.Join(", ", places.Take(places.Count - 1)) + " and " + places[^1];
+    }
 }
