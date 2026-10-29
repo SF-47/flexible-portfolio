@@ -4,7 +4,12 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { LogOut } from "lucide-react";
 
-export default function LogoutButton() {
+// `collapsed` is the icon-only desktop sidebar; the mobile drawer always shows the label.
+export default function LogoutButton({
+  collapsed = false,
+}: {
+  collapsed?: boolean;
+}) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
 
@@ -32,15 +37,27 @@ export default function LogoutButton() {
     }
   }
 
+  const label = loading ? "Signing out..." : "Logout";
+
   return (
     <button
       type="button"
       onClick={handleLogout}
       disabled={loading}
-      className="flex w-full items-center gap-3 rounded-lg px-4 py-3 text-sm text-slate-300 transition-colors hover:bg-white/10 hover:text-white disabled:opacity-50"
+      title={collapsed ? label : undefined}
+      aria-label={label}
+      className={`flex h-13 w-full items-center rounded-lg text-admin-sidebar-muted transition hover:bg-admin-sidebar-hover hover:text-admin-sidebar-text disabled:opacity-50 ${
+        collapsed
+          ? "gap-3 px-4 lg:justify-center lg:gap-0 lg:px-0"
+          : "gap-3 px-4"
+      }`}
     >
-      <LogOut size={18} />
-      {loading ? "Signing out..." : "Logout"}
+      <LogOut size={21} className="shrink-0" />
+      <span
+        className={`whitespace-nowrap text-[15px] ${collapsed ? "lg:hidden" : ""}`}
+      >
+        {label}
+      </span>
     </button>
   );
 }

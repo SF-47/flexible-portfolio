@@ -134,7 +134,7 @@ export default function AdminSidebar({
             })}
           </nav>
 
-          <div className="mt-auto border-t border-admin-sidebar-border pt-5">
+          <div className="mt-auto space-y-2 border-t border-admin-sidebar-border pt-5">
             <Link
               href="/"
               target="_blank"
@@ -149,8 +149,9 @@ export default function AdminSidebar({
                 View Website
               </span>
             </Link>
+
+            <LogoutButton collapsed={collapsed} />
           </div>
-          <LogoutButton/>
         </div>
       </aside>
     </>
