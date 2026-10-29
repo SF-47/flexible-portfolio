@@ -8,7 +8,7 @@ public interface IThemeService
 
     Task<ThemeResponse?> GetActiveAsync();
 
-    Task<ThemeResponse?> UpdateAsync(int id, UpdateThemeRequest request);
+    Task<ServiceResult<ThemeResponse>> UpdateAsync(int id, UpdateThemeRequest request);
 
     Task<ThemeResponse?> ActivateAsync(int id);
 }

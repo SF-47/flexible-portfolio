@@ -1,7 +1,8 @@
-using backend.Data;
-using backend.DTOs.Sections;
 using System.Text.Json;
 using System.Text.Json.Nodes;
+using backend.Data;
+using backend.DTOs.Sections;
+using backend.Services.Common;
 using Microsoft.EntityFrameworkCore;
 
 namespace backend.Services.Sections;
@@ -79,24 +80,32 @@ public class SectionService : ISectionService
     public async Task<bool> ReorderAsync(List<Guid> sectionIds)
     {
         if (sectionIds is null || sectionIds.Count == 0)
+        {
             return false;
+        }
 
         // Duplicate IDs are not allowed.
         if (sectionIds.Count != sectionIds.Distinct().Count())
+        {
             return false;
+        }
 
         // Load every section, including hidden sections.
         var sections = await _db.Sections.ToListAsync();
 
         // The request must contain every database section exactly once.
         if (sectionIds.Count != sections.Count)
+        {
             return false;
+        }
 
         var sectionsById = sections.ToDictionary(s => s.Id);
 
         // Reject unknown IDs before changing anything.
         if (sectionIds.Any(id => !sectionsById.ContainsKey(id)))
+        {
             return false;
+        }
 
         // Update each section's order, starting at 1.
         int order = 1;
@@ -116,24 +125,32 @@ public class SectionService : ISectionService
     public async Task<bool> UpdateLayoutAsync(List<SectionLayoutItem> items)
     {
         if (items is null || items.Count == 0)
+        {
             return false;
+        }
 
         // Duplicate IDs are not allowed.
         if (items.Count != items.Select(i => i.Id).Distinct().Count())
+        {
             return false;
+        }
 
         // Load every section, including hidden sections.
         var sections = await _db.Sections.ToListAsync();
 
         // The request must contain every database section exactly once.
         if (items.Count != sections.Count)
+        {
             return false;
+        }
 
         var sectionsById = sections.ToDictionary(s => s.Id);
 
         // Reject unknown IDs before changing anything.
         if (items.Any(item => !sectionsById.ContainsKey(item.Id)))
+        {
             return false;
+        }
 
         // Order starts at 1; only the order and visibility change.
         int order = 1;
@@ -152,7 +169,7 @@ public class SectionService : ISectionService
         return true;
     }
 
-    public async Task<UpdateContentResult> UpdateContentAsync(
+    public async Task<ServiceResult<UpdateSectionContentResponse>> UpdateContentAsync(
         Guid id,
         UpdateSectionContentRequest request
     )
@@ -160,10 +177,13 @@ public class SectionService : ISectionService
         var section = await _db.Sections.AsNoTracking().FirstOrDefaultAsync(s => s.Id == id);
 
         if (section is null)
-            return new UpdateContentResult(UpdateContentStatus.NotFound, "Section not found.");
+        {
+            return ServiceResult<UpdateSectionContentResponse>.NotFound("Section not found.");
+        }
 
         JsonObject? submitted;
         JsonObject? stored;
+
         try
         {
             submitted = JsonNode.Parse(request.ContentJson ?? "") as JsonObject;
@@ -171,18 +191,26 @@ public class SectionService : ISectionService
         }
         catch (JsonException)
         {
-            return Invalid("Content must be a valid JSON object.");
+            return ServiceResult<UpdateSectionContentResponse>.BadRequest(
+                "Content must be a valid JSON object."
+            );
         }
 
         if (submitted is null || stored is null)
-            return Invalid("Content must be a valid JSON object.");
+        {
+            return ServiceResult<UpdateSectionContentResponse>.BadRequest(
+                "Content must be a valid JSON object."
+            );
+        }
 
         // Copy only the properties this section type defines onto the stored JSON;
         // anything else already stored stays exactly as it is.
         foreach (var key in SectionContentValidator.Keys(section.Type))
         {
             if (submitted.TryGetPropertyValue(key, out var value))
+            {
                 stored[key] = value?.DeepClone();
+            }
         }
 
         var mediaIds = new List<int>();
@@ -190,23 +218,31 @@ public class SectionService : ISectionService
         var error = SectionContentValidator.Validate(section.Type, document.RootElement, mediaIds);
 
         if (error is not null)
-            return Invalid(error);
+        {
+            return ServiceResult<UpdateSectionContentResponse>.BadRequest(error);
+        }
 
         var distinctIds = mediaIds.Distinct().ToList();
         var existing = await _db.MediaAssets.CountAsync(m => distinctIds.Contains(m.Id));
 
         if (existing != distinctIds.Count)
-            return Invalid("An image in this content does not exist in the Media Library.");
+        {
+            return ServiceResult<UpdateSectionContentResponse>.BadRequest(
+                "An image in this content does not exist in the Media Library."
+            );
+        }
 
-        // Fast stale check. MySQL keeps microseconds, so compare at that precision.
-        if (!SameInstant(request.ExpectedUpdatedAt, section.UpdatedAt))
-            return Conflict();
+        // Quick stale check. MySQL keeps microseconds, so the comparison allows for that.
+        if (!Timestamps.SameInstant(request.ExpectedUpdatedAt, section.UpdatedAt))
+        {
+            return ServiceResult<UpdateSectionContentResponse>.Conflict(StaleMessage);
+        }
 
         var newContent = stored.ToJsonString();
         var newUpdatedAt = DateTime.UtcNow;
 
-        // Atomic compare-and-set: the UPDATE only matches if UpdatedAt is still the
-        // value we read, so a concurrent save makes it affect 0 rows.
+        // Compare-and-set: the UPDATE only matches if UpdatedAt is still the value we read,
+        // so a save that happened in the meantime makes it affect 0 rows.
         var rows = await _db
             .Sections.Where(s => s.Id == id && s.UpdatedAt == section.UpdatedAt)
             .ExecuteUpdateAsync(setters =>
@@ -216,7 +252,9 @@ public class SectionService : ISectionService
             );
 
         if (rows == 0)
-            return Conflict();
+        {
+            return ServiceResult<UpdateSectionContentResponse>.Conflict(StaleMessage);
+        }
 
         // Read back so the returned timestamp is exactly what MySQL stored.
         var saved = await _db
@@ -225,24 +263,9 @@ public class SectionService : ISectionService
             .Select(s => new UpdateSectionContentResponse(s.ContentJson, s.UpdatedAt))
             .FirstAsync();
 
-        return new UpdateContentResult(UpdateContentStatus.Success, Saved: saved);
+        return ServiceResult<UpdateSectionContentResponse>.Ok(saved);
     }
 
-    private static UpdateContentResult Conflict() =>
-        new(
-            UpdateContentStatus.Conflict,
-            "This section was changed after you loaded it. Reload the page and try again."
-        );
-
-    // MySQL returns UpdatedAt without a "Z" (Kind Unspecified); treat it as UTC.
-    private static DateTime AsUtc(DateTime value) =>
-        value.Kind == DateTimeKind.Local
-            ? value.ToUniversalTime()
-            : DateTime.SpecifyKind(value, DateTimeKind.Utc);
-
-    private static bool SameInstant(DateTime a, DateTime b) =>
-        Math.Abs((AsUtc(a) - AsUtc(b)).Ticks) < 10;
-
-    private static UpdateContentResult Invalid(string message) =>
-        new(UpdateContentStatus.Invalid, message);
+    private const string StaleMessage =
+        "This section was changed after you loaded it. Reload the page and try again.";
 }

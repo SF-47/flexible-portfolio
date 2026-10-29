@@ -24,7 +24,9 @@ public static class AdminSessionValidator
                 .AnyAsync(x => x.Id == id && x.IsActive, context.HttpContext.RequestAborted);
 
         if (stillActive)
+        {
             return;
+        }
 
         context.RejectPrincipal();
         await context.HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);

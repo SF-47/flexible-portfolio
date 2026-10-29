@@ -21,14 +21,21 @@ public class SocialLinkService : ISocialLinkService
             .SocialLinks.AsNoTracking()
             .Where(link => link.IsVisible)
             .OrderBy(link => link.SortOrder)
-            .Select(link => new SocialLinkResponse(link.Id, link.Platform, link.Url, link.SortOrder))
+            .Select(link => new SocialLinkResponse(
+                link.Id,
+                link.Platform,
+                link.Url,
+                link.SortOrder
+            ))
             .ToListAsync();
     }
 
     private const int MaxItems = 12;
 
     // The platforms the public footer has an icon for.
-    private static readonly Dictionary<string, string> Platforms = new(StringComparer.OrdinalIgnoreCase)
+    private static readonly Dictionary<string, string> Platforms = new(
+        StringComparer.OrdinalIgnoreCase
+    )
     {
         ["facebook"] = "Facebook",
         ["instagram"] = "Instagram",
@@ -58,22 +65,53 @@ public class SocialLinkService : ISocialLinkService
     }
 
     // Replaces the whole list in one SaveChanges call (a single transaction).
-    public async Task<List<AdminSocialLinkResponse>> ReplaceAsync(UpdateSocialLinksRequest request)
+    public async Task<ServiceResult<List<AdminSocialLinkResponse>>> ReplaceAsync(
+        UpdateSocialLinksRequest request
+    )
     {
-        var items = request.Items ?? throw new ArgumentException("Social links are required.");
+        if (request.Items is null || request.LoadedIds is null)
+        {
+            return ServiceResult<List<AdminSocialLinkResponse>>.BadRequest(
+                "Social links are required."
+            );
+        }
+
+        var items = request.Items;
 
         if (items.Count > MaxItems)
-            throw new ArgumentException($"A website can have at most {MaxItems} social links.");
+        {
+            return ServiceResult<List<AdminSocialLinkResponse>>.BadRequest(
+                $"A website can have at most {MaxItems} social links."
+            );
+        }
 
         var ids = items.Where(i => i.Id is not null).Select(i => i.Id!.Value).ToList();
 
         if (ids.Count != ids.Distinct().Count())
-            throw new ArgumentException("A social link was sent twice.");
+        {
+            return ServiceResult<List<AdminSocialLinkResponse>>.BadRequest(
+                "A social link was sent twice."
+            );
+        }
 
         var existing = await _context.SocialLinks.ToListAsync();
 
-        if (ids.Any(id => existing.All(e => e.Id != id)))
-            throw new ArgumentException("A social link no longer exists. Reload the page.");
+        // Another administrator added or deleted a link since this page was loaded.
+        var existingIds = existing.Select(e => e.Id).ToHashSet();
+
+        if (!existingIds.SetEquals(request.LoadedIds))
+        {
+            return ServiceResult<List<AdminSocialLinkResponse>>.Conflict(
+                "The social links were changed by someone else. Reload the page."
+            );
+        }
+
+        if (ids.Any(id => !existingIds.Contains(id)))
+        {
+            return ServiceResult<List<AdminSocialLinkResponse>>.BadRequest(
+                "A social link no longer exists. Reload the page."
+            );
+        }
 
         // Known platforms use their canonical name; any other name is a custom platform
         // (shown with a generic icon). Platforms cannot be listed twice.
@@ -83,18 +121,35 @@ public class SocialLinkService : ISocialLinkService
         {
             var name = item.Platform?.Trim() ?? "";
 
-            if (name.Length == 0 || name.Length > 50 || name.Any(char.IsControl) || name.Any(c => c is '<' or '>'))
-                throw new ArgumentException("Enter a platform name of up to 50 characters.");
+            if (
+                name.Length == 0
+                || name.Length > 50
+                || name.Any(char.IsControl)
+                || name.Any(c => c is '<' or '>')
+            )
+            {
+                return ServiceResult<List<AdminSocialLinkResponse>>.BadRequest(
+                    "Enter a platform name of up to 50 characters."
+                );
+            }
 
             var platform = Platforms.TryGetValue(name, out var known) ? known : name;
 
             if (platforms.Contains(platform, StringComparer.OrdinalIgnoreCase))
-                throw new ArgumentException($"{platform} is already in the list.");
+            {
+                return ServiceResult<List<AdminSocialLinkResponse>>.BadRequest(
+                    $"{platform} is already in the list."
+                );
+            }
 
             platforms.Add(platform);
 
             if (!HttpUrl.IsValid(item.Url))
-                throw new ArgumentException($"{platform} needs a valid http:// or https:// address.");
+            {
+                return ServiceResult<List<AdminSocialLinkResponse>>.BadRequest(
+                    $"{platform} needs a valid http:// or https:// address."
+                );
+            }
         }
 
         _context.SocialLinks.RemoveRange(existing.Where(e => !ids.Contains(e.Id)));
@@ -105,7 +160,9 @@ public class SocialLinkService : ISocialLinkService
             var entity = item.Id is null ? new SocialLink() : existing.First(e => e.Id == item.Id);
 
             if (item.Id is null)
+            {
                 _context.SocialLinks.Add(entity);
+            }
 
             entity.Platform = platforms[index];
             entity.Url = item.Url;
@@ -115,6 +172,6 @@ public class SocialLinkService : ISocialLinkService
 
         await _context.SaveChangesAsync();
 
-        return await GetAllAsync();
+        return ServiceResult<List<AdminSocialLinkResponse>>.Ok(await GetAllAsync());
     }
 }

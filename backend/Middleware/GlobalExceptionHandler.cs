@@ -1,5 +1,3 @@
-using System.Net;
-using backend.Services.Common;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 
@@ -14,12 +12,12 @@ public sealed class GlobalExceptionHandler(ILogger<GlobalExceptionHandler> logge
         CancellationToken cancellationToken
     )
     {
-        var statusCode = exception switch
-        {
-            ArgumentException => StatusCodes.Status400BadRequest, //this means : If the exception is an ArgumentException, return 400.
-            ConflictException => StatusCodes.Status409Conflict,   //this means : If the exception is an ConflictException, return 409.
-            _ => StatusCodes.Status500InternalServerError,        // _ means every other exception
-        };
+        // Expected problems (bad input, missing record, stale data) are ServiceResults and
+        // never reach this handler. A request the server could not even read (for example a
+        // body over the size limit) keeps its own 4xx status; everything else is a 500.
+        var statusCode = exception is BadHttpRequestException badRequest
+            ? badRequest.StatusCode
+            : StatusCodes.Status500InternalServerError;
 
         if (statusCode == StatusCodes.Status500InternalServerError)
         {
@@ -30,19 +28,19 @@ public sealed class GlobalExceptionHandler(ILogger<GlobalExceptionHandler> logge
             );
         }
 
+        // The exception text can contain database or file details, so it is never sent.
         var message =
             statusCode == StatusCodes.Status500InternalServerError
                 ? "An unexpected server error occurred."
-                : exception.Message;
+                : "The request could not be processed.";
 
         var problem = new ProblemDetails
         {
             Status = statusCode,
             Title = statusCode switch
             {
-                StatusCodes.Status400BadRequest => "Bad Request",
-                StatusCodes.Status409Conflict => "Conflict",
-                _ => "Internal Server Error",
+                StatusCodes.Status500InternalServerError => "Internal Server Error",
+                _ => "Bad Request",
             },
             Detail = message,
             Instance = httpContext.Request.Path,

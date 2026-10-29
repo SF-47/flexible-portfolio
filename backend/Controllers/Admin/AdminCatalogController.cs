@@ -6,44 +6,63 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace backend.Controllers;
 
+// Admin reads and saves for the service cards and the project cards.
+// Everything under /api/admin requires the AdminOnly policy (see AdminAuthorization).
 [ApiController]
 [Route("api/admin")]
 public class AdminCatalogController : ControllerBase
 {
-    private readonly ICompanyServiceManager _services;
-    private readonly IProjectService _projects;
+    private readonly ICompanyServiceManager _companyServiceManager;
+    private readonly IProjectService _projectService;
 
-    public AdminCatalogController(ICompanyServiceManager services, IProjectService projects)
+    public AdminCatalogController(
+        ICompanyServiceManager companyServiceManager,
+        IProjectService projectService
+    )
     {
-        _services = services;
-        _projects = projects;
+        _companyServiceManager = companyServiceManager;
+        _projectService = projectService;
     }
 
     [HttpGet("services")]
     public async Task<IActionResult> GetServices()
     {
-        var services = await _services.GetAllAsync();
+        var services = await _companyServiceManager.GetAllAsync();
+
         return Ok(services);
     }
 
     [HttpPut("services")]
     public async Task<IActionResult> SaveServices([FromBody] UpdateServicesRequest request)
     {
-        var services = await _services.SaveAsync(request);
-        return Ok(services);
+        var result = await _companyServiceManager.SaveAsync(request);
+
+        if (!result.Success)
+        {
+            return StatusCode(result.StatusCode, new { message = result.ErrorMessage });
+        }
+
+        return Ok(result.Data);
     }
 
     [HttpGet("projects")]
     public async Task<IActionResult> GetProjects()
     {
-        var projects = await _projects.GetAllAdminAsync();
+        var projects = await _projectService.GetAllAdminAsync();
+
         return Ok(projects);
     }
 
     [HttpPut("projects")]
     public async Task<IActionResult> SaveProjects([FromBody] UpdateProjectsRequest request)
     {
-        var projects = await _projects.SaveAsync(request);
-        return Ok(projects);
+        var result = await _projectService.SaveAsync(request);
+
+        if (!result.Success)
+        {
+            return StatusCode(result.StatusCode, new { message = result.ErrorMessage });
+        }
+
+        return Ok(result.Data);
     }
 }

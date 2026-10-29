@@ -19,28 +19,35 @@ public class AdminMediaController : ControllerBase
     [RequestSizeLimit(6 * 1024 * 1024)]
     public async Task<IActionResult> Upload(IFormFile file, [FromForm] string? altText)
     {
-        var media = await _mediaService.UploadAsync(file, altText);
-        return Ok(media);
+        var result = await _mediaService.UploadAsync(file, altText);
+
+        if (!result.Success)
+        {
+            return StatusCode(result.StatusCode, new { message = result.ErrorMessage });
+        }
+
+        return Ok(result.Data);
     }
 
     [HttpGet]
     public async Task<IActionResult> GetAll()
     {
         var media = await _mediaService.GetAllWithUsageAsync();
+
         return Ok(media);
     }
 
     [HttpPut("{id:int}")]
     public async Task<IActionResult> UpdateAltText(int id, [FromBody] UpdateMediaRequest request)
     {
-        var media = await _mediaService.UpdateAltTextAsync(id, request.AltText);
+        var result = await _mediaService.UpdateAltTextAsync(id, request.AltText);
 
-        if (media is null)
+        if (!result.Success)
         {
-            return NotFound(new { message = "Media asset not found." });
+            return StatusCode(result.StatusCode, new { message = result.ErrorMessage });
         }
 
-        return Ok(media);
+        return Ok(result.Data);
     }
 
     [HttpDelete("{id:int}")]
@@ -48,34 +55,17 @@ public class AdminMediaController : ControllerBase
     {
         var result = await _mediaService.DeleteAsync(id);
 
-        switch (result.Status)
+        if (!result.Success)
         {
-            case DeleteMediaStatus.Deleted:
-                return NoContent();
+            // An image that is still used answers with the places that use it.
+            if (result.StatusCode == StatusCodes.Status409Conflict)
+            {
+                return Conflict(new { message = result.ErrorMessage, usedIn = result.Data });
+            }
 
-            case DeleteMediaStatus.NotFound:
-                return NotFound(new { message = "Media asset not found." });
-
-            default:
-                return Conflict(
-                    new
-                    {
-                        message = "Cannot delete this image because it is used in "
-                            + JoinPlaces(result.UsedIn)
-                            + ".",
-                        usedIn = result.UsedIn,
-                    }
-                );
-        }
-    }
-
-    private static string JoinPlaces(List<string> places)
-    {
-        if (places.Count <= 1)
-        {
-            return string.Join("", places);
+            return StatusCode(result.StatusCode, new { message = result.ErrorMessage });
         }
 
-        return string.Join(", ", places.Take(places.Count - 1)) + " and " + places[^1];
+        return NoContent();
     }
 }

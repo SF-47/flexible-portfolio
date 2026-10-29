@@ -90,24 +90,26 @@ public class ThemeService : IThemeService
         );
     }
 
-    public async Task<ThemeResponse?> UpdateAsync(int id, UpdateThemeRequest request)
+    public async Task<ServiceResult<ThemeResponse>> UpdateAsync(int id, UpdateThemeRequest request)
     {
         var theme = await _context.Themes.FindAsync(id);
 
         if (theme is null)
-            return null;
+        {
+            return ServiceResult<ThemeResponse>.NotFound("Theme not found.");
+        }
 
         if (
             !SupportedFonts.Contains(request.HeadingFont)
             || !SupportedFonts.Contains(request.BodyFont)
         )
         {
-            throw new ArgumentException("Unsupported font selected.");
+            return ServiceResult<ThemeResponse>.BadRequest("Unsupported font selected.");
         }
 
         if (!SupportedNavbarVariants.Contains(request.NavbarVariant))
         {
-            throw new ArgumentException("Unsupported navbar variant.");
+            return ServiceResult<ThemeResponse>.BadRequest("Unsupported navbar variant.");
         }
 
         // Predefined themes keep their colors; only fonts and the navbar layout can change.
@@ -127,7 +129,7 @@ public class ThemeService : IThemeService
 
         await _context.SaveChangesAsync();
 
-        return ToResponse(theme);
+        return ServiceResult<ThemeResponse>.Ok(ToResponse(theme));
     }
 
     public async Task<ThemeResponse?> ActivateAsync(int id)
@@ -137,7 +139,9 @@ public class ThemeService : IThemeService
         var selectedTheme = themes.FirstOrDefault(t => t.Id == id);
 
         if (selectedTheme is null)
+        {
             return null;
+        }
 
         foreach (var theme in themes)
         {

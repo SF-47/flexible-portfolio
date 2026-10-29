@@ -56,24 +56,42 @@ public class MediaService : IMediaService
             .FirstOrDefaultAsync();
     }
 
-    public async Task<MediaAssetResponse> UploadAsync(IFormFile file, string? altText)
+    public async Task<ServiceResult<MediaAssetResponse>> UploadAsync(
+        IFormFile file,
+        string? altText
+    )
     {
         const long maxFileSize = 5 * 1024 * 1024;
 
         if (file is null || file.Length == 0)
-            throw new ArgumentException("Please select an image.");
+        {
+            return ServiceResult<MediaAssetResponse>.BadRequest("Please select an image.");
+        }
 
         if (file.Length > maxFileSize)
-            throw new ArgumentException("Image must not exceed 5 MB.");
+        {
+            return ServiceResult<MediaAssetResponse>.BadRequest("Image must not exceed 5 MB.");
+        }
 
-        altText = NormalizeAltText(altText);
+        var altTextError = ValidateAltText(altText);
+
+        if (altTextError is not null)
+        {
+            return ServiceResult<MediaAssetResponse>.BadRequest(altTextError);
+        }
+
+        altText = TrimOrNull(altText);
 
         var extension = Path.GetExtension(file.FileName).ToLowerInvariant();
 
         var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".webp" };
 
         if (!allowedExtensions.Contains(extension))
-            throw new ArgumentException("Only JPG, PNG, and WebP images are allowed.");
+        {
+            return ServiceResult<MediaAssetResponse>.BadRequest(
+                "Only JPG, PNG, and WebP images are allowed."
+            );
+        }
 
         byte[] header = new byte[12];
 
@@ -88,13 +106,17 @@ public class MediaService : IMediaService
                 );
 
                 if (bytesRead == 0)
+                {
                     break;
+                }
 
                 totalRead += bytesRead;
             }
 
             if (totalRead < 12)
-                throw new ArgumentException("Invalid image file.");
+            {
+                return ServiceResult<MediaAssetResponse>.BadRequest("Invalid image file.");
+            }
         }
 
         bool isJpeg = header[0] == 0xFF && header[1] == 0xD8 && header[2] == 0xFF;
@@ -110,20 +132,30 @@ public class MediaService : IMediaService
         string contentType;
 
         if (isJpeg && (extension == ".jpg" || extension == ".jpeg"))
+        {
             contentType = "image/jpeg";
+        }
         else if (isPng && extension == ".png")
+        {
             contentType = "image/png";
+        }
         else if (isWebp && extension == ".webp")
+        {
             contentType = "image/webp";
+        }
         else
-            throw new ArgumentException("File contents do not match a supported image format.");
+            return ServiceResult<MediaAssetResponse>.BadRequest(
+                "File contents do not match a supported image format."
+            );
 
         var filename = $"{Guid.NewGuid():N}{extension}";
 
         var webRoot = _environment.WebRootPath;
 
         if (string.IsNullOrWhiteSpace(webRoot))
+        {
             throw new InvalidOperationException("Web root is not configured.");
+        }
 
         var uploadDirectory = Path.Combine(webRoot, "uploads");
 
@@ -154,7 +186,7 @@ public class MediaService : IMediaService
 
             await _context.SaveChangesAsync();
 
-            return new MediaAssetResponse(
+            var response = new MediaAssetResponse(
                 media.Id,
                 media.OriginalFileName,
                 "/" + media.StorageKey,
@@ -163,28 +195,52 @@ public class MediaService : IMediaService
                 media.AltText,
                 media.CreatedAt
             );
+
+            return ServiceResult<MediaAssetResponse>.Ok(response);
         }
         catch
         {
             if (File.Exists(filePath))
+            {
                 File.Delete(filePath);
+            }
 
             throw;
         }
     }
 
-    private static string? NormalizeAltText(string? altText)
+    // Returns an error message when the alt text is not acceptable, otherwise null.
+    private static string? ValidateAltText(string? altText)
     {
         var text = altText?.Trim();
 
         if (string.IsNullOrEmpty(text))
+        {
             return null;
+        }
 
         if (text.Length > MaxAltTextLength)
-            throw new ArgumentException($"Alt text must not exceed {MaxAltTextLength} characters.");
+        {
+            return $"Alt text must not exceed {MaxAltTextLength} characters.";
+        }
 
         if (text.Any(char.IsControl))
-            throw new ArgumentException("Alt text cannot contain control characters.");
+        {
+            return "Alt text cannot contain control characters.";
+        }
+
+        return null;
+    }
+
+    // Trims the text; an empty text is stored as null.
+    private static string? TrimOrNull(string? altText)
+    {
+        var text = altText?.Trim();
+
+        if (string.IsNullOrEmpty(text))
+        {
+            return null;
+        }
 
         return text;
     }
@@ -231,19 +287,30 @@ public class MediaService : IMediaService
         void Add(int? id, string label)
         {
             if (id is null)
+            {
                 return;
+            }
 
             if (!usage.TryGetValue(id.Value, out var places))
+            {
                 usage[id.Value] = places = new List<string>();
+            }
 
             if (!places.Contains(label))
+            {
                 places.Add(label);
+            }
         }
 
         var sections = await _context
             .Sections.AsNoTracking()
             .OrderBy(section => section.SortOrder)
-            .Select(section => new { section.Name, section.ContentJson, section.SettingsJson })
+            .Select(section => new
+            {
+                section.Name,
+                section.ContentJson,
+                section.SettingsJson,
+            })
             .ToListAsync();
 
         foreach (var section in sections)
@@ -320,9 +387,19 @@ public class MediaService : IMediaService
         return media.Select(item => ToAdminResponse(item, usage)).ToList();
     }
 
-    public async Task<AdminMediaAssetResponse?> UpdateAltTextAsync(int id, string? altText)
+    public async Task<ServiceResult<AdminMediaAssetResponse>> UpdateAltTextAsync(
+        int id,
+        string? altText
+    )
     {
-        var text = NormalizeAltText(altText);
+        var altTextError = ValidateAltText(altText);
+
+        if (altTextError is not null)
+        {
+            return ServiceResult<AdminMediaAssetResponse>.BadRequest(altTextError);
+        }
+
+        var text = TrimOrNull(altText);
 
         // Only the alt text changes: no new record, and the file is not touched.
         var updated = await _context
@@ -330,11 +407,14 @@ public class MediaService : IMediaService
             .ExecuteUpdateAsync(setters => setters.SetProperty(item => item.AltText, text));
 
         if (updated == 0)
-            return null;
+        {
+            return ServiceResult<AdminMediaAssetResponse>.NotFound("Media asset not found.");
+        }
 
         var media = await _context.MediaAssets.AsNoTracking().FirstAsync(item => item.Id == id);
+        var usage = await FindUsageAsync();
 
-        return ToAdminResponse(media, await FindUsageAsync());
+        return ServiceResult<AdminMediaAssetResponse>.Ok(ToAdminResponse(media, usage));
     }
 
     // The stored key must stay inside wwwroot/uploads; anything else is never touched.
@@ -343,13 +423,18 @@ public class MediaService : IMediaService
         var webRoot = _environment.WebRootPath;
 
         if (string.IsNullOrWhiteSpace(webRoot))
+        {
             throw new InvalidOperationException("Web root is not configured.");
+        }
 
-        var uploads = Path.GetFullPath(Path.Combine(webRoot, "uploads")) + Path.DirectorySeparatorChar;
+        var uploads =
+            Path.GetFullPath(Path.Combine(webRoot, "uploads")) + Path.DirectorySeparatorChar;
         var path = Path.GetFullPath(Path.Combine(webRoot, storageKey));
 
         if (!path.StartsWith(uploads, StringComparison.Ordinal))
-            throw new InvalidOperationException("The stored file path is outside the upload folder.");
+            throw new InvalidOperationException(
+                "The stored file path is outside the upload folder."
+            );
 
         return path;
     }
@@ -360,7 +445,7 @@ public class MediaService : IMediaService
     // is moved back, so a record never points at a missing file. The database foreign keys
     // (logo, favicon, services, projects) are a second guard; section JSON has no foreign
     // key, which is why usage is checked here.
-    public async Task<DeleteMediaResult> DeleteAsync(int id)
+    public async Task<ServiceResult<List<string>>> DeleteAsync(int id)
     {
         await using var transaction = await _context.Database.BeginTransactionAsync();
 
@@ -370,12 +455,16 @@ public class MediaService : IMediaService
         var media = await _context.MediaAssets.FirstOrDefaultAsync(item => item.Id == id);
 
         if (media is null)
-            return new DeleteMediaResult(DeleteMediaStatus.NotFound, new List<string>());
+        {
+            return ServiceResult<List<string>>.NotFound("Media asset not found.");
+        }
 
         var usage = await FindUsageAsync();
 
         if (usage.TryGetValue(id, out var places) && places.Count > 0)
-            return new DeleteMediaResult(DeleteMediaStatus.InUse, places);
+        {
+            return ServiceResult<List<string>>.Conflict(InUseMessage(places), places);
+        }
 
         var path = ResolveUploadPath(media.StorageKey);
         var parked = path + ".deleting";
@@ -398,10 +487,9 @@ public class MediaService : IMediaService
             RestoreFile(movedAside, parked, path);
             _logger.LogWarning(exception, "Media {MediaId} could not be deleted.", id);
 
-            return new DeleteMediaResult(
-                DeleteMediaStatus.InUse,
-                new List<string> { "another part of the website" }
-            );
+            var otherPlaces = new List<string> { "another part of the website" };
+
+            return ServiceResult<List<string>>.Conflict(InUseMessage(otherPlaces), otherPlaces);
         }
         catch
         {
@@ -422,13 +510,32 @@ public class MediaService : IMediaService
             }
         }
 
-        return new DeleteMediaResult(DeleteMediaStatus.Deleted, new List<string>());
+        return ServiceResult<List<string>>.Ok(new List<string>());
+    }
+
+    // "Cannot delete this image because it is used in A, B and C."
+    private static string InUseMessage(List<string> places)
+    {
+        string joined;
+
+        if (places.Count <= 1)
+        {
+            joined = string.Join("", places);
+        }
+        else
+        {
+            joined = string.Join(", ", places.Take(places.Count - 1)) + " and " + places[^1];
+        }
+
+        return "Cannot delete this image because it is used in " + joined + ".";
     }
 
     private void RestoreFile(bool movedAside, string parked, string path)
     {
         if (!movedAside || !File.Exists(parked))
+        {
             return;
+        }
 
         try
         {

@@ -35,28 +35,48 @@ public class SiteSettingsService : ISiteSettingsService
     }
 
     // Updates only the company name, logo and footer description.
-    public async Task<SiteSettingsResponse?> UpdateBrandAsync(UpdateBrandRequest request)
+    public async Task<ServiceResult<SiteSettingsResponse>> UpdateBrandAsync(
+        UpdateBrandRequest request
+    )
     {
         var settings = await _context.SiteSettings.FirstOrDefaultAsync();
 
         if (settings is null)
-            return null;
+        {
+            return ServiceResult<SiteSettingsResponse>.NotFound(
+                "Site settings have not been configured."
+            );
+        }
 
         var name = request.CompanyName?.Trim() ?? "";
 
         if (name.Length == 0 || name.Length > 150)
-            throw new ArgumentException("The company name is required (up to 150 characters).");
+        {
+            return ServiceResult<SiteSettingsResponse>.BadRequest(
+                "The company name is required (up to 150 characters)."
+            );
+        }
 
         var footer = request.FooterDescription?.Trim();
 
         if (footer is { Length: > 500 })
-            throw new ArgumentException("The footer description can be up to 500 characters.");
+        {
+            return ServiceResult<SiteSettingsResponse>.BadRequest(
+                "The footer description can be up to 500 characters."
+            );
+        }
 
-        if (
-            request.LogoMediaId is not null
-            && !await _context.MediaAssets.AnyAsync(m => m.Id == request.LogoMediaId)
-        )
-            throw new ArgumentException("The selected logo does not exist in the Media Library.");
+        if (request.LogoMediaId is not null)
+        {
+            var logoExists = await _context.MediaAssets.AnyAsync(m => m.Id == request.LogoMediaId);
+
+            if (!logoExists)
+            {
+                return ServiceResult<SiteSettingsResponse>.BadRequest(
+                    "The selected logo does not exist in the Media Library."
+                );
+            }
+        }
 
         settings.CompanyName = name;
         settings.LogoMediaId = request.LogoMediaId;
@@ -65,6 +85,8 @@ public class SiteSettingsService : ISiteSettingsService
 
         await _context.SaveChangesAsync();
 
-        return await GetAsync();
+        var updated = await GetAsync();
+
+        return ServiceResult<SiteSettingsResponse>.Ok(updated!);
     }
 }

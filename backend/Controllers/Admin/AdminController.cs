@@ -81,21 +81,13 @@ public class AdminController : ControllerBase
             return BadRequest(new { message = "Content is required." });
         }
 
-        try
-        {
-            var result = await _sectionService.UpdateContentAsync(id, request);
+        var result = await _sectionService.UpdateContentAsync(id, request);
 
-            return result.Status switch
-            {
-                UpdateContentStatus.Success => Ok(result.Saved),
-                UpdateContentStatus.NotFound => NotFound(new { message = result.Error }),
-                UpdateContentStatus.Conflict => Conflict(new { message = result.Error }),
-                _ => BadRequest(new { message = result.Error }),
-            };
-        }
-        catch (Exception)
+        if (!result.Success)
         {
-            return StatusCode(500, new { message = "Could not save the content." });
+            return StatusCode(result.StatusCode, new { message = result.ErrorMessage });
         }
+
+        return Ok(result.Data);
     }
 }

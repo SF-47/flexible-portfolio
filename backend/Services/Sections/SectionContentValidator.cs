@@ -62,7 +62,9 @@ public static class SectionContentValidator
     private static readonly Rule Media = (value, path, mediaIds) =>
     {
         if (value.ValueKind == JsonValueKind.Null)
+        {
             return null;
+        }
 
         if (value.ValueKind == JsonValueKind.Number && value.TryGetInt32(out var id) && id > 0)
         {
@@ -98,7 +100,9 @@ public static class SectionContentValidator
                 var error = CheckObject(item, $"{path}[{index}]", fields, mediaIds);
 
                 if (error is not null)
+                {
                     return error;
+                }
 
                 index++;
             }
@@ -121,7 +125,9 @@ public static class SectionContentValidator
             if (!value.TryGetProperty(field.Key, out var property))
             {
                 if (field.Optional)
+                {
                     continue;
+                }
 
                 return $"{path}.{field.Key} is required.";
             }
@@ -129,7 +135,9 @@ public static class SectionContentValidator
             var error = field.Rule(property, $"{path}.{field.Key}", mediaIds);
 
             if (error is not null)
+            {
                 return error;
+            }
         }
 
         return null;
@@ -174,7 +182,13 @@ public static class SectionContentValidator
             Header(),
             F(
                 "steps",
-                ListOf(6, F("number", Text), F("icon", Icon), F("title", Text), F("description", Text))
+                ListOf(
+                    6,
+                    F("number", Text),
+                    F("icon", Icon),
+                    F("title", Text),
+                    F("description", Text)
+                )
             )
         ),
         ["gallery"] = Concat(
@@ -182,7 +196,8 @@ public static class SectionContentValidator
             F("icon", Icon),
             F(
                 "items",
-                ListOf(12, 
+                ListOf(
+                    12,
                     F("title", Text),
                     F("category", Text),
                     F("imageMediaId", Media),
@@ -194,7 +209,8 @@ public static class SectionContentValidator
             Header(),
             F(
                 "members",
-                ListOf(6, 
+                ListOf(
+                    6,
                     F("name", Text),
                     F("position", Text),
                     F("description", Text),
@@ -207,7 +223,8 @@ public static class SectionContentValidator
             Header(),
             F(
                 "items",
-                ListOf(6,
+                ListOf(
+                    6,
                     F("name", Text),
                     F("role", Text),
                     F("initials", Text),
@@ -220,7 +237,13 @@ public static class SectionContentValidator
             Header(),
             F(
                 "items",
-                ListOf(6, F("icon", Icon), F("title", Text), F("subtitle", Text), F("description", Text))
+                ListOf(
+                    6,
+                    F("icon", Icon),
+                    F("title", Text),
+                    F("subtitle", Text),
+                    F("description", Text)
+                )
             )
         ),
         ["faq"] = Concat(

@@ -85,12 +85,15 @@ Origin allow-list for admin and auth writes, (4) JSON bodies and a non-simple `C
 - **HTTPS** is required outside Development: the cookie is `Secure` there.
 - **Persistent Data Protection keys.** Without a shared key ring (`PersistKeysTo...`), cookies
   stop working after a restart or on a second instance.
-- **Trusted proxy / forwarded headers.** The login route forwards the first `X-Forwarded-For`
-  address it received to the API, which honours it only from a trusted proxy (loopback by
-  default, see `UseForwardedHeaders` in `Program.cs`). Configure the real proxies before
-  deploying, and make the reverse proxy in front of Next.js overwrite `X-Forwarded-For`,
-  otherwise a client can choose its own rate-limit bucket.
-- The login limiter is a temporary built-in fixed window (in memory, per process).
+- **Trusted proxy / forwarded headers.** `X-Forwarded-For` is only believed from a trusted
+  proxy, never from a visitor. The API trusts loopback plus `ForwardedHeaders:KnownProxies`
+  (see `Program.cs`) and uses the last entry. The Next.js login route forwards the header only
+  when `TRUST_PROXY_HEADERS=true` (set it only behind a reverse proxy that adds the visitor's
+  address; it uses the last entry, never the first). Otherwise nothing is forwarded and all
+  logins share the Next.js server's address, which is safe but means one shared limit. The
+  contact form is posted by the browser straight to the API, so behind a proxy in front of the
+  API list that proxy in `ForwardedHeaders:KnownProxies`.
+- The login and contact limiters are built-in fixed windows (in memory, per process).
 - A stolen cookie works until it expires (8 hours) or the account is disabled; there is no
   session list or "log out everywhere".
 - A single `Admin` role and no password reset or change flow yet.

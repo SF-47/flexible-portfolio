@@ -55,7 +55,9 @@ public class ContactMessageService : IContactMessageService
         var message = await _context.ContactMessages.FirstOrDefaultAsync(item => item.Id == id);
 
         if (message is null)
+        {
             return null;
+        }
 
         message.IsRead = isRead;
         await _context.SaveChangesAsync();
@@ -65,7 +67,9 @@ public class ContactMessageService : IContactMessageService
 
     public async Task<bool> DeleteAsync(Guid id)
     {
-        var deleted = await _context.ContactMessages.Where(item => item.Id == id).ExecuteDeleteAsync();
+        var deleted = await _context
+            .ContactMessages.Where(item => item.Id == id)
+            .ExecuteDeleteAsync();
 
         return deleted > 0;
     }

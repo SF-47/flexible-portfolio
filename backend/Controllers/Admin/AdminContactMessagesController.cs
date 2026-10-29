@@ -16,7 +16,12 @@ public class AdminContactMessagesController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetAll() => Ok(await _contactMessageService.GetAllAsync());
+    public async Task<IActionResult> GetAll()
+    {
+        var messages = await _contactMessageService.GetAllAsync();
+
+        return Ok(messages);
+    }
 
     [HttpPut("{id:guid}/read")]
     public async Task<IActionResult> SetRead(Guid id, [FromBody] SetMessageReadRequest request)
@@ -24,7 +29,9 @@ public class AdminContactMessagesController : ControllerBase
         var message = await _contactMessageService.SetReadAsync(id, request.IsRead);
 
         if (message is null)
+        {
             return NotFound(new { message = "Message not found." });
+        }
 
         return Ok(message);
     }
@@ -32,8 +39,12 @@ public class AdminContactMessagesController : ControllerBase
     [HttpDelete("{id:guid}")]
     public async Task<IActionResult> Delete(Guid id)
     {
-        if (!await _contactMessageService.DeleteAsync(id))
+        var deleted = await _contactMessageService.DeleteAsync(id);
+
+        if (!deleted)
+        {
             return NotFound(new { message = "Message not found." });
+        }
 
         return NoContent();
     }

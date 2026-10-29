@@ -6,5 +6,7 @@ public interface ISocialLinkService
 {
     Task<List<SocialLinkResponse>> GetVisibleAsync();
     Task<List<AdminSocialLinkResponse>> GetAllAsync();
-    Task<List<AdminSocialLinkResponse>> ReplaceAsync(UpdateSocialLinksRequest request);
+    Task<ServiceResult<List<AdminSocialLinkResponse>>> ReplaceAsync(
+        UpdateSocialLinksRequest request
+    );
 }

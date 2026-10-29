@@ -40,7 +40,9 @@ public class AuthService : IAuthService
         var result = _hasher.VerifyHashedPassword(admin, admin.PasswordHash, password);
 
         if (result == PasswordVerificationResult.Failed)
+        {
             return null;
+        }
 
         if (result == PasswordVerificationResult.SuccessRehashNeeded)
         {

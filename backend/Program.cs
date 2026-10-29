@@ -1,3 +1,4 @@
+using System.Net;
 using System.Threading.RateLimiting;
 using backend.Data;
 using backend.Data.Seeders;
@@ -103,8 +104,7 @@ builder.Services.AddRateLimiter(options =>
 {
     options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
 
-    // Temporary login limiter (built-in fixed window), to be replaced by your own design.
-    // Partitioned by client IP only, so the answer never depends on the e-mail and cannot
+    // Login limiter (built-in fixed window). Partitioned by client IP only, so the answer never depends on the e-mail and cannot
     // reveal whether an account exists. The IP is the real client's when the Next.js server
     // forwards it (see UseForwardedHeaders below); otherwise it is the Next.js server's.
     options.AddPolicy(
@@ -298,11 +298,24 @@ if (app.Environment.IsDevelopment())
 }
 
 // Replaces the connection IP with X-Forwarded-For, but only when the request comes from a
-// trusted proxy (by default loopback, i.e. the Next.js server on the same machine). Configure
-// KnownProxies/KnownNetworks for the real deployment.
-app.UseForwardedHeaders(
-    new ForwardedHeadersOptions { ForwardedHeaders = ForwardedHeaders.XForwardedFor }
-);
+// trusted proxy: loopback by default (the Next.js server on the same machine) plus any address
+// in ForwardedHeaders:KnownProxies. A header from anyone else is ignored, so a visitor cannot
+// pick their own rate-limit bucket. Only the last entry (added by the proxy) is used.
+var forwardedHeaders = new ForwardedHeadersOptions
+{
+    ForwardedHeaders = ForwardedHeaders.XForwardedFor,
+    ForwardLimit = 1,
+};
+
+foreach (
+    var proxy in builder.Configuration.GetSection("ForwardedHeaders:KnownProxies").Get<string[]>()
+        ?? []
+)
+{
+    forwardedHeaders.KnownProxies.Add(IPAddress.Parse(proxy));
+}
+
+app.UseForwardedHeaders(forwardedHeaders);
 
 app.UseHttpsRedirection();
 app.UseCors("AllowFrontend");
@@ -369,3 +382,6 @@ if (app.Environment.IsDevelopment())
 }
 
 app.Run();
+
+// Lets the integration tests start the API.
+public partial class Program { }

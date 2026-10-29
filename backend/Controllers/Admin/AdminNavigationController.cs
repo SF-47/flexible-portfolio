@@ -8,6 +8,8 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace backend.Controllers;
 
+// Admin reads and saves for the navbar, the footer links and the brand.
+// Everything under /api/admin requires the AdminOnly policy (see AdminAuthorization).
 [ApiController]
 [Route("api/admin")]
 public class AdminNavigationController : ControllerBase
@@ -30,41 +32,55 @@ public class AdminNavigationController : ControllerBase
     [HttpGet("navigation")]
     public async Task<IActionResult> GetNavigation()
     {
-        var navigation = await _navigation.GetAllAsync();
-        return Ok(navigation);
+        var items = await _navigation.GetAllAsync();
+
+        return Ok(items);
     }
 
     [HttpPut("navigation")]
     public async Task<IActionResult> UpdateNavigation([FromBody] UpdateNavigationRequest request)
     {
-        var navigation = await _navigation.ReplaceAsync(request);
-        return Ok(navigation);
+        var result = await _navigation.ReplaceAsync(request);
+
+        if (!result.Success)
+        {
+            return StatusCode(result.StatusCode, new { message = result.ErrorMessage });
+        }
+
+        return Ok(result.Data);
     }
 
     [HttpGet("social-links")]
     public async Task<IActionResult> GetSocialLinks()
     {
-        var socialLinks = await _socialLinks.GetAllAsync();
-        return Ok(socialLinks);
+        var links = await _socialLinks.GetAllAsync();
+
+        return Ok(links);
     }
 
     [HttpPut("social-links")]
     public async Task<IActionResult> UpdateSocialLinks([FromBody] UpdateSocialLinksRequest request)
     {
-        var socialLinks = await _socialLinks.ReplaceAsync(request);
-        return Ok(socialLinks);
+        var result = await _socialLinks.ReplaceAsync(request);
+
+        if (!result.Success)
+        {
+            return StatusCode(result.StatusCode, new { message = result.ErrorMessage });
+        }
+
+        return Ok(result.Data);
     }
 
     [HttpPut("site-settings")]
     public async Task<IActionResult> UpdateBrand([FromBody] UpdateBrandRequest request)
     {
-        var settings = await _siteSettings.UpdateBrandAsync(request);
+        var result = await _siteSettings.UpdateBrandAsync(request);
 
-        if (settings is null)
+        if (!result.Success)
         {
-            return NotFound(new { message = "Site settings have not been configured." });
+            return StatusCode(result.StatusCode, new { message = result.ErrorMessage });
         }
 
-        return Ok(settings);
+        return Ok(result.Data);
     }
 }

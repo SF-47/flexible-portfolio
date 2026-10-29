@@ -14,8 +14,7 @@ public interface IProjectService
     // Admin: every project with its full description and timestamp.
     Task<List<AdminProjectResponse>> GetAllAdminAsync();
 
-    // Admin: add, edit, reorder, feature and delete in one transaction. Throws
-    // ArgumentException (400) for invalid input and ConflictException (409) for stale data
-    // or a duplicate slug.
-    Task<List<AdminProjectResponse>> SaveAsync(UpdateProjectsRequest request);
+    // Admin: add, edit, reorder, feature and delete in one transaction. 400 for invalid input,
+    // 409 for stale data or a duplicate slug.
+    Task<ServiceResult<List<AdminProjectResponse>>> SaveAsync(UpdateProjectsRequest request);
 }

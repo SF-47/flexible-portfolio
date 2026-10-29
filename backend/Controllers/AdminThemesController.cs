@@ -18,21 +18,14 @@ public class AdminThemesController : ControllerBase
     [HttpPut("{id:int}")]
     public async Task<IActionResult> Update(int id, [FromBody] UpdateThemeRequest request)
     {
-        try
-        {
-            var theme = await _themeService.UpdateAsync(id, request);
+        var result = await _themeService.UpdateAsync(id, request);
 
-            if (theme is null)
-            {
-                return NotFound(new { message = "Theme not found." });
-            }
-
-            return Ok(theme);
-        }
-        catch (InvalidOperationException exception)
+        if (!result.Success)
         {
-            return Conflict(new { message = exception.Message });
+            return StatusCode(result.StatusCode, new { message = result.ErrorMessage });
         }
+
+        return Ok(result.Data);
     }
 
     [HttpPut("{id:int}/activate")]

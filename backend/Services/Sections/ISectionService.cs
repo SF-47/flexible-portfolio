@@ -9,19 +9,11 @@ public interface ISectionService
     Task<SectionResponse?> GetByIdAsync(Guid id);
     Task<bool> ReorderAsync(List<Guid> sectionIds);
     Task<bool> UpdateLayoutAsync(List<SectionLayoutItem> items);
-    Task<UpdateContentResult> UpdateContentAsync(Guid id, UpdateSectionContentRequest request);
-}
 
-public enum UpdateContentStatus
-{
-    Success,
-    NotFound,
-    Invalid,
-    Conflict,
+    // 404 when the section does not exist, 400 for invalid content, 409 when the section was
+    // changed after the admin loaded it.
+    Task<ServiceResult<UpdateSectionContentResponse>> UpdateContentAsync(
+        Guid id,
+        UpdateSectionContentRequest request
+    );
 }
-
-public record UpdateContentResult(
-    UpdateContentStatus Status,
-    string? Error = null,
-    UpdateSectionContentResponse? Saved = null
-);

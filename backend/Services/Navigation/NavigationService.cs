@@ -76,31 +76,60 @@ public class NavigationService : INavigationService
     // Saves visibility and order in one SaveChanges call (a single transaction). Existing
     // links keep their stored name and destination and are never deleted. A predefined
     // section without a link can be added; a section can only have one new link.
-    public async Task<List<AdminNavigationItemResponse>> ReplaceAsync(UpdateNavigationRequest request)
+    public async Task<ServiceResult<List<AdminNavigationItemResponse>>> ReplaceAsync(
+        UpdateNavigationRequest request
+    )
     {
-        var items = request.Items ?? throw new ArgumentException("Navigation links are required.");
+        if (request.Items is null)
+        {
+            return ServiceResult<List<AdminNavigationItemResponse>>.BadRequest(
+                "Navigation links are required."
+            );
+        }
+
+        var items = request.Items;
 
         var ids = items.Where(i => i.Id is not null).Select(i => i.Id!.Value).ToList();
 
         if (ids.Count != ids.Distinct().Count())
-            throw new ArgumentException("A navigation link was sent twice.");
+        {
+            return ServiceResult<List<AdminNavigationItemResponse>>.BadRequest(
+                "A navigation link was sent twice."
+            );
+        }
 
         var existing = await _context.NavigationItems.ToListAsync();
 
         if (ids.Any(id => existing.All(e => e.Id != id)))
-            throw new ArgumentException("A navigation link no longer exists. Reload the page.");
+        {
+            return ServiceResult<List<AdminNavigationItemResponse>>.Conflict(
+                "A navigation link no longer exists. Reload the page."
+            );
+        }
 
         if (existing.Any(e => !ids.Contains(e.Id)))
-            throw new ArgumentException("The navigation changed in the meantime. Reload the page.");
+        {
+            return ServiceResult<List<AdminNavigationItemResponse>>.Conflict(
+                "The navigation changed in the meantime. Reload the page."
+            );
+        }
 
         var added = items.Where(i => i.Id is null).ToList();
         var addedSectionIds = added.Select(i => i.SectionId).ToList();
 
         if (added.Any(i => i.SectionId is null))
-            throw new ArgumentException("Choose a website section for the new link.");
+        {
+            return ServiceResult<List<AdminNavigationItemResponse>>.BadRequest(
+                "Choose a website section for the new link."
+            );
+        }
 
         if (addedSectionIds.Count != addedSectionIds.Distinct().Count())
-            throw new ArgumentException("A website section can only be added once.");
+        {
+            return ServiceResult<List<AdminNavigationItemResponse>>.BadRequest(
+                "A website section can only be added once."
+            );
+        }
 
         var sections = await _context
             .Sections.Where(s => addedSectionIds.Contains(s.Id))
@@ -108,11 +137,22 @@ public class NavigationService : INavigationService
 
         foreach (var item in added)
         {
-            if (!sections.TryGetValue(item.SectionId!.Value, out var section) || !Labels.ContainsKey(section.Type))
-                throw new ArgumentException("A new link points to a section that does not exist.");
+            if (
+                !sections.TryGetValue(item.SectionId!.Value, out var section)
+                || !Labels.ContainsKey(section.Type)
+            )
+            {
+                return ServiceResult<List<AdminNavigationItemResponse>>.BadRequest(
+                    "A new link points to a section that does not exist."
+                );
+            }
 
             if (existing.Any(e => e.SectionId == section.Id))
-                throw new ArgumentException($"\"{Labels[section.Type]}\" is already in the menu.");
+            {
+                return ServiceResult<List<AdminNavigationItemResponse>>.BadRequest(
+                    $"\"{Labels[section.Type]}\" is already in the menu."
+                );
+            }
         }
 
         for (var index = 0; index < items.Count; index++)
@@ -144,6 +184,6 @@ public class NavigationService : INavigationService
 
         await _context.SaveChangesAsync();
 
-        return await GetAllAsync();
+        return ServiceResult<List<AdminNavigationItemResponse>>.Ok(await GetAllAsync());
     }
 }

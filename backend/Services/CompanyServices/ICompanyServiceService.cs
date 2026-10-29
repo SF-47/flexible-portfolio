@@ -9,7 +9,7 @@ public interface ICompanyServiceManager
     // Admin: every service, including inactive ones.
     Task<List<AdminServiceResponse>> GetAllAsync();
 
-    // Admin: add, edit, reorder, hide and delete in one transaction. Throws
-    // ArgumentException (400) for invalid input and ConflictException (409) for stale data.
-    Task<List<AdminServiceResponse>> SaveAsync(UpdateServicesRequest request);
+    // Admin: add, edit, reorder, hide and delete in one transaction. 400 for invalid input,
+    // 409 for stale data.
+    Task<ServiceResult<List<AdminServiceResponse>>> SaveAsync(UpdateServicesRequest request);
 }

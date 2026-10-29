@@ -2,9 +2,16 @@ import { NextResponse } from "next/server";
 import { adminFail, rejectCrossOrigin } from "@/lib/api/admin/http";
 import { axiosClient } from "@/lib/api/client";
 
-// The visitor's address as set by the reverse proxy in front of Next.js (none in development).
+// The visitor's address for the API's login rate limit. A browser can send any
+// X-Forwarded-For it likes, so the header is only used when TRUST_PROXY_HEADERS=true, which
+// the deployment sets when Next.js runs behind a reverse proxy that adds the real address.
+// That proxy appends it, so the LAST entry is the trustworthy one, never the first.
+// Without it nothing is forwarded and the API limits by the Next.js server's own address:
+// safe, but all visitors then share one login limit.
 function clientIpHeader(request: Request) {
-  const ip = request.headers.get("x-forwarded-for")?.split(",")[0].trim();
+  if (process.env.TRUST_PROXY_HEADERS !== "true") return {};
+
+  const ip = request.headers.get("x-forwarded-for")?.split(",").at(-1)?.trim();
 
   return ip ? { "X-Forwarded-For": ip } : {};
 }
@@ -48,8 +55,7 @@ export async function POST(request: Request) {
       },
       {
         validateStatus: () => true,
-        // Lets the API rate-limit per visitor instead of per Next.js server. Only the
-        // first (client) address is sent, and the API trusts it from loopback only.
+        // The API only trusts this header from its configured proxies (loopback by default).
         headers: clientIpHeader(request),
       },
     );

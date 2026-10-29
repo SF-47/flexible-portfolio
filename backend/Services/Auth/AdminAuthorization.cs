@@ -34,7 +34,9 @@ public sealed class AdminRouteAuthorizationConvention : IApplicationModelConvent
         foreach (var selector in action.Selectors)
         {
             if (!Templates(controller, selector).Any(AdminAuthorization.IsAdminTemplate))
+            {
                 continue;
+            }
 
             // An admin endpoint must never be made public by a stray attribute.
             if (
@@ -61,8 +63,8 @@ public sealed class AdminRouteAuthorizationConvention : IApplicationModelConvent
         foreach (var controllerRoute in controllerRoutes)
         {
             yield return AttributeRouteModel
-                    .CombineAttributeRouteModel(controllerRoute, selector.AttributeRouteModel)
-                    ?.Template
+                .CombineAttributeRouteModel(controllerRoute, selector.AttributeRouteModel)
+                ?.Template
                 ?? string.Empty;
         }
     }

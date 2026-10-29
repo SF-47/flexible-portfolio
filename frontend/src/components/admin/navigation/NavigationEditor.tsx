@@ -155,6 +155,9 @@ export default function NavigationEditor({
     const area = "Social links";
     const result = await putJson("/api/admin/social-links", {
       items: socialPayload(socialRows),
+      loadedIds: savedSocialRows.flatMap((row) =>
+        row.id === null ? [] : [row.id],
+      ),
     });
 
     if (!result.ok) return { area, ok: false, message: result.message };

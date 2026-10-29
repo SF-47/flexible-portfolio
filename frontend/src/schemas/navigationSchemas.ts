@@ -48,8 +48,11 @@ export const SocialLinkSchema = z.object({
   isVisible: z.boolean(),
 });
 
+// loadedIds are the links the page was showing; the API refuses the save (409) if the saved
+// list is different, so a stale tab cannot delete links another administrator added.
 export const UpdateSocialLinksSchema = z.object({
   items: z.array(SocialLinkSchema).max(12),
+  loadedIds: z.array(z.number().int()).max(100),
 });
 
 export const UpdateBrandSchema = z.object({
