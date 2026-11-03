@@ -13,8 +13,8 @@ Browser ──► Next.js (website + admin BFF) ──► ASP.NET Core API ─�
 | --- | --- |
 | `backend/` | ASP.NET Core 10 API: Controller → Service → EF Core → MySQL |
 | `frontend/` | Next.js 16 (React 19, Tailwind 4, Zod, Axios) |
-| `tests/Portfolio.Tests/` | xUnit tests (in-memory SQLite, never the real database) |
-| `PROJECT_STRUCTURE_AUDIT.md` | Authentication, authorization, CSRF and deployment notes |
+| [`API.md`](API.md) | Every endpoint: method, auth, request/response shape, status codes |
+| [`PROJECT_STRUCTURE_AUDIT.md`](PROJECT_STRUCTURE_AUDIT.md) | Authentication, authorization, CSRF and deployment notes |
 
 ## Requirements
 
@@ -67,13 +67,21 @@ npm install
 npm run dev        # http://localhost:3000, admin at /admin
 ```
 
+## API documentation
+
+See [`API.md`](API.md) for the full endpoint reference (public content API, auth, admin
+CRUD, the 15 section content shapes, error format and rate limits). A generated OpenAPI
+document is also served at `/openapi/v1.json` while the API runs in Development.
+
 ## Checks
 
 ```bash
 cd backend && dotnet build
-dotnet test tests/Portfolio.Tests
 cd frontend && npx tsc --noEmit && npx eslint . && npm run build
 ```
+
+There is currently no automated test suite — `dotnet build`, `tsc` and `eslint` are the only
+checks. Testing is manual: run both apps and exercise the admin dashboard and public site.
 
 ## Notes for the deployment team
 
