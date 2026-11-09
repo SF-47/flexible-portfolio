@@ -23,7 +23,7 @@ machine-readable schema or want to import it into Postman/Insomnia.
 - **Admin routes** (`/api/admin/**`, `/api/auth/**` except login): every non-GET request is
   rejected with `403` if its `Origin` header isn't in `Cors:AllowedOrigins` — only the Next.js
   server, which sends no `Origin`, or a listed browser origin, may write. See
-  [PROJECT_STRUCTURE_AUDIT.md](PROJECT_STRUCTURE_AUDIT.md) for the full auth/CSRF design.
+  [Authentication and Authorization](README.md#authentication-and-authorization) in the README.
 - All `/api/admin/**` endpoints require the `Admin` role regardless of what's documented per
   route — this is enforced by a route convention and verified at startup
   (`AdminEndpointAudit.Verify`), so it can't be forgotten on a new controller.
@@ -104,7 +104,7 @@ refresh/registration/password-reset endpoint — admins are created with `dotnet
 Every route below is under `/api/admin` (or `/api/auth`) and requires the `portfolio_admin`
 cookie with the `Admin` role (`401` without a cookie, `403` with one that isn't an admin's).
 Writes additionally require a same-origin `Origin` header, which the Next.js BFF supplies
-automatically — see [PROJECT_STRUCTURE_AUDIT.md](PROJECT_STRUCTURE_AUDIT.md).
+automatically — see [Authentication and Authorization](README.md#authentication-and-authorization).
 
 ### Dashboard
 
